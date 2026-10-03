@@ -16,7 +16,7 @@ export async function passcodeSignIn(formData: FormData) {
   try {
     await signIn("passcode", { email: formData.get("email"), passcode: formData.get("passcode"), redirectTo: "/today" });
   } catch (e) {
-    if (e instanceof AuthError) redirect("/signin?error=passcode");
+    if (e instanceof AuthError) redirect(e.type === "CredentialsSignin" ? "/signin?error=passcode" : "/signin?error=1");
     throw e;
   }
 }

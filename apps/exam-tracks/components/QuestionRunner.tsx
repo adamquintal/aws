@@ -91,14 +91,24 @@ export function QuestionRunner({ initial }: { initial: SessionPayload }) {
       <div className="card space-y-4">
         <h1 ref={headingRef} tabIndex={-1} className="text-lg font-medium leading-snug outline-none"><InlineCode text={q.stem} /></h1>
         {q.code && <Code code={q.code} lang={q.codeLang} />}
-        {multi && <p className="text-sm text-muted">Select all that apply.</p>}
+        {multi && <p className="text-sm font-medium text-accent">More than one answer is correct. Select all that apply, then tap Check answer.</p>}
 
         <fieldset className="space-y-2" disabled={!!feedback || pending}>
           <legend className="sr-only">Answer options</legend>
           {q.options.map((o, idx) => {
             const isSel = selected.includes(o.id);
             const isRight = feedback?.correctIds.includes(o.id);
-            const state = !feedback ? (isSel ? "border-accent bg-bg" : "") : isRight ? "border-good" : isSel ? "border-gentle" : "opacity-80";
+            // Exactly one border/background class per state, so selection is always visible (no class conflicts).
+            const state = !feedback
+              ? isSel
+                ? "border-2 border-accent bg-accent/10"
+                : "border border-border bg-surface [@media(hover:hover)]:hover:border-accent"
+              : isRight
+                ? "border-2 border-good bg-surface"
+                : isSel
+                  ? "border-2 border-gentle bg-surface"
+                  : "border border-border bg-surface opacity-80";
+            const mark = multi ? (isSel ? "☑" : "☐") : isSel ? "◉" : "○";
             return (
               <div key={o.id}>
                 <button
@@ -107,9 +117,10 @@ export function QuestionRunner({ initial }: { initial: SessionPayload }) {
                   aria-checked={multi ? isSel : undefined}
                   aria-pressed={!multi ? isSel : undefined}
                   onClick={() => toggle(o.id)}
-                  className={`w-full rounded-xl border border-border bg-surface p-3 text-left transition-colors hover:border-accent ${state}`}
+                  className={`flex w-full items-start gap-2 rounded-xl p-3 text-left transition-colors ${state}`}
                 >
-                  <span className="mr-2 font-mono text-muted">{String.fromCharCode(65 + idx)}.</span>
+                  <span aria-hidden className={`text-lg leading-6 ${isSel ? "text-accent" : "text-muted"}`}>{mark}</span>
+                  <span className="font-mono leading-6 text-muted">{String.fromCharCode(65 + idx)}.</span>
                   <span className="whitespace-pre-wrap"><InlineCode text={o.text} /></span>
                   {feedback && isRight && <span className="ml-2 text-sm text-good">✓ correct</span>}
                 </button>
@@ -123,7 +134,7 @@ export function QuestionRunner({ initial }: { initial: SessionPayload }) {
 
         {!feedback && (
           <div className="flex flex-wrap gap-3">
-            {multi && <button className="btn-primary" onClick={() => submit(selected)} disabled={!selected.length || pending}>Check answer</button>}
+            {multi && <button className="btn-primary" onClick={() => submit(selected)} disabled={!selected.length || pending}>Check answer{selected.length ? ` (${selected.length} selected)` : ""}</button>}
             {!hintShown ? (
               <button className="btn-ghost" onClick={() => setHintShown(true)}>I'm stuck</button>
             ) : (
