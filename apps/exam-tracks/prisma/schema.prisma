@@ -1,0 +1,237 @@
+// Progress lives here; content lives in /content (git). Rows reference
+// content by stable string ids plus the content version they were answered on.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  LEARNER
+  REVIEWER
+  ADMIN
+}
+
+enum ReviewStatus {
+  draft
+  source_checked
+  human_verified
+}
+
+enum FlagStatus {
+  open
+  resolved
+  dismissed
+}
+
+// ---------- Auth.js ----------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(LEARNER)
+  timezone      String    @default("UTC")
+  createdAt     DateTime  @default(now())
+
+  accounts        Account[]
+  sessions        Session[]
+  enrollments     Enrollment[]
+  attempts        Attempt[]
+  topicProgress   TopicProgress[]
+  reviewCards     ReviewCard[]
+  studyDays       StudyDay[]
+  explainBacks    ExplainBack[]
+  flags           Flag[]
+  reviewDecisions ReviewDecision[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// ---------- Learning ----------
+
+model Enrollment {
+  id        String    @id @default(cuid())
+  userId    String
+  trackId   String
+  examDate  DateTime?
+  startedAt DateTime  @default(now())
+  active    Boolean   @default(true)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, trackId])
+}
+
+model Attempt {
+  id              String   @id @default(cuid())
+  userId          String
+  trackId         String
+  topicId         String
+  domainId        String
+  questionId      String
+  questionVersion Int
+  selected        String[]
+  correct         Boolean
+  hintUsed        Boolean  @default(false)
+  firstAttempt    Boolean  // first time this user ever answered this question
+  context         String   // "learn" | "review" | "warmup" | "mock"
+  durationMs      Int      @default(0)
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, trackId, createdAt])
+  @@index([questionId])
+}
+
+model TopicProgress {
+  userId          String
+  trackId         String
+  topicId         String
+  run             Int       @default(0) // consecutive correct, no hints
+  bestRun         Int       @default(0)
+  gateReachedAt   DateTime? // run hit the target; waiting on explain-it-back
+  masteredAt      DateTime?
+  lessonViewedAt  DateTime?
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, trackId, topicId])
+}
+
+model ExplainBack {
+  id         String   @id @default(cuid())
+  userId     String
+  trackId    String
+  topicId    String
+  text       String
+  selfRating String   // "matches" | "partly" | "missed"
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, trackId, topicId])
+}
+
+// One spaced-repetition card per user/question. `state` is scheduler-specific
+// JSON so Leitner can be swapped for SM-2 without a migration.
+model ReviewCard {
+  userId     String
+  trackId    String
+  questionId String
+  topicId    String
+  scheduler  String   @default("leitner")
+  state      Json
+  dueAt      DateTime
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, trackId, questionId])
+  @@index([userId, trackId, dueAt])
+}
+
+model StudyDay {
+  userId    String
+  trackId   String
+  day       String // YYYY-MM-DD in the user's timezone
+  answered  Int    @default(0)
+  correct   Int    @default(0)
+  activeMs  Int    @default(0)
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, trackId, day])
+}
+
+model ReadinessSnapshot {
+  userId    String
+  trackId   String
+  day       String
+  score     Float
+  byDomain  Json
+  createdAt DateTime @default(now())
+
+  @@id([userId, trackId, day])
+}
+
+// ---------- Content quality & review ----------
+
+// Immutable copy of each content item version, synced from /content on seed/deploy.
+// Powers version diffs in the admin review screen.
+model ContentSnapshot {
+  itemId    String
+  version   Int
+  kind      String // "lesson" | "question"
+  trackId   String
+  hash      String
+  body      Json
+  createdAt DateTime @default(now())
+
+  @@id([itemId, version])
+}
+
+// A reviewer's decision on a specific item version. `npm run content:apply-reviews`
+// writes approved decisions back into the content files for commit.
+model ReviewDecision {
+  id         String       @id @default(cuid())
+  itemId     String
+  version    Int
+  status     ReviewStatus
+  note       String?
+  reviewerId String
+  appliedAt  DateTime?
+  createdAt  DateTime     @default(now())
+  reviewer   User         @relation(fields: [reviewerId], references: [id])
+
+  @@index([itemId, version])
+}
+
+model Flag {
+  id              String     @id @default(cuid())
+  userId          String?
+  questionId      String
+  questionVersion Int
+  reason          String     // "wrong_answer" | "unclear" | "outdated" | "typo" | "other"
+  message         String?
+  status          FlagStatus @default(open)
+  createdAt       DateTime   @default(now())
+  user            User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([questionId])
+}

@@ -1,0 +1,681 @@
+[
+  {
+    "id": "ag-by",
+    "type": "single",
+    "stem": "http_requests_total has labels job, instance, method and code. What labels does the result of sum by (job) (rate(http_requests_total[5m])) have?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Only job",
+        "correct": true,
+        "note": "Right. by keeps only the listed labels."
+      },
+      {
+        "id": "b",
+        "text": "job, method and code",
+        "correct": false,
+        "note": "That would be without (instance). by keeps only what you list."
+      },
+      {
+        "id": "c",
+        "text": "No labels",
+        "correct": false,
+        "note": "With by (job), the job label is preserved."
+      },
+      {
+        "id": "d",
+        "text": "All four original labels",
+        "correct": false,
+        "note": "Aggregation always removes some dimensions. Here everything except job goes."
+      }
+    ],
+    "explanation": "by drops labels that aren't listed in the by clause. without does the opposite and removes only the listed labels.",
+    "hint": "by is a whitelist.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "by",
+      "sum",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators",
+        "title": "Operators › Aggregation operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-without",
+    "type": "single",
+    "stem": "Same metric (labels job, instance, method, code). What labels does sum without (instance) (rate(http_requests_total[5m])) keep?",
+    "options": [
+      {
+        "id": "a",
+        "text": "job, method and code",
+        "correct": true,
+        "note": "Right. without removes only the listed label and keeps the rest."
+      },
+      {
+        "id": "b",
+        "text": "Only instance",
+        "correct": false,
+        "note": "Reversed. without removes instance."
+      },
+      {
+        "id": "c",
+        "text": "Only job",
+        "correct": false,
+        "note": "That's what by (job) would give."
+      },
+      {
+        "id": "d",
+        "text": "No labels",
+        "correct": false,
+        "note": "Only instance is removed."
+      }
+    ],
+    "explanation": "without removes the listed labels from the result, while all other labels are preserved.",
+    "hint": "without is a blacklist.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "without",
+      "sum"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators",
+        "title": "Operators › Aggregation operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-equivalent",
+    "type": "single",
+    "stem": "memory_consumption_bytes fans out by application, instance and group. Which expression is equivalent to sum without (instance) (memory_consumption_bytes)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "sum by (application, group) (memory_consumption_bytes)",
+        "correct": true,
+        "note": "Right. Removing instance leaves application and group, which is exactly what by (application, group) keeps."
+      },
+      {
+        "id": "b",
+        "text": "sum by (instance) (memory_consumption_bytes)",
+        "correct": false,
+        "note": "That keeps instance, the opposite."
+      },
+      {
+        "id": "c",
+        "text": "sum(memory_consumption_bytes)",
+        "correct": false,
+        "note": "That collapses everything to a single series."
+      },
+      {
+        "id": "d",
+        "text": "sum without (application, group) (memory_consumption_bytes)",
+        "correct": false,
+        "note": "That keeps only instance."
+      }
+    ],
+    "explanation": "From the docs' sum example: sum without (instance) (memory_consumption_bytes) is equivalent to sum by (application, group) (memory_consumption_bytes).",
+    "hint": "List what's left after removing instance.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "by",
+      "without",
+      "sum"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators",
+        "title": "Operators › Aggregation operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-no-clause",
+    "type": "single",
+    "stem": "What does sum(memory_consumption_bytes) return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A single series with no labels: the total across all series",
+        "correct": true,
+        "note": "Right. Without by or without, aggregation runs over all label dimensions."
+      },
+      {
+        "id": "b",
+        "text": "One series per instance",
+        "correct": false,
+        "note": "You'd need by (instance) for that."
+      },
+      {
+        "id": "c",
+        "text": "The same series, unchanged",
+        "correct": false,
+        "note": "sum always combines series."
+      },
+      {
+        "id": "d",
+        "text": "An error, because a by clause is required",
+        "correct": false,
+        "note": "by and without are optional."
+      }
+    ],
+    "explanation": "Aggregation operators can aggregate over all label dimensions, or preserve distinct dimensions with a without or by clause. With neither, everything is combined.",
+    "hint": "No grouping means one group.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "sum"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators",
+        "title": "Operators › Aggregation operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-clause-position",
+    "type": "multi",
+    "stem": "Which of these are valid and equivalent? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "sum by (job) (rate(http_requests_total[5m]))",
+        "correct": true,
+        "note": "Right. The clause before the expression."
+      },
+      {
+        "id": "b",
+        "text": "sum(rate(http_requests_total[5m])) by (job)",
+        "correct": true,
+        "note": "Right. The clause after the expression is also valid."
+      },
+      {
+        "id": "c",
+        "text": "sum(rate(http_requests_total[5m]) by (job))",
+        "correct": false,
+        "note": "The clause can't go inside the parentheses, attached to the argument."
+      },
+      {
+        "id": "d",
+        "text": "by (job) sum(rate(http_requests_total[5m]))",
+        "correct": false,
+        "note": "The clause comes after the operator name or after the expression, never before the operator."
+      }
+    ],
+    "explanation": "The without or by clause may be used before or after the expression: <aggr-op> [by|without (labels)] (expr) or <aggr-op>(expr) [by|without (labels)].",
+    "hint": "Two positions are allowed.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "by",
+      "sum"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators",
+        "title": "Operators › Aggregation operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-rate-first",
+    "type": "single",
+    "stem": "You need the total per-second request rate per job. Which expression follows the docs' guidance?",
+    "options": [
+      {
+        "id": "a",
+        "text": "sum by (job) (rate(http_requests_total[5m]))",
+        "correct": true,
+        "note": "Right. rate first, so each series' counter resets are handled, then sum."
+      },
+      {
+        "id": "b",
+        "text": "rate(sum by (job) (http_requests_total)[5m:])",
+        "correct": false,
+        "note": "Summing raw counters first hides each series' resets, so rate can't detect them."
+      },
+      {
+        "id": "c",
+        "text": "sum by (job) (http_requests_total)",
+        "correct": false,
+        "note": "That's the sum of raw counters, not a rate."
+      },
+      {
+        "id": "d",
+        "text": "sum by (job) (irate(http_requests_total))",
+        "correct": false,
+        "note": "irate needs a range vector, and the docs recommend rate for this kind of total."
+      }
+    ],
+    "explanation": "When combining rate() with an aggregation operator, always take rate() first, then aggregate. Otherwise rate() can't detect counter resets.",
+    "hint": "Which order preserves reset detection?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "rate",
+      "sum",
+      "counter reset",
+      "subquery"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#rate",
+        "title": "Functions › rate()"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/examples/#using-functions-operators-etc",
+        "title": "Query examples › Using functions, operators, etc."
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-topk",
+    "type": "single",
+    "stem": "What does topk(5, memory_consumption_bytes) return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The 5 series with the highest values, with their original labels",
+        "correct": true,
+        "note": "Right. topk returns a subset of the input series, labels intact."
+      },
+      {
+        "id": "b",
+        "text": "A single series whose value is the sum of the top 5",
+        "correct": false,
+        "note": "topk doesn't combine values. It selects series."
+      },
+      {
+        "id": "c",
+        "text": "The top 5 values with all labels removed",
+        "correct": false,
+        "note": "Original labels are kept."
+      },
+      {
+        "id": "d",
+        "text": "The 5th highest value only",
+        "correct": false,
+        "note": "It returns all of the top k series."
+      }
+    ],
+    "explanation": "topk and bottomk differ from other aggregators: they return a subset of k values from the input samples, including the original labels.",
+    "hint": "It's a filter, not a calculation.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "topk"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#topk-and-bottomk",
+        "title": "Operators › topk and bottomk"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-topk-by",
+    "type": "single",
+    "stem": "In topk(3, sum by (app, proc) (rate(instance_cpu_time_ns[5m]))), what is returned?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The 3 app/proc combinations using the most CPU",
+        "correct": true,
+        "note": "Right. The inner sum gives one series per app/proc, and topk picks the top 3 of those."
+      },
+      {
+        "id": "b",
+        "text": "The top 3 instances within each app",
+        "correct": false,
+        "note": "topk here isn't grouped. It applies to the summed series overall."
+      },
+      {
+        "id": "c",
+        "text": "The total CPU of the top 3 apps added together",
+        "correct": false,
+        "note": "topk returns series. It doesn't add them."
+      },
+      {
+        "id": "d",
+        "text": "All series, sorted by CPU",
+        "correct": false,
+        "note": "Only 3 are returned."
+      }
+    ],
+    "explanation": "This is the docs' example for getting the top 3 CPU users grouped by application and process type.",
+    "hint": "Work from the inside out.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "topk",
+      "sum",
+      "rate",
+      "by"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/examples/#using-functions-operators-etc",
+        "title": "Query examples › Using functions, operators, etc."
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-topk-by-meaning",
+    "type": "single",
+    "stem": "In topk by (job) (2, x), what role does by (job) play?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It defines groups: you get the top 2 series within each job, with original labels",
+        "correct": true,
+        "note": "Right. For topk and bottomk, by and without only bucket the input."
+      },
+      {
+        "id": "b",
+        "text": "It removes every label except job from the output",
+        "correct": false,
+        "note": "That's what by does for sum or avg. topk keeps the original labels."
+      },
+      {
+        "id": "c",
+        "text": "It sorts the result by job name",
+        "correct": false,
+        "note": "It groups. It doesn't define sort order."
+      },
+      {
+        "id": "d",
+        "text": "It's invalid, because topk doesn't accept by",
+        "correct": false,
+        "note": "topk accepts by and without."
+      }
+    ],
+    "explanation": "For topk and bottomk, by and without are only used to bucket the input vector. The returned series keep their labels.",
+    "hint": "topk is different from other aggregators.",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "topk",
+      "by"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#topk-and-bottomk",
+        "title": "Operators › topk and bottomk"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-count",
+    "type": "single",
+    "stem": "Assuming one series per running instance, how do you count running instances per application?",
+    "options": [
+      {
+        "id": "a",
+        "text": "count by (app) (instance_cpu_time_ns)",
+        "correct": true,
+        "note": "Right. count counts the series in each app group."
+      },
+      {
+        "id": "b",
+        "text": "sum by (app) (instance_cpu_time_ns)",
+        "correct": false,
+        "note": "That adds up CPU time values. It doesn't count instances."
+      },
+      {
+        "id": "c",
+        "text": "count_values(\"app\", instance_cpu_time_ns)",
+        "correct": false,
+        "note": "count_values groups by sample value, not by an existing label."
+      },
+      {
+        "id": "d",
+        "text": "count_over_time(instance_cpu_time_ns[5m])",
+        "correct": false,
+        "note": "That counts samples over time per series, not series per app."
+      }
+    ],
+    "explanation": "count(v) counts the number of elements in the vector. The examples page uses count by (app) (instance_cpu_time_ns) for exactly this.",
+    "hint": "You want the number of series, not their values.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "count",
+      "by"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/examples/#using-functions-operators-etc",
+        "title": "Query examples › Using functions, operators, etc."
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators",
+        "title": "Operators › Aggregation operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-count-values",
+    "type": "single",
+    "stem": "What does count_values(\"version\", build_version) produce?",
+    "options": [
+      {
+        "id": "a",
+        "text": "One series per distinct value of build_version, labelled version=<value>, counting how many series had that value",
+        "correct": true,
+        "note": "Right. That's the docs' example for counting binaries per build version."
+      },
+      {
+        "id": "b",
+        "text": "The number of distinct label values called version",
+        "correct": false,
+        "note": "It looks at sample values, not existing label values."
+      },
+      {
+        "id": "c",
+        "text": "The sum of all build_version values",
+        "correct": false,
+        "note": "It counts. It doesn't sum."
+      },
+      {
+        "id": "d",
+        "text": "The most common version only",
+        "correct": false,
+        "note": "It returns a series for every distinct value."
+      }
+    ],
+    "explanation": "count_values(l, v) outputs one series per unique sample value in v. Each has an additional label l whose value is that sample value, and its value is how many times it occurred.",
+    "hint": "The values become labels.",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "count_values"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#count_values",
+        "title": "Operators › count_values"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-quantile-vs-over-time",
+    "type": "single",
+    "stem": "What's the difference between quantile(0.9, x) and quantile_over_time(0.9, x[1h])?",
+    "options": [
+      {
+        "id": "a",
+        "text": "quantile works across series at one instant; quantile_over_time works across one series' samples over time",
+        "correct": true,
+        "note": "Right. Aggregation operators work across dimensions; _over_time functions work across time."
+      },
+      {
+        "id": "b",
+        "text": "They're identical",
+        "correct": false,
+        "note": "They aggregate along different axes."
+      },
+      {
+        "id": "c",
+        "text": "quantile works over time; quantile_over_time works across series",
+        "correct": false,
+        "note": "Reversed."
+      },
+      {
+        "id": "d",
+        "text": "quantile is only for histograms",
+        "correct": false,
+        "note": "quantile is a general aggregation operator over float samples."
+      }
+    ],
+    "explanation": "quantile(φ, v) calculates the φ-quantile over dimensions, across series. quantile_over_time calculates it over the samples in each series' window.",
+    "hint": "One works across the spreadsheet's rows, the other down its time axis.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "aggregation"
+    ],
+    "uses": [
+      "quantile operator",
+      "quantile_over_time"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators",
+        "title": "Operators › Aggregation operators"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time",
+        "title": "Functions › <aggregation>_over_time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ag-prefer-without",
+    "type": "single",
+    "stem": "When writing recording rules that aggregate, which clause does the best-practices guide recommend, and why?",
+    "options": [
+      {
+        "id": "a",
+        "text": "without, listing the labels you're removing, so other useful labels such as job are kept",
+        "correct": true,
+        "note": "Right. That avoids conflicts and gives more useful metrics and alerts."
+      },
+      {
+        "id": "b",
+        "text": "by, listing only job, so results stay small",
+        "correct": false,
+        "note": "The guide recommends without, to preserve other labels."
+      },
+      {
+        "id": "c",
+        "text": "Neither. Always aggregate to a single series",
+        "correct": false,
+        "note": "That throws away useful dimensions."
+      },
+      {
+        "id": "d",
+        "text": "by (instance), to keep per-target detail",
+        "correct": false,
+        "note": "That isn't the guide's advice."
+      }
+    ],
+    "explanation": "Always specify a without clause with the labels you're aggregating away. This preserves all other labels such as job, which avoids conflicts and gives more useful metrics and alerts.",
+    "hint": "Which clause automatically keeps labels you didn't think about?",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "aggregation",
+      "best-practice"
+    ],
+    "uses": [
+      "without",
+      "recording rule"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/rules/#aggregation",
+        "title": "Recording rules › Aggregation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

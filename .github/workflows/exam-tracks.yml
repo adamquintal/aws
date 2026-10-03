@@ -1,0 +1,46 @@
+name: exam-tracks
+
+on:
+  push:
+    paths: ["apps/exam-tracks/**", ".github/workflows/exam-tracks.yml"]
+  pull_request:
+    paths: ["apps/exam-tracks/**", ".github/workflows/exam-tracks.yml"]
+
+defaults:
+  run:
+    working-directory: apps/exam-tracks
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: exam
+          POSTGRES_PASSWORD: exam
+          POSTGRES_DB: exam_tracks
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U exam" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://exam:exam@localhost:5432/exam_tracks
+      AUTH_SECRET: ci-only-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/exam-tracks/package-lock.json
+      - run: npm ci
+      - name: Validate content (sources, correct answers, option notes, term order)
+        run: npm run content:validate
+      - run: npx prisma generate
+      - run: npm run typecheck
+      - name: Learning engine and content tests
+        run: npm test
+      - run: npx prisma migrate deploy
+      - name: Seed (content snapshots)
+        run: npm run db:seed
+      - run: npm run build

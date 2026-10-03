@@ -1,0 +1,77 @@
+---
+id: obs-push-pull
+title: Push vs pull, and the Pushgateway
+summary: Prometheus pulls metrics from targets over HTTP. Pushing is possible through the Pushgateway, but only for a narrow set of cases, mainly service-level batch jobs.
+analogy: "Pull is a teacher taking the register: they call each name and immediately notice who's missing. Push is students dropping notes in a box when they feel like it. You can't easily tell if a quiet student is absent or just has nothing to say, and the box keeps old notes forever unless someone clears it out."
+keyPoints:
+  - Prometheus collects metrics with a pull model over HTTP. Pushing is supported only through an intermediary, the Pushgateway.
+  - "Benefits of pull from the FAQ: you can easily run extra Prometheus instances (even on a laptop), tell more reliably when a target is down, and inspect a target in a browser."
+  - The docs call pull only "slightly better" than push. It shouldn't be a major factor in choosing a monitoring system.
+  - Every scrape generates an up metric (1 if the scrape succeeded, 0 if it failed), which gives you free health monitoring.
+  - "Pushgateway pitfalls: it becomes a single point of failure and a bottleneck, you lose the per-target up metric, and it never forgets pushed series unless they're deleted through its API."
+  - The usual valid use for the Pushgateway is capturing the outcome of a service-level batch job, one not tied to a particular machine or instance.
+  - Behind a firewall or NAT, run Prometheus inside the network, or use PushProx.
+  - Machine-level batch jobs, such as cron jobs on a host, should use the Node Exporter textfile collector rather than the Pushgateway.
+commonTrap: Treating the Pushgateway as a general way to "push instead of pull" for long-running services. It has no idea when a pusher dies, so stale metrics hang around forever. You also lose the up metric, and the gateway becomes a single point of failure. It's meant for service-level batch jobs.
+explainBack:
+  prompt: Why does Prometheus prefer pulling metrics, and when is the Pushgateway the right tool?
+  modelAnswer: With pull, Prometheus decides when to collect. It can tell immediately when a target is down, because the scrape fails and up becomes 0. You can run extra Prometheus servers or check a target in a browser. The Pushgateway is for jobs that can't be scraped, mainly short-lived service-level batch jobs that finish before a scrape would happen. Using it for regular services is a mistake, because it's a single point of failure, loses the up health signal, and keeps pushed metrics forever until you delete them.
+introduces: [pull, push, up, batch job, service-level batch job, pushprox, textfile collector]
+sources:
+  - url: https://prometheus.io/docs/introduction/faq/#why-do-you-pull-rather-than-push
+    title: FAQ › Why do you pull rather than push?
+    readFrom: github.com/prometheus/docs@605cf81 docs/introduction/faq.md
+  - url: https://prometheus.io/docs/practices/pushing/
+    title: Best practices › When to use the Pushgateway
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/pushing.md
+  - url: https://prometheus.io/docs/instrumenting/pushing/
+    title: Instrumenting › Pushing metrics
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/pushing.md
+  - url: https://prometheus.io/docs/concepts/jobs_instances/#automatically-generated-labels-and-time-series
+    title: Jobs and instances › Automatically generated labels and time series
+    readFrom: github.com/prometheus/docs@605cf81 docs/concepts/jobs_instances.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Pull is the default
+
+Prometheus **pulls** metrics. On a schedule, the server makes an HTTP request to each target and reads the current values. Targets don't need to know where Prometheus is, or even that it exists.
+
+The FAQ lists the advantages of pulling over HTTP:
+
+- **You can start extra monitoring instances freely**, for example on your laptop while developing a change, without reconfiguring anything.
+- **You can tell more easily and reliably that a target is down.** If the scrape fails, Prometheus knows.
+- **You can inspect a target by hand**: open its `/metrics` page in a browser.
+
+The FAQ is also refreshingly modest. It says pulling is only *slightly* better than pushing, and that it shouldn't be a major point when choosing a monitoring system.
+
+## The `up` metric: health checks for free
+
+Every scrape produces a sample in a synthetic series:
+
+```text
+up{job="<job-name>", instance="<instance-id>"}   1 if the scrape succeeded, 0 if it failed
+```
+
+Because Prometheus initiates every scrape, it always knows whether a target answered. `up == 0` is one of the most common alert conditions you'll meet.
+
+## Pushing: the Pushgateway
+
+Some things can't be scraped. A **batch job** might run for 20 seconds and exit long before Prometheus would come by. For these, Prometheus offers the **Pushgateway**, an intermediary service. The job pushes its metrics there, and Prometheus scrapes the Pushgateway like any other target.
+
+The best-practices page is blunt: the Pushgateway is recommended **only in certain limited cases**, because using it as a general push mechanism has real costs:
+
+1. **Single point of failure and bottleneck.** Many instances funnel through one gateway.
+2. **You lose `up`.** Prometheus scrapes the gateway, not your job, so it can't tell whether your job is healthy.
+3. **It never forgets.** Pushed series stay exposed forever until someone deletes them through the Pushgateway's API, even after the instance that pushed them is renamed or removed. With pull, a target's metrics vanish along with the target.
+
+**The usual valid use case is capturing the outcome of a service-level batch job.** That's a job not tied to a specific machine or instance, such as "delete inactive users across the whole service". Its metrics shouldn't carry a machine or instance label.
+
+## Alternatives
+
+- **A firewall or NAT blocks scraping?** Run Prometheus on the same network as the targets, which the docs generally recommend anyway, or use **PushProx** to traverse the barrier.
+- **Batch job tied to one machine** (for example a cron job doing security updates)? Write its results to a file for the **Node Exporter textfile collector** instead of using the Pushgateway.
+
+The text exposition format is simple enough that even a shell script can push metrics to the Pushgateway without a client library.

@@ -1,0 +1,513 @@
+[
+  {
+    "id": "pp-model",
+    "type": "single",
+    "stem": "How does Prometheus normally collect metrics from targets?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It pulls them over HTTP on a schedule",
+        "correct": true,
+        "note": "Right. Collection happens through a pull model over HTTP."
+      },
+      {
+        "id": "b",
+        "text": "Targets push metrics to the Prometheus server",
+        "correct": false,
+        "note": "Pushing is only supported through an intermediary, the Pushgateway, and only for limited cases."
+      },
+      {
+        "id": "c",
+        "text": "It reads targets' log files",
+        "correct": false,
+        "note": "Prometheus is a metrics system. It doesn't read logs."
+      },
+      {
+        "id": "d",
+        "text": "Through a message queue such as Kafka",
+        "correct": false,
+        "note": "There's no message queue in the standard collection path."
+      }
+    ],
+    "explanation": "Prometheus features include time series collection via a pull model over HTTP, with pushing supported via an intermediary gateway.",
+    "hint": "The server initiates the request.",
+    "difficulty": 1,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "pull",
+      "scrape"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/#features",
+        "title": "Overview › Features"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#why-do-you-pull-rather-than-push",
+        "title": "FAQ › Why do you pull rather than push?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-advantages",
+    "type": "multi",
+    "stem": "Which are advantages of pulling that the Prometheus FAQ lists? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "You can start extra monitoring instances as needed, for example on a laptop",
+        "correct": true,
+        "note": "Right. Targets don't need to know who's scraping them."
+      },
+      {
+        "id": "b",
+        "text": "You can more easily and reliably tell when a target is down",
+        "correct": true,
+        "note": "Right. A failed scrape is a clear signal."
+      },
+      {
+        "id": "c",
+        "text": "You can manually inspect a target's health in a web browser",
+        "correct": true,
+        "note": "Right. Just open its metrics endpoint."
+      },
+      {
+        "id": "d",
+        "text": "Pull guarantees 100% accurate data for billing",
+        "correct": false,
+        "note": "The docs say Prometheus isn't suited to 100% accuracy needs such as billing."
+      }
+    ],
+    "explanation": "The FAQ lists three advantages: extra monitoring instances are easy to start, target-down detection is easier and more reliable, and targets can be inspected manually with a browser.",
+    "hint": "One option makes a claim the docs explicitly reject elsewhere.",
+    "difficulty": 2,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "pull",
+      "target"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#why-do-you-pull-rather-than-push",
+        "title": "FAQ › Why do you pull rather than push?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-how-much-better",
+    "type": "single",
+    "stem": "How strongly does the Prometheus FAQ rate pull over push?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Slightly better. It shouldn't be a major point when choosing a monitoring system",
+        "correct": true,
+        "note": "Right. The FAQ is deliberately modest about it."
+      },
+      {
+        "id": "b",
+        "text": "Push is fundamentally broken and should never be used",
+        "correct": false,
+        "note": "The FAQ doesn't say that. It offers the Pushgateway for cases where you must push."
+      },
+      {
+        "id": "c",
+        "text": "Pull is the single most important feature of Prometheus",
+        "correct": false,
+        "note": "The FAQ says the opposite: it shouldn't be a major consideration."
+      },
+      {
+        "id": "d",
+        "text": "They are exactly equivalent in every way",
+        "correct": false,
+        "note": "The FAQ does think pull is slightly better, for the reasons it lists."
+      }
+    ],
+    "explanation": "The FAQ says that overall pulling is slightly better than pushing, but it should not be considered a major point when choosing a monitoring system.",
+    "hint": "The docs are modest here.",
+    "difficulty": 2,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "pull",
+      "push"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#why-do-you-pull-rather-than-push",
+        "title": "FAQ › Why do you pull rather than push?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-up-metric",
+    "type": "single",
+    "stem": "A target's scrape fails. What value does Prometheus record for up{job=\"api\", instance=\"10.0.0.5:8080\"}?",
+    "options": [
+      {
+        "id": "a",
+        "text": "0",
+        "correct": true,
+        "note": "Right. up is 1 when the instance is reachable and healthy, 0 when the scrape failed."
+      },
+      {
+        "id": "b",
+        "text": "1",
+        "correct": false,
+        "note": "1 means the scrape succeeded."
+      },
+      {
+        "id": "c",
+        "text": "No sample is recorded at all",
+        "correct": false,
+        "note": "Prometheus records up on every scrape attempt, which is what makes it useful for spotting failures."
+      },
+      {
+        "id": "d",
+        "text": "NaN",
+        "correct": false,
+        "note": "up is explicitly 1 or 0."
+      }
+    ],
+    "explanation": "For each instance scrape, Prometheus stores `up` as 1 if the instance is healthy (reachable) or 0 if the scrape failed.",
+    "hint": "It's a simple yes/no number.",
+    "difficulty": 1,
+    "tags": [
+      "push-pull",
+      "scraping"
+    ],
+    "uses": [
+      "up",
+      "instance",
+      "job"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/jobs_instances/#automatically-generated-labels-and-time-series",
+        "title": "Jobs and instances › Automatically generated labels and time series"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-pushgateway-use",
+    "type": "single",
+    "stem": "According to the docs, what is usually the only valid use case for the Pushgateway?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Capturing the outcome of a service-level batch job",
+        "correct": true,
+        "note": "Right. A job not tied to a specific machine or instance, such as a cleanup job for a whole service."
+      },
+      {
+        "id": "b",
+        "text": "Collecting metrics from all long-running web services",
+        "correct": false,
+        "note": "Long-running services should be scraped. The docs warn against using the Pushgateway for general collection."
+      },
+      {
+        "id": "c",
+        "text": "Getting metrics through a firewall from many hosts",
+        "correct": false,
+        "note": "For firewalls the docs suggest running Prometheus inside the network, or PushProx."
+      },
+      {
+        "id": "d",
+        "text": "Batch jobs that run on, and relate to, one particular machine",
+        "correct": false,
+        "note": "Machine-related batch jobs should use the Node Exporter textfile collector instead."
+      }
+    ],
+    "explanation": "The docs say the only valid use case for the Pushgateway is usually capturing the outcome of a service-level batch job, one not semantically related to a specific machine or instance.",
+    "hint": "Which kind of batch job isn't tied to any one machine?",
+    "difficulty": 2,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "pushgateway",
+      "service-level batch job"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/pushing/#should-i-be-using-the-pushgateway",
+        "title": "When to use the Pushgateway › Should I be using the Pushgateway?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-pitfalls",
+    "type": "multi",
+    "stem": "Which are pitfalls of using the Pushgateway for general metrics collection? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "It can become a single point of failure and a bottleneck",
+        "correct": true,
+        "note": "Right. Many instances funnel through one gateway."
+      },
+      {
+        "id": "b",
+        "text": "You lose automatic health monitoring via the up metric",
+        "correct": true,
+        "note": "Right. Prometheus scrapes the gateway, not your instances."
+      },
+      {
+        "id": "c",
+        "text": "Pushed series stay forever unless deleted through its API",
+        "correct": true,
+        "note": "Right. The gateway's lifecycle is separate from the processes that push to it."
+      },
+      {
+        "id": "d",
+        "text": "It can't accept metrics in the Prometheus text format",
+        "correct": false,
+        "note": "It does accept the text format. Even shell scripts can push with it."
+      }
+    ],
+    "explanation": "The docs list three pitfalls: a single point of failure and bottleneck, loss of the `up` metric, and series that are never forgotten unless manually deleted.",
+    "hint": "Three of these come straight from the 'Should I be using the Pushgateway?' section.",
+    "difficulty": 2,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "pushgateway",
+      "up"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/pushing/#should-i-be-using-the-pushgateway",
+        "title": "When to use the Pushgateway › Should I be using the Pushgateway?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-stale-forever",
+    "type": "single",
+    "stem": "A batch job instance pushed metrics to the Pushgateway, then was removed from service. What happens to its metrics?",
+    "options": [
+      {
+        "id": "a",
+        "text": "They stay in the Pushgateway and keep being exposed until someone deletes them",
+        "correct": true,
+        "note": "Right. The Pushgateway never forgets pushed series on its own."
+      },
+      {
+        "id": "b",
+        "text": "They disappear automatically after the next scrape",
+        "correct": false,
+        "note": "That's how pull-based targets behave. The Pushgateway keeps series indefinitely."
+      },
+      {
+        "id": "c",
+        "text": "They expire after the default 5-minute timeout",
+        "correct": false,
+        "note": "There's no such timeout. Series stay until manually deleted."
+      },
+      {
+        "id": "d",
+        "text": "Prometheus marks them with up=0",
+        "correct": false,
+        "note": "There's no up for pushed jobs. That's one of the pitfalls."
+      }
+    ],
+    "explanation": "The Pushgateway never forgets series pushed to it and exposes them to Prometheus forever unless they're manually deleted via its API.",
+    "hint": "Compare this with what happens when a scraped target disappears.",
+    "difficulty": 2,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "pushgateway"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/pushing/#should-i-be-using-the-pushgateway",
+        "title": "When to use the Pushgateway › Should I be using the Pushgateway?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-firewall",
+    "type": "single",
+    "stem": "Your targets sit behind a NAT, and Prometheus can't reach them to scrape. What do the docs recommend first?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Run the Prometheus server on the same network, behind the barrier",
+        "correct": true,
+        "note": "Right. The docs generally recommend running Prometheus on the same network as the monitored instances."
+      },
+      {
+        "id": "b",
+        "text": "Have every target push to a central Pushgateway",
+        "correct": false,
+        "note": "That brings back all the Pushgateway pitfalls. It isn't the recommended fix."
+      },
+      {
+        "id": "c",
+        "text": "Increase the scrape timeout",
+        "correct": false,
+        "note": "A longer timeout doesn't help if the network path doesn't exist."
+      },
+      {
+        "id": "d",
+        "text": "Switch to reading logs instead",
+        "correct": false,
+        "note": "That changes the signal entirely rather than solving the network problem."
+      }
+    ],
+    "explanation": "If a firewall or NAT prevents pulling, move the Prometheus server behind the network barrier as well. Otherwise consider PushProx, which lets Prometheus traverse a firewall or NAT.",
+    "hint": "Bring the scraper closer to the targets.",
+    "difficulty": 2,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "pull",
+      "pushprox"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/pushing/#alternative-strategies",
+        "title": "When to use the Pushgateway › Alternative strategies"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-machine-batch",
+    "type": "single",
+    "stem": "A nightly cron job on each host applies security updates. How should you expose its results?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Write them for the Node Exporter textfile collector on that host",
+        "correct": true,
+        "note": "Right. Machine-related batch jobs should use the textfile collector."
+      },
+      {
+        "id": "b",
+        "text": "Push them to a shared Pushgateway with an instance label",
+        "correct": false,
+        "note": "Machine-tied results in the Pushgateway hit the 'never forgets' problem when hosts are renamed or removed."
+      },
+      {
+        "id": "c",
+        "text": "Add a recording rule",
+        "correct": false,
+        "note": "Recording rules compute from existing data. They don't expose new data from a cron job."
+      },
+      {
+        "id": "d",
+        "text": "Send them to Alertmanager",
+        "correct": false,
+        "note": "Alertmanager handles alerts, not metrics."
+      }
+    ],
+    "explanation": "For batch jobs related to a machine, such as security update cron jobs, expose the results using the Node Exporter's textfile collector instead of the Pushgateway.",
+    "hint": "The job belongs to one machine, and something already runs on that machine to expose its metrics.",
+    "difficulty": 3,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "textfile collector",
+      "batch job",
+      "exporter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/pushing/#alternative-strategies",
+        "title": "When to use the Pushgateway › Alternative strategies"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "pp-why-batch-push",
+    "type": "single",
+    "stem": "Why do short-lived batch jobs often need the Pushgateway rather than being scraped?",
+    "options": [
+      {
+        "id": "a",
+        "text": "They may finish and exit before Prometheus would ever scrape them",
+        "correct": true,
+        "note": "Right. You can't scrape a process that's no longer running."
+      },
+      {
+        "id": "b",
+        "text": "Batch jobs can't use client libraries",
+        "correct": false,
+        "note": "They can. The issue is lifetime, not libraries."
+      },
+      {
+        "id": "c",
+        "text": "Prometheus refuses to scrape batch jobs",
+        "correct": false,
+        "note": "There's no such restriction. Long-running batch jobs can be scraped too."
+      },
+      {
+        "id": "d",
+        "text": "Batch job metrics are always gauges",
+        "correct": false,
+        "note": "Type isn't the reason. The short lifetime is."
+      }
+    ],
+    "explanation": "Batch jobs don't run continuously, which makes scraping them difficult. The Pushgateway lets them push metrics that Prometheus can scrape after they've terminated.",
+    "hint": "Think about timing.",
+    "difficulty": 1,
+    "tags": [
+      "push-pull"
+    ],
+    "uses": [
+      "batch job",
+      "pushgateway",
+      "scrape"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/pushing/",
+        "title": "Pushing metrics"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#batch-jobs",
+        "title": "Instrumentation › Batch jobs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

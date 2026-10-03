@@ -1,0 +1,105 @@
+---
+id: obs-service-discovery
+title: Finding targets with service discovery
+summary: In dynamic environments targets come and go all the time. Service discovery lets Prometheus ask a system such as Kubernetes, Consul, EC2 or DNS (or just read a file) for the current list of targets, and relabeling turns that metadata into labels.
+analogy: "A static target list is a printed phone book: accurate the day it's printed, then out of date. Service discovery is looking contacts up live in a directory that updates itself whenever someone joins or leaves. Relabeling is choosing which details from each directory entry to copy onto your own contact card."
+keyPoints:
+  - Targets can be configured statically (static_configs) or discovered dynamically through service discovery (SD) mechanisms.
+  - Supported mechanisms include Kubernetes, Consul, EC2 and other clouds, DNS, file-based SD and HTTP SD, among many others.
+  - Kubernetes SD watches the Kubernetes API and stays in sync with the cluster. Its roles include node, service, pod, endpoints, endpointslice and ingress.
+  - File-based SD reads target lists from YAML or JSON files and applies changes immediately via disk watches, with no restart. It's the usual way to plug in a custom SD system.
+  - HTTP SD fetches a JSON target list from an HTTP endpoint on a refresh interval.
+  - SD attaches __meta_* labels to each target during relabeling. Copy the ones you need into normal labels, because __ labels are dropped afterwards.
+  - Service discovery belongs in Prometheus, not in exporters.
+commonTrap: Expecting __meta_* labels (such as __meta_kubernetes_namespace) to show up on stored series automatically. They exist only during relabeling and are dropped afterwards, because they start with __. You must copy them into a normal label with a replace or labelmap rule.
+explainBack:
+  prompt: Explain how Prometheus ends up with a namespace label on metrics from Kubernetes pods it discovered.
+  modelAnswer: Kubernetes SD queries the Kubernetes API and produces a target for each pod's declared ports. Each target carries metadata labels such as __meta_kubernetes_namespace and __meta_kubernetes_pod_name. These are available only during relabeling, so a relabel rule (replace, or labelmap) copies __meta_kubernetes_namespace into a normal label called namespace. After relabeling the __meta labels are dropped, and the copied namespace label stays on every series scraped from that pod.
+introduces: [service discovery, file_sd, http_sd, kubernetes_sd, __meta labels, dns_sd]
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
+    title: Configuration › scrape_config (static vs discovered targets)
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/configuration.md
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config
+    title: Configuration › file_sd_config
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/configuration.md
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config
+    title: Configuration › kubernetes_sd_config
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/configuration.md
+  - url: https://prometheus.io/docs/prometheus/latest/http_sd/
+    title: Writing HTTP service discovery
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/http_sd.md
+  - url: https://prometheus.io/docs/instrumenting/writing_exporters/#deployment
+    title: Writing exporters › Deployment
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/writing_exporters.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Why discovery?
+
+In a cloud or Kubernetes environment, instances appear, move and disappear constantly. Hard-coding IP addresses in `static_configs` breaks quickly. **Service discovery (SD)** lets Prometheus ask an authoritative system "what should I be scraping right now?" and keep the target list up to date on its own.
+
+Every `scrape_config` can use static targets, one or more SD mechanisms, or both.
+
+## Some common mechanisms
+
+| Mechanism | Config block | How it finds targets |
+|---|---|---|
+| Kubernetes | `kubernetes_sd_configs` | Watches the Kubernetes REST API and stays in sync with cluster state |
+| Consul | `consul_sd_configs` | Asks Consul's service catalog |
+| AWS EC2 | `ec2_sd_configs` | Lists EC2 instances |
+| DNS | `dns_sd_configs` | Periodically queries A, AAAA, MX, NS or SRV records |
+| File | `file_sd_configs` | Reads target lists from local YAML or JSON files |
+| HTTP | `http_sd_configs` | Fetches a JSON target list from an HTTP endpoint |
+
+There are many more (Azure, GCE, Docker, Nomad, OpenStack and so on).
+
+### Kubernetes roles
+
+Kubernetes SD has a `role` that decides what becomes a target:
+
+- `node`: one target per cluster node
+- `service`: one target per service port, generally useful for blackbox probing
+- `pod`: one target per declared container port
+- `endpoints` / `endpointslice`: targets from a service's endpoints
+- `ingress`: one target per ingress path, also mainly for blackbox probing
+
+### File-based SD: the universal adapter
+
+File SD reads lists of static configs from files:
+
+```yaml
+- targets: ['10.0.0.5:9100', '10.0.0.6:9100']
+  labels:
+    env: 'prod'
+```
+
+Changes are picked up through **disk watches and applied immediately**, with no restart or reload needed (files are also re-read periodically as a fallback). Because anything can write a file, file SD is the docs' suggested way to plug in a discovery system Prometheus doesn't support natively.
+
+**HTTP SD** is the network equivalent. Prometheus fetches JSON from a URL every `refresh_interval`, which defaults to 60s.
+
+## Metadata labels and relabeling
+
+Each discovered target comes with `__meta_*` labels describing it, for example:
+
+```text
+__meta_kubernetes_namespace="shop"
+__meta_kubernetes_pod_name="cart-7d9f…"
+__meta_filepath="/etc/prometheus/targets/web.yml"
+```
+
+These exist **only during relabeling**. Because they start with `__`, they're dropped once relabeling ends. To keep any of them, copy them into an ordinary label:
+
+```yaml
+relabel_configs:
+  - source_labels: [__meta_kubernetes_namespace]
+    target_label: namespace
+```
+
+(With no `action`, this uses the default `replace`, and the default regex `(.*)` copies the whole value.) You can also use `keep` and `drop` on metadata to choose which discovered targets to scrape at all.
+
+## Discovery lives in Prometheus
+
+The exporter-writing guide makes a design point: **service discovery is done in Prometheus, not in exporters**. Exporters should stay simple. Prometheus finds the targets and decides what to scrape.

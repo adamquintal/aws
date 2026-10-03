@@ -1,0 +1,68 @@
+---
+id: fund-architecture
+title: How Prometheus is put together
+summary: Prometheus is a small family of programs. The server pulls metrics from your applications, stores them locally, evaluates rules, and hands alerts to Alertmanager. Everything else is optional.
+analogy: "Picture a building inspector doing rounds. The inspector (the Prometheus server) walks to each room on a schedule and reads the meters (scraping targets), writes the readings in a logbook kept on-site (local storage), and checks them against a rulebook. When a rule is broken, the inspector doesn't phone people directly. They hand a note to the front desk (Alertmanager), which decides who gets told, how, and how often."
+keyPoints:
+  - The core is the Prometheus server, which scrapes targets, stores the samples in its local time series database (TSDB), and evaluates rules.
+  - Applications expose metrics via client libraries (direct instrumentation) or via exporters that translate another system's metrics.
+  - Short-lived batch jobs can push to the Pushgateway, which Prometheus then scrapes.
+  - Alerting rules fire alerts that Prometheus sends to Alertmanager, which groups, de-duplicates, silences and routes them as notifications.
+  - Recording rules precompute expensive queries into new time series.
+  - Grafana or other API consumers visualise the data, using PromQL to query it.
+  - Each server is standalone, with no reliance on distributed storage. Local data is kept in 2-hour blocks, protected by a write-ahead log (WAL).
+commonTrap: Thinking Prometheus sends notifications (email, Slack, PagerDuty) itself. The server only evaluates alerting rules and sends the resulting alerts to Alertmanager. Alertmanager is the component that turns alerts into notifications.
+explainBack:
+  prompt: Describe the journey of a metric from an application to an alert notification on someone's phone. Name each component it passes through.
+  modelAnswer: The application exposes the metric over HTTP, either through a client library or an exporter next to it. The Prometheus server scrapes that endpoint on a schedule and stores the samples in its local time series database. It regularly evaluates alerting rules against the stored data. When a rule's condition holds, Prometheus sends an alert to Alertmanager, which groups and de-duplicates alerts, applies silences, and routes a notification to a receiver like email, Slack or PagerDuty.
+introduces: [prometheus server, scrape, target, job, client library, exporter, pushgateway, alertmanager, alert, notification, alerting rule, recording rule, rule, tsdb, wal, promql, grafana, remote write, remote read]
+sources:
+  - url: https://prometheus.io/docs/introduction/overview/#architecture
+    title: Overview › Components and Architecture
+    readFrom: github.com/prometheus/docs@605cf81 docs/introduction/overview.md
+  - url: https://prometheus.io/docs/introduction/glossary/
+    title: Glossary
+    readFrom: github.com/prometheus/docs@605cf81 docs/introduction/glossary.md
+  - url: https://prometheus.io/docs/prometheus/latest/storage/
+    title: Storage › Local storage
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/storage.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## The components
+
+The Prometheus ecosystem is several programs, and most of them are optional:
+
+| Component | What it does |
+|---|---|
+| **Prometheus server** | Scrapes metrics, stores them as time series, evaluates rules. The heart of the system. |
+| **Client libraries** | Libraries (Go, Java, Python, Ruby, Rust and others) you use inside your own code to define metrics and expose them over HTTP. |
+| **Exporters** | Separate programs that run next to something you can't change, such as a database or a Linux host, and translate its stats into Prometheus format. |
+| **Pushgateway** | Holds metrics pushed by short-lived batch jobs, so Prometheus can scrape them after the job has finished. |
+| **Alertmanager** | Receives alerts from Prometheus, groups and de-duplicates them, applies silences, and sends notifications to email, Slack, PagerDuty and so on. |
+| **Grafana / API clients** | Visualise data by sending PromQL queries to the server's HTTP API. |
+
+Most components are written in Go and ship as single static binaries.
+
+## How data flows
+
+1. Your application (or an exporter next to it) serves its current metric values over HTTP, usually at `/metrics`. Each thing Prometheus collects from is a **target**. A group of targets doing the same job (say, five replicas of the same API) is a **job**.
+2. The server **scrapes** each target on a schedule, meaning it pulls the current values over HTTP.
+3. Every scraped value is stored as a sample in the server's own **time series database (TSDB)** on local disk.
+4. The server periodically evaluates **rules**:
+   - **Recording rules** precompute frequently used or expensive expressions and save the results as new time series.
+   - **Alerting rules** check a condition. While the condition holds, an **alert** fires and is sent to Alertmanager.
+5. **Alertmanager** turns alerts into **notifications** and decides who receives them.
+6. You explore the data with **PromQL**, the Prometheus query language, in the built-in UI, in Grafana, or over the API.
+
+## Storage, briefly
+
+The local TSDB groups incoming samples into **two-hour blocks** on disk. The block currently being written lives in memory and is protected by a **write-ahead log (WAL)**, which is replayed if the server crashes and restarts. Older blocks are compacted into larger ones in the background.
+
+Local storage belongs to a single node. It isn't clustered or replicated. For long-term or durable storage, Prometheus can send samples to other systems with **remote write** and read them back with **remote read**.
+
+## Designed to keep working in an outage
+
+The overview stresses that each Prometheus server is standalone: it doesn't depend on network storage or other remote services. That's deliberate. You want your monitoring to keep working when other parts of your infrastructure are broken, because that's exactly when you need it.

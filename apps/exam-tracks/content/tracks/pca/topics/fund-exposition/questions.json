@@ -1,0 +1,565 @@
+[
+  {
+    "id": "exp-parts",
+    "type": "single",
+    "stem": "In this exposition line, what is 1395066363000?",
+    "code": "http_requests_total{method=\"post\",code=\"200\"} 1027 1395066363000",
+    "codeLang": "text",
+    "options": [
+      {
+        "id": "a",
+        "text": "An optional timestamp in milliseconds since the Unix epoch",
+        "correct": true,
+        "note": "Right. The third token is an optional int64 timestamp in milliseconds."
+      },
+      {
+        "id": "b",
+        "text": "The sample value",
+        "correct": false,
+        "note": "The value is 1027, the token right after the labels."
+      },
+      {
+        "id": "c",
+        "text": "A timestamp in seconds since the Unix epoch",
+        "correct": false,
+        "note": "Exposition timestamps are in milliseconds, not seconds."
+      },
+      {
+        "id": "d",
+        "text": "A unique series ID",
+        "correct": false,
+        "note": "Series are identified by name and labels. There's no numeric series ID in the text format."
+      }
+    ],
+    "explanation": "Sample lines have the form `metric_name{labels} value [timestamp]`. The timestamp is optional and is an int64 in milliseconds since the epoch.",
+    "hint": "Count the digits. A 13-digit epoch number suggests a particular unit.",
+    "difficulty": 1,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "exposition format",
+      "sample"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#details",
+        "title": "Exposition formats › Details"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-no-type",
+    "type": "single",
+    "stem": "A metric appears in a /metrics page with no # TYPE line. What type does it get?",
+    "options": [
+      {
+        "id": "a",
+        "text": "untyped",
+        "correct": true,
+        "note": "Right. Without a TYPE line, the type is set to untyped."
+      },
+      {
+        "id": "b",
+        "text": "gauge",
+        "correct": false,
+        "note": "There's no default to gauge. The format specifies untyped."
+      },
+      {
+        "id": "c",
+        "text": "counter",
+        "correct": false,
+        "note": "Not even if the name ends in _total. The default is untyped."
+      },
+      {
+        "id": "d",
+        "text": "The scrape fails",
+        "correct": false,
+        "note": "A missing TYPE line is allowed. It just means untyped."
+      }
+    ],
+    "explanation": "If there is no TYPE line for a metric name, its type is set to untyped.",
+    "hint": "There's a fifth type keyword besides the four metric types.",
+    "difficulty": 1,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "type",
+      "untyped"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#details",
+        "title": "Exposition formats › Details"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-type-position",
+    "type": "single",
+    "stem": "Where must the # TYPE line for a metric appear?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Before the first sample of that metric",
+        "correct": true,
+        "note": "Right. The TYPE line must appear before the first sample reported for that metric name."
+      },
+      {
+        "id": "b",
+        "text": "Anywhere in the file",
+        "correct": false,
+        "note": "Position matters. It must come before the metric's first sample."
+      },
+      {
+        "id": "c",
+        "text": "After all the metric's samples",
+        "correct": false,
+        "note": "The opposite. It must come before them."
+      },
+      {
+        "id": "d",
+        "text": "Only at the very top of the file",
+        "correct": false,
+        "note": "Each metric group has its own TYPE line, placed before that group's samples."
+      }
+    ],
+    "explanation": "Only one TYPE line may exist per metric name, and it must appear before the first sample reported for that name.",
+    "hint": "A parser needs to know the type before it reads the values.",
+    "difficulty": 2,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "type"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#details",
+        "title": "Exposition formats › Details"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-type-values",
+    "type": "multi",
+    "stem": "Which are valid types on a # TYPE line in the Prometheus text format? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "counter",
+        "correct": true,
+        "note": "Right. One of the five valid type keywords."
+      },
+      {
+        "id": "b",
+        "text": "gauge",
+        "correct": true,
+        "note": "Right. One of the five valid type keywords."
+      },
+      {
+        "id": "c",
+        "text": "untyped",
+        "correct": true,
+        "note": "Right. It's also the default when no TYPE line is given."
+      },
+      {
+        "id": "d",
+        "text": "info",
+        "correct": false,
+        "note": "Info is an OpenMetrics type, not a Prometheus text format type."
+      },
+      {
+        "id": "e",
+        "text": "timer",
+        "correct": false,
+        "note": "There's no timer type. Durations are usually histograms or summaries."
+      }
+    ],
+    "explanation": "The TYPE line accepts counter, gauge, histogram, summary or untyped.",
+    "hint": "Five keywords are valid: the four metric types plus one more.",
+    "difficulty": 2,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "type",
+      "untyped",
+      "counter",
+      "gauge"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#details",
+        "title": "Exposition formats › Details"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-inf-bucket",
+    "type": "single",
+    "stem": "Which statement about a histogram in the text format is required by the format?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It must have a bucket with le=\"+Inf\" whose value equals _count",
+        "correct": true,
+        "note": "Right. The format requires a +Inf bucket identical to x_count."
+      },
+      {
+        "id": "b",
+        "text": "Its buckets must be in decreasing order of le",
+        "correct": false,
+        "note": "Buckets must appear in increasing numerical order of le."
+      },
+      {
+        "id": "c",
+        "text": "Its _sum must equal its _count",
+        "correct": false,
+        "note": "_sum adds up the observed values. It's unrelated to the count."
+      },
+      {
+        "id": "d",
+        "text": "It must not have a _sum line",
+        "correct": false,
+        "note": "Histograms expose a separate _sum sample."
+      }
+    ],
+    "explanation": "A histogram must have a bucket with `{le=\"+Inf\"}`, and its value must be identical to `x_count`. Buckets appear in increasing order of le.",
+    "hint": "Cumulative buckets: which one holds everything?",
+    "difficulty": 2,
+    "tags": [
+      "exposition",
+      "histogram"
+    ],
+    "uses": [
+      "histogram",
+      "bucket"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#histograms-and-summaries",
+        "title": "Exposition formats › Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-summary-lines",
+    "type": "single",
+    "stem": "How is each quantile of a summary named x represented in the text format?",
+    "options": [
+      {
+        "id": "a",
+        "text": "As a sample named x with a label quantile=\"y\"",
+        "correct": true,
+        "note": "Right. Quantiles keep the base name and add a quantile label."
+      },
+      {
+        "id": "b",
+        "text": "As a sample named x_quantile_y",
+        "correct": false,
+        "note": "The quantile goes in a label, not in the metric name."
+      },
+      {
+        "id": "c",
+        "text": "As a sample named x_bucket with a label le=\"y\"",
+        "correct": false,
+        "note": "That's how histogram buckets are represented."
+      },
+      {
+        "id": "d",
+        "text": "Quantiles aren't exposed. Only _sum and _count are",
+        "correct": false,
+        "note": "Summaries expose their quantiles as separate sample lines."
+      }
+    ],
+    "explanation": "Each quantile of a summary named x is a separate sample line with the same name x and a label `{quantile=\"y\"}`. Sum and count are x_sum and x_count.",
+    "hint": "Labels, not name suffixes.",
+    "difficulty": 2,
+    "tags": [
+      "exposition",
+      "summary"
+    ],
+    "uses": [
+      "summary",
+      "quantile",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#histograms-and-summaries",
+        "title": "Exposition formats › Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-grouping",
+    "type": "multi",
+    "stem": "Which of these are rules of the Prometheus text format? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "All lines for a given metric must be provided as one single group",
+        "correct": true,
+        "note": "Right. A metric's lines can't be scattered through the page."
+      },
+      {
+        "id": "b",
+        "text": "Each line must have a unique combination of metric name and labels",
+        "correct": true,
+        "note": "Right. Duplicates make ingestion behaviour undefined."
+      },
+      {
+        "id": "c",
+        "text": "Lines must be sorted alphabetically by metric name",
+        "correct": false,
+        "note": "Reproducible sorting is preferred but not required."
+      },
+      {
+        "id": "d",
+        "text": "Every line must include a timestamp",
+        "correct": false,
+        "note": "Timestamps are optional, as the minimalistic line in the example shows."
+      }
+    ],
+    "explanation": "All lines for a metric must form one group (HELP and TYPE first), and each line must have a unique name+label combination. Sorting is preferred but optional, and timestamps are optional.",
+    "hint": "Two are hard rules; two are things the format explicitly makes optional.",
+    "difficulty": 2,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "exposition format"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#details",
+        "title": "Exposition formats › Details"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-special-values",
+    "type": "multi",
+    "stem": "Which of these are valid sample values in the text format? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "NaN",
+        "correct": true,
+        "note": "Right. NaN is a valid value."
+      },
+      {
+        "id": "b",
+        "text": "+Inf",
+        "correct": true,
+        "note": "Right. Positive infinity is valid."
+      },
+      {
+        "id": "c",
+        "text": "12.47",
+        "correct": true,
+        "note": "Right. An ordinary float."
+      },
+      {
+        "id": "d",
+        "text": "\"twelve\"",
+        "correct": false,
+        "note": "Values are floats. Strings aren't valid sample values."
+      }
+    ],
+    "explanation": "Values are floats as parsed by Go's ParseFloat. NaN, +Inf and -Inf are also valid.",
+    "hint": "Prometheus samples are always numeric, but some special float values exist.",
+    "difficulty": 1,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "sample"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#details",
+        "title": "Exposition formats › Details"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-openmetrics",
+    "type": "single",
+    "stem": "What is OpenMetrics, in relation to Prometheus?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A standardised exposition format built on the Prometheus text format, which Prometheus can scrape",
+        "correct": true,
+        "note": "Right. It grew out of the Prometheus text format and adds features such as exemplars and more types."
+      },
+      {
+        "id": "b",
+        "text": "A replacement query language for PromQL",
+        "correct": false,
+        "note": "OpenMetrics is about exposing metrics on the wire, not querying them."
+      },
+      {
+        "id": "c",
+        "text": "A long-term storage backend",
+        "correct": false,
+        "note": "It's a format, not a storage system."
+      },
+      {
+        "id": "d",
+        "text": "A client library for Java",
+        "correct": false,
+        "note": "It's a format specification, not a library."
+      }
+    ],
+    "explanation": "OpenMetrics is an effort to standardise metric wire formatting, built off the Prometheus text format. Prometheus can scrape it.",
+    "hint": "It's about how metrics are written on the wire.",
+    "difficulty": 1,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "openmetrics",
+      "exposition format"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#openmetrics-text-format",
+        "title": "Exposition formats › OpenMetrics Text Format"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-om-eof",
+    "type": "single",
+    "stem": "Which of these is required in the OpenMetrics text format but not in the classic Prometheus text format?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The exposition must end with # EOF",
+        "correct": true,
+        "note": "Right. OpenMetrics text is trailed with # EOF."
+      },
+      {
+        "id": "b",
+        "text": "Every sample must have a timestamp",
+        "correct": false,
+        "note": "Timestamps aren't required in either format."
+      },
+      {
+        "id": "c",
+        "text": "Metric names must be all upper case",
+        "correct": false,
+        "note": "No such rule exists."
+      },
+      {
+        "id": "d",
+        "text": "A # HELP line for every metric",
+        "correct": false,
+        "note": "HELP isn't the distinguishing requirement here."
+      }
+    ],
+    "explanation": "The OpenMetrics text format uses UTF-8 with newline line endings and is trailed with `# EOF`.",
+    "hint": "Think about how a parser knows the response is complete.",
+    "difficulty": 2,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "openmetrics"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#openmetrics-text-format",
+        "title": "Exposition formats › OpenMetrics Text Format"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "exp-content-type",
+    "type": "single",
+    "stem": "Which Content-Type identifies the classic Prometheus text exposition format?",
+    "options": [
+      {
+        "id": "a",
+        "text": "text/plain; version=0.0.4",
+        "correct": true,
+        "note": "Right. That's the Content-Type for the Prometheus text format."
+      },
+      {
+        "id": "b",
+        "text": "application/openmetrics-text; version=1.0.0",
+        "correct": false,
+        "note": "That one identifies the OpenMetrics text format."
+      },
+      {
+        "id": "c",
+        "text": "application/json",
+        "correct": false,
+        "note": "Prometheus exposition isn't JSON."
+      },
+      {
+        "id": "d",
+        "text": "application/x-yaml",
+        "correct": false,
+        "note": "YAML is used for configuration files, not exposition."
+      }
+    ],
+    "explanation": "The Prometheus text format is served as `text/plain` with `version=0.0.4`. OpenMetrics uses `application/openmetrics-text`. Since 3.0, a missing or invalid Content-Type fails the scrape.",
+    "hint": "The classic format is plain text.",
+    "difficulty": 2,
+    "tags": [
+      "exposition"
+    ],
+    "uses": [
+      "content-type",
+      "exposition format"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/",
+        "title": "Exposition formats"
+      },
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#http-content-type-requirements",
+        "title": "Exposition formats › HTTP Content-Type requirements"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

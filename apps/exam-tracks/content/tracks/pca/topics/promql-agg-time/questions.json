@@ -1,0 +1,622 @@
+[
+  {
+    "id": "ot-max",
+    "type": "single",
+    "stem": "Which expression returns the highest value each node_load1 series reached over the last hour?",
+    "options": [
+      {
+        "id": "a",
+        "text": "max_over_time(node_load1[1h])",
+        "correct": true,
+        "note": "Right. max_over_time returns each series' maximum within the window."
+      },
+      {
+        "id": "b",
+        "text": "max_over_time(node_load1)",
+        "correct": false,
+        "note": "_over_time functions need a range vector. Without [1h] there's no window to take the maximum over."
+      },
+      {
+        "id": "c",
+        "text": "rate(node_load1[1h])",
+        "correct": false,
+        "note": "rate is for counters, and node_load1 is a gauge. It measures change, not a maximum."
+      },
+      {
+        "id": "d",
+        "text": "node_load1 offset 1h",
+        "correct": false,
+        "note": "That's the value one hour ago, not the maximum during the hour."
+      }
+    ],
+    "explanation": "max_over_time(range-vector) returns the maximum value of all float samples in the interval, per series.",
+    "hint": "Look for the _over_time version.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "over-time"
+    ],
+    "uses": [
+      "max_over_time",
+      "range vector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time",
+        "title": "Functions › <aggregation>_over_time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-gauges-ok",
+    "type": "single",
+    "stem": "Can avg_over_time() be used on a gauge such as process_resident_memory_bytes?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Yes. _over_time functions summarise samples and don't assume counter behaviour",
+        "correct": true,
+        "note": "Right. Averaging a gauge over a window is a perfectly normal thing to do."
+      },
+      {
+        "id": "b",
+        "text": "No, they're for counters only, like rate()",
+        "correct": false,
+        "note": "That restriction applies to rate, irate and increase, not to _over_time functions."
+      },
+      {
+        "id": "c",
+        "text": "Only if it's wrapped in rate() first",
+        "correct": false,
+        "note": "rate on a gauge would be wrong. Use avg_over_time directly."
+      },
+      {
+        "id": "d",
+        "text": "Only in recording rules",
+        "correct": false,
+        "note": "There's no such restriction."
+      }
+    ],
+    "explanation": "The _over_time functions aggregate each series of a range vector over time, such as average, min and max. They don't apply counter-reset logic, so they suit gauges.",
+    "hint": "Is there any counter-reset logic in an average?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "over-time"
+    ],
+    "uses": [
+      "avg_over_time",
+      "gauge",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time",
+        "title": "Functions › <aggregation>_over_time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-count",
+    "type": "single",
+    "stem": "What does count_over_time(up{job=\"api\"}[1h]) tell you?",
+    "options": [
+      {
+        "id": "a",
+        "text": "How many samples each api target's up series has in the last hour (roughly the number of scrapes)",
+        "correct": true,
+        "note": "Right. count_over_time counts the samples in the window."
+      },
+      {
+        "id": "b",
+        "text": "How many targets are up right now",
+        "correct": false,
+        "note": "That would be a sum of up across targets at one instant, not a count over time."
+      },
+      {
+        "id": "c",
+        "text": "The total of all up values",
+        "correct": false,
+        "note": "That's sum_over_time."
+      },
+      {
+        "id": "d",
+        "text": "How many times up changed value",
+        "correct": false,
+        "note": "That's changes()."
+      }
+    ],
+    "explanation": "count_over_time returns the count of all samples in the interval, per series. With up, that roughly equals the number of scrapes.",
+    "hint": "It counts samples, not values.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "over-time"
+    ],
+    "uses": [
+      "count_over_time",
+      "up"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time",
+        "title": "Functions › <aggregation>_over_time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-quantile",
+    "type": "single",
+    "stem": "Which expression gives each series' 95th percentile of node_load1 over the last day?",
+    "options": [
+      {
+        "id": "a",
+        "text": "quantile_over_time(0.95, node_load1[1d])",
+        "correct": true,
+        "note": "Right. The φ comes first, then the range vector."
+      },
+      {
+        "id": "b",
+        "text": "quantile_over_time(node_load1[1d], 0.95)",
+        "correct": false,
+        "note": "The argument order is reversed. The scalar φ comes first."
+      },
+      {
+        "id": "c",
+        "text": "quantile_over_time(95, node_load1[1d])",
+        "correct": false,
+        "note": "φ is between 0 and 1, so 95th percentile is 0.95."
+      },
+      {
+        "id": "d",
+        "text": "max_over_time(node_load1[1d]) * 0.95",
+        "correct": false,
+        "note": "95% of the maximum isn't the 95th percentile."
+      }
+    ],
+    "explanation": "quantile_over_time(scalar, range-vector) returns the φ-quantile (0 ≤ φ ≤ 1) of all float samples in the interval.",
+    "hint": "Quantiles are written as fractions, and φ goes first.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "over-time"
+    ],
+    "uses": [
+      "quantile_over_time",
+      "quantile"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time",
+        "title": "Functions › <aggregation>_over_time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-weights",
+    "type": "single",
+    "stem": "Samples in a window aren't evenly spaced because a few scrapes were missed. How does avg_over_time weight them?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Every sample has the same weight, regardless of spacing",
+        "correct": true,
+        "note": "Right. The docs state this explicitly."
+      },
+      {
+        "id": "b",
+        "text": "Samples are weighted by the time gap before them",
+        "correct": false,
+        "note": "No time-weighting is applied."
+      },
+      {
+        "id": "c",
+        "text": "Missing scrapes are filled with zeros",
+        "correct": false,
+        "note": "Nothing is filled in. Only real samples are averaged."
+      },
+      {
+        "id": "d",
+        "text": "The function returns an error",
+        "correct": false,
+        "note": "Uneven spacing is fine. All samples are just weighted equally."
+      }
+    ],
+    "explanation": "All values in the interval have the same weight in the aggregation, even if they aren't equally spaced throughout the interval.",
+    "hint": "The docs make a one-line statement about weights.",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "over-time"
+    ],
+    "uses": [
+      "avg_over_time"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time",
+        "title": "Functions › <aggregation>_over_time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-absent",
+    "type": "single",
+    "stem": "You want an alert if a job has reported no my_metric samples at all in the last hour. Which function is designed for this?",
+    "options": [
+      {
+        "id": "a",
+        "text": "absent_over_time(my_metric{job=\"myjob\"}[1h])",
+        "correct": true,
+        "note": "Right. It returns 1 when the range vector has no elements."
+      },
+      {
+        "id": "b",
+        "text": "count_over_time(my_metric{job=\"myjob\"}[1h]) == 0",
+        "correct": false,
+        "note": "If no samples exist there's no series to count, so this returns nothing rather than 0. That's exactly why absent_over_time exists."
+      },
+      {
+        "id": "c",
+        "text": "rate(my_metric{job=\"myjob\"}[1h]) == 0",
+        "correct": false,
+        "note": "A zero rate means the counter didn't grow. It doesn't mean the data is missing."
+      },
+      {
+        "id": "d",
+        "text": "last_over_time(my_metric{job=\"myjob\"}[1h])",
+        "correct": false,
+        "note": "This returns values when data exists, and nothing when it doesn't. It doesn't produce a 1 for missing data."
+      }
+    ],
+    "explanation": "absent_over_time returns an empty vector if the range vector has any elements, and a 1-element vector with value 1 if it has none. It's useful for alerting when no series exist for a period.",
+    "hint": "Functions that operate on missing data must produce something from nothing.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "over-time"
+    ],
+    "uses": [
+      "absent_over_time",
+      "alerting rule"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#absent_over_time",
+        "title": "Functions › absent_over_time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-absent-instant",
+    "type": "single",
+    "stem": "What does absent(nonexistent{job=\"myjob\"}) return when no such series exist?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A single series {job=\"myjob\"} with value 1",
+        "correct": true,
+        "note": "Right. absent tries to derive labels from equality matchers in the selector."
+      },
+      {
+        "id": "b",
+        "text": "An empty result",
+        "correct": false,
+        "note": "That's what it returns when series do exist."
+      },
+      {
+        "id": "c",
+        "text": "0",
+        "correct": false,
+        "note": "absent returns 1 for absence, not 0 for presence."
+      },
+      {
+        "id": "d",
+        "text": "An error",
+        "correct": false,
+        "note": "Querying a non-existent metric isn't an error."
+      }
+    ],
+    "explanation": "absent returns an empty vector if the input has elements, and a 1-element vector with value 1 if it has none. Labels are derived from the selector where possible.",
+    "hint": "The docs show this exact example.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "over-time"
+    ],
+    "uses": [
+      "absent"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#absent",
+        "title": "Functions › absent()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-subquery-syntax",
+    "type": "single",
+    "stem": "Which is a valid subquery that returns the 5-minute rate over the past 30 minutes at 1-minute resolution?",
+    "options": [
+      {
+        "id": "a",
+        "text": "rate(http_requests_total[5m])[30m:1m]",
+        "correct": true,
+        "note": "Right. That's the official example: <instant_query>[<range>:<resolution>]."
+      },
+      {
+        "id": "b",
+        "text": "rate(http_requests_total[5m])[30m]",
+        "correct": false,
+        "note": "Without the colon this isn't a subquery, and it's invalid on an expression."
+      },
+      {
+        "id": "c",
+        "text": "rate(http_requests_total[5m][30m:1m])",
+        "correct": false,
+        "note": "The subquery brackets go after the whole instant query, not inside rate's argument."
+      },
+      {
+        "id": "d",
+        "text": "rate(http_requests_total[30m:1m])[5m]",
+        "correct": false,
+        "note": "This puts the brackets the wrong way round."
+      }
+    ],
+    "explanation": "Subquery syntax: <instant_query> '[' <range> ':' [<resolution>] ']'. The result is a range vector.",
+    "hint": "Look for the colon.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "subquery"
+    ],
+    "uses": [
+      "subquery",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#subquery",
+        "title": "Querying basics › Subquery"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/examples/#subquery",
+        "title": "Query examples › Subquery"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-subquery-default",
+    "type": "single",
+    "stem": "In max_over_time(rate(x[5m])[1h:]), no resolution is given after the colon. What step is used?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The global evaluation interval",
+        "correct": true,
+        "note": "Right. That's the default resolution for subqueries."
+      },
+      {
+        "id": "b",
+        "text": "The scrape interval of the target",
+        "correct": false,
+        "note": "The default is the global evaluation interval, not the scrape interval."
+      },
+      {
+        "id": "c",
+        "text": "1 second",
+        "correct": false,
+        "note": "There's no fixed 1s default."
+      },
+      {
+        "id": "d",
+        "text": "5 minutes, matching the inner range",
+        "correct": false,
+        "note": "The inner [5m] is the rate window, not the subquery step."
+      }
+    ],
+    "explanation": "In a subquery, the resolution is optional. The default is the global evaluation interval.",
+    "hint": "Which interval governs rule evaluation?",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "subquery"
+    ],
+    "uses": [
+      "subquery",
+      "evaluation_interval"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#subquery",
+        "title": "Querying basics › Subquery"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-subquery-why",
+    "type": "single",
+    "stem": "Why does max_over_time(rate(x[5m])) fail?",
+    "options": [
+      {
+        "id": "a",
+        "text": "max_over_time needs a range vector, but rate() returns an instant vector",
+        "correct": true,
+        "note": "Right. Add a subquery, as in [1h:], to turn the rate into a range vector."
+      },
+      {
+        "id": "b",
+        "text": "rate can't be nested inside another function",
+        "correct": false,
+        "note": "Nesting is fine. The issue is the argument type."
+      },
+      {
+        "id": "c",
+        "text": "max_over_time only works on counters",
+        "correct": false,
+        "note": "_over_time functions work on any series."
+      },
+      {
+        "id": "d",
+        "text": "The 5m window is too short",
+        "correct": false,
+        "note": "The window size isn't the problem."
+      }
+    ],
+    "explanation": "_over_time functions take a range vector. rate returns an instant vector, so you need a subquery such as rate(x[5m])[1h:] to produce a range vector from it.",
+    "hint": "Check the input and output types.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "subquery"
+    ],
+    "uses": [
+      "max_over_time",
+      "subquery",
+      "instant vector",
+      "range vector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time",
+        "title": "Functions › <aggregation>_over_time()"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#subquery",
+        "title": "Querying basics › Subquery"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-subquery-caution",
+    "type": "single",
+    "stem": "What do the official examples say about subqueries?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Using subqueries unnecessarily is unwise",
+        "correct": true,
+        "note": "Right. They're expensive. Recording rules are often better for repeated use."
+      },
+      {
+        "id": "b",
+        "text": "They're the recommended way to write all alerting rules",
+        "correct": false,
+        "note": "The docs caution against unnecessary use."
+      },
+      {
+        "id": "c",
+        "text": "They're deprecated in Prometheus 3",
+        "correct": false,
+        "note": "Subqueries aren't deprecated."
+      },
+      {
+        "id": "d",
+        "text": "They only work in the Graph tab",
+        "correct": false,
+        "note": "They work in any query."
+      }
+    ],
+    "explanation": "The subquery examples include a nested subquery and note that using subqueries unnecessarily is unwise.",
+    "hint": "The docs add a warning.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "subquery"
+    ],
+    "uses": [
+      "subquery"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/examples/#subquery",
+        "title": "Query examples › Subquery"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ot-last",
+    "type": "single",
+    "stem": "Which function returns the most recent sample of each series within a window, even if that sample is older than the default lookback?",
+    "options": [
+      {
+        "id": "a",
+        "text": "last_over_time(v[d])",
+        "correct": true,
+        "note": "Right. It returns the most recent sample in the specified interval."
+      },
+      {
+        "id": "b",
+        "text": "present_over_time(v[d])",
+        "correct": false,
+        "note": "present_over_time returns 1 for any series with samples, not the sample's value."
+      },
+      {
+        "id": "c",
+        "text": "count_over_time(v[d])",
+        "correct": false,
+        "note": "That counts samples."
+      },
+      {
+        "id": "d",
+        "text": "absent_over_time(v[d])",
+        "correct": false,
+        "note": "That signals missing data."
+      }
+    ],
+    "explanation": "last_over_time returns the most recent sample in the specified interval. It's useful when data arrives less often than the 5-minute lookback.",
+    "hint": "The name is literal.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "over-time"
+    ],
+    "uses": [
+      "last_over_time",
+      "lookback period"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time",
+        "title": "Functions › <aggregation>_over_time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

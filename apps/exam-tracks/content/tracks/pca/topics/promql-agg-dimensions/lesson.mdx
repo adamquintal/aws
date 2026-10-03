@@ -1,0 +1,108 @@
+---
+id: promql-agg-dimensions
+title: sum, avg, topk and friends with by/without
+summary: Aggregation operators combine many series into fewer. They sum, average, count or rank across labels at a single point in time. by keeps only the labels you name, and without drops the labels you name.
+analogy: "You have a spreadsheet with one row per server per city. sum by (city) is a pivot table that adds up all the servers in each city, one row per city. sum without (server) gives the same table, but you describe it by the column you're removing rather than the ones you keep. topk(3, …) is \"show me the three biggest rows\"."
+keyPoints:
+  - Aggregation operators work across series within one instant vector, producing fewer series. _over_time functions, by contrast, work across time within each series.
+  - The operators are sum, avg, min, max, count, group, stddev, stdvar, quantile(φ, v), topk(k, v), bottomk(k, v) and count_values(label, v).
+  - by (labels) keeps only the listed labels in the output. without (labels) removes the listed labels and keeps all the others.
+  - With no by or without, the operator aggregates everything into a single series with no labels.
+  - The clause can go before or after the expression, so sum by (job) (x) and sum(x) by (job) are the same.
+  - topk and bottomk return a subset of the original series, with their original labels. by and without only define the groups.
+  - count_values("label", v) outputs one series per distinct sample value, counting how many series had it.
+  - "The recording rules guide recommends without, because it keeps useful labels such as job. For counters: rate first, then aggregate."
+commonTrap: Writing sum(http_requests_total) and wondering why the result has no labels. With no by or without, sum collapses everything into one series. Another trap is aggregating raw counters before rate(), as in rate(sum(x)[5m:]). Always do sum(rate(x[5m])), so counter resets in each series are handled first.
+explainBack:
+  prompt: Explain the difference between sum by (job) (rate(http_requests_total[5m])) and sum without (instance) (rate(http_requests_total[5m])). When might they give different results?
+  modelAnswer: by (job) keeps only the job label, so you get one series per job and every other label is summed away. without (instance) removes only instance and keeps every other label, such as job, method and code, so you get one series per remaining label combination. They match only if job and instance are the only labels. If the metric also has labels like method or code, without (instance) gives more detailed series than by (job).
+introduces: [aggregation operator, sum, avg, min, max, count, topk, bottomk, count_values, quantile operator, group, by, without]
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators
+    title: Operators › Aggregation operators
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/operators.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/examples/#using-functions-operators-etc
+    title: Query examples › Using functions, operators, etc.
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/examples.md
+  - url: https://prometheus.io/docs/practices/rules/#aggregation
+    title: Recording rules › Aggregation
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/rules.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Across series, not across time
+
+The previous topic aggregated **over time**, collapsing each series' window into one value. This topic aggregates **over dimensions**: at a single moment, many series are combined into fewer by grouping on labels.
+
+| | Works across | Input | Example |
+|---|---|---|---|
+| `_over_time` functions | time, within one series | range vector | `max_over_time(x[1h])` |
+| aggregation operators | series, at one instant | instant vector | `max(x)` |
+
+## The operators
+
+| Operator | Result |
+|---|---|
+| `sum`, `avg`, `min`, `max` | total, mean, smallest, largest |
+| `count` | number of series |
+| `group` | 1 for each group (useful for "which label values exist?") |
+| `stddev`, `stdvar` | population standard deviation / variance |
+| `quantile(φ, v)` | φ-quantile across the series, such as `quantile(0.5, …)` for the median |
+| `topk(k, v)` / `bottomk(k, v)` | the k largest / smallest series |
+| `count_values("label", v)` | how many series have each distinct value |
+
+## by and without
+
+```promql
+sum without (instance) (memory_consumption_bytes)
+sum by (application, group) (memory_consumption_bytes)
+```
+
+If `memory_consumption_bytes` fans out by `application`, `instance` and `group`, these two are **equivalent** (an example from the docs):
+
+- **`without (instance)`** removes `instance` and keeps everything else.
+- **`by (application, group)`** keeps only those two labels and drops the rest.
+- With **neither**, everything collapses into one series with no labels: `sum(memory_consumption_bytes)`.
+
+The clause can go before or after the expression:
+
+```promql
+sum by (job) (rate(http_requests_total[5m]))
+sum(rate(http_requests_total[5m])) by (job)
+```
+
+The recording-rules guide recommends **`without`** with the labels you're aggregating away, so other useful labels (such as `job`) are kept automatically.
+
+## Rate first, then aggregate
+
+This is the real query pattern you'll write most:
+
+```promql
+sum by (job) (
+  rate(http_requests_total[5m])
+)
+```
+
+Take the per-series `rate()` first, so each series' counter resets are handled, and *then* add the rates together.
+
+## topk and bottomk keep original series
+
+Unlike `sum` or `avg`, `topk` and `bottomk` don't compute a new value. They **return a subset of the input series, with their original labels**:
+
+```promql
+topk(5, memory_consumption_bytes)                              # the 5 biggest memory users
+topk(3, sum by (app, proc) (rate(instance_cpu_time_ns[5m])))   # top 3 CPU users per app/proc
+```
+
+With `by` or `without`, the labels only define the groups. You get the top k *within each group*.
+
+## Counting things
+
+```promql
+count by (app) (instance_cpu_time_ns)        # running instances per application
+count_values("version", build_version)       # how many binaries run each build version
+```
+
+`count_values` creates one output series per **distinct sample value** and puts that value in the label you name.

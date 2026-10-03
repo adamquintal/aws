@@ -1,0 +1,62 @@
+{
+  "id": "pca",
+  "title": "Prometheus Certified Associate (PCA)",
+  "shortTitle": "PCA",
+  "kind": "exam",
+  "description": "Learn Prometheus from the ground up, one topic at a time, until you're genuinely ready for the PCA exam.",
+  "disclaimer": "Independent study material. Not affiliated with, endorsed by, or sponsored by the CNCF or the Linux Foundation. Prometheus is a CNCF project; PCA is a Linux Foundation certification. All content is written from the official Prometheus documentation and the public CNCF curriculum, and contains no real exam questions.",
+  "curriculumSource": {
+    "url": "https://github.com/cncf/curriculum/blob/master/PCA_Curriculum.pdf",
+    "title": "CNCF PCA Curriculum (commit 8fbb7f2, 2022-08-31)"
+  },
+  "allowedSourceHosts": [
+    "prometheus.io",
+    "github.com/prometheus",
+    "github.com/cncf",
+    "opentelemetry.io"
+  ],
+  "exam": {
+    "questions": 60,
+    "minutes": 90,
+    "passPercent": 75,
+    "verified": false,
+    "note": "Exam logistics (question count, time, pass mark) are taken from search snippets of the Linux Foundation exam page and have not been confirmed. Check the official exam page before booking."
+  },
+  "mastery": { "runTarget": 10 },
+  "readiness": { "domainThreshold": 0.8, "recentWindow": 30 },
+  "domains": [
+    { "id": "promql", "title": "PromQL", "weight": 28 },
+    { "id": "fundamentals", "title": "Prometheus Fundamentals", "weight": 20 },
+    { "id": "alerting", "title": "Alerting & Dashboarding", "weight": 18 },
+    { "id": "observability", "title": "Observability Concepts", "weight": 18 },
+    { "id": "instrumentation", "title": "Instrumentation and Exporters", "weight": 16 }
+  ],
+  "topics": [
+    { "id": "obs-metrics", "domain": "observability", "curriculumItem": "Metrics", "title": "What metrics are (and the four metric types)" },
+    { "id": "fund-architecture", "domain": "fundamentals", "curriculumItem": "System Architecture", "title": "How Prometheus is put together" },
+    { "id": "fund-data-model", "domain": "fundamentals", "curriculumItem": "Data Model and Labels", "title": "Time series, metric names and labels" },
+    { "id": "fund-exposition", "domain": "fundamentals", "curriculumItem": "Exposition Format", "title": "Reading a /metrics page" },
+    { "id": "obs-push-pull", "domain": "observability", "curriculumItem": "Push vs Pull", "title": "Push vs pull, and the Pushgateway" },
+    { "id": "fund-config-scraping", "domain": "fundamentals", "curriculumItem": "Configuration and Scraping", "title": "prometheus.yml, scraping and relabeling" },
+    { "id": "obs-service-discovery", "domain": "observability", "curriculumItem": "Service Discovery", "title": "Finding targets with service discovery" },
+    { "id": "promql-selecting", "domain": "promql", "curriculumItem": "Selecting Data", "title": "Selecting series: matchers, ranges, offset and @" },
+    { "id": "promql-rates", "domain": "promql", "curriculumItem": "Rates and Derivatives", "title": "rate, irate, increase, deriv and predict_linear" },
+    { "id": "promql-agg-time", "domain": "promql", "curriculumItem": "Aggregating over time", "title": "*_over_time functions and subqueries" },
+    { "id": "promql-agg-dimensions", "domain": "promql", "curriculumItem": "Aggregating over dimensions", "title": "sum, avg, topk and friends with by/without" },
+    { "id": "promql-binary", "domain": "promql", "curriculumItem": "Binary operators", "title": "Arithmetic, comparisons, set operators and vector matching" },
+    { "id": "promql-histograms", "domain": "promql", "curriculumItem": "Histograms", "title": "Histograms, summaries and histogram_quantile" },
+    { "id": "promql-timestamps", "domain": "promql", "curriculumItem": "Timestamp Metrics", "title": "Timestamps: time(), timestamp() and _timestamp_seconds" },
+    { "id": "fund-limitations", "domain": "fundamentals", "curriculumItem": "Understanding Prometheus Limitations", "title": "What Prometheus is not good at" },
+    { "id": "instr-client-libs", "domain": "instrumentation", "curriculumItem": "Client Libraries", "title": "Client libraries" },
+    { "id": "instr-instrumentation", "domain": "instrumentation", "curriculumItem": "Instrumentation", "title": "What and how to instrument" },
+    { "id": "instr-naming", "domain": "instrumentation", "curriculumItem": "Structuring and naming metrics", "title": "Naming metrics and labels" },
+    { "id": "instr-exporters", "domain": "instrumentation", "curriculumItem": "Exporters", "title": "Exporters" },
+    { "id": "alert-basics", "domain": "alerting", "curriculumItem": "Alerting basics (when, what, and why)", "title": "What makes a good alert" },
+    { "id": "alert-rules", "domain": "alerting", "curriculumItem": "Configuring Alerting rules", "title": "Alerting and recording rules" },
+    { "id": "alert-alertmanager", "domain": "alerting", "curriculumItem": "Understand and Use Alertmanager", "title": "Alertmanager: routing, grouping, inhibition, silences" },
+    { "id": "alert-dashboarding", "domain": "alerting", "curriculumItem": "Dashboarding basics", "title": "Dashboards with Grafana and the expression browser" },
+    { "id": "obs-logs-events", "domain": "observability", "curriculumItem": "Understand logs and events", "title": "Logs and events vs metrics" },
+    { "id": "obs-tracing", "domain": "observability", "curriculumItem": "Tracing and Spans", "title": "Traces and spans" },
+    { "id": "obs-slos", "domain": "observability", "curriculumItem": "Basics of SLOs, SLAs, and SLIs", "title": "SLIs, SLOs and SLAs" }
+  ]
+}

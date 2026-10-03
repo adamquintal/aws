@@ -1,0 +1,722 @@
+[
+  {
+    "id": "sel-instant-vs-range",
+    "type": "single",
+    "stem": "What type does http_requests_total[5m] evaluate to?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A range vector",
+        "correct": true,
+        "note": "Right. The [5m] turns the selector into a range vector, with a window of samples per series."
+      },
+      {
+        "id": "b",
+        "text": "An instant vector",
+        "correct": false,
+        "note": "Without the brackets it would be an instant vector. The [5m] makes it a range."
+      },
+      {
+        "id": "c",
+        "text": "A scalar",
+        "correct": false,
+        "note": "A scalar is a single number, not a set of series."
+      },
+      {
+        "id": "d",
+        "text": "A string",
+        "correct": false,
+        "note": "The string type is currently unused in PromQL."
+      }
+    ],
+    "explanation": "Appending a duration in square brackets to a vector selector produces a range vector: for each series, a range of samples back from the evaluation time.",
+    "hint": "What do the square brackets add?",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "range vector",
+      "selector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#range-vector-selectors",
+        "title": "Querying basics › Range vector selectors"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#expression-language-data-types",
+        "title": "Querying basics › Expression language data types"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-graphable",
+    "type": "multi",
+    "stem": "In a range query (the Graph tab), which expression results can be graphed directly? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "An instant vector",
+        "correct": true,
+        "note": "Right. Range queries support instant-vector results."
+      },
+      {
+        "id": "b",
+        "text": "A scalar",
+        "correct": true,
+        "note": "Right. Range queries support scalar results."
+      },
+      {
+        "id": "c",
+        "text": "A range vector",
+        "correct": false,
+        "note": "Range vectors can't be the result of a range query. Pass them to a function first."
+      },
+      {
+        "id": "d",
+        "text": "A string",
+        "correct": false,
+        "note": "Strings aren't supported as range query results."
+      }
+    ],
+    "explanation": "Range queries only support scalar-typed and instant-vector-typed expressions. Range vectors must be passed to a function, such as rate(), first.",
+    "hint": "Graphs need one value per series per step.",
+    "difficulty": 2,
+    "tags": [
+      "promql"
+    ],
+    "uses": [
+      "instant vector",
+      "scalar",
+      "range vector",
+      "range query"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#expression-language-data-types",
+        "title": "Querying basics › Expression language data types"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-regex-anchor",
+    "type": "single",
+    "stem": "Which series does http_requests_total{env=~\"prod\"} match?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Only series where env is exactly \"prod\"",
+        "correct": true,
+        "note": "Right. Regex matches are fully anchored, as if you'd written ^prod$."
+      },
+      {
+        "id": "b",
+        "text": "Series where env contains \"prod\", such as \"production\"",
+        "correct": false,
+        "note": "Anchoring prevents partial matches. Use env=~\"prod.*\" for that."
+      },
+      {
+        "id": "c",
+        "text": "All series, because =~ matches anything",
+        "correct": false,
+        "note": "=~ matches the regex. It doesn't match everything."
+      },
+      {
+        "id": "d",
+        "text": "Series without an env label",
+        "correct": false,
+        "note": "\"prod\" doesn't match the empty string, so series without env are excluded."
+      }
+    ],
+    "explanation": "Regex matches are fully anchored. A match of env=~\"foo\" is treated as env=~\"^foo$\".",
+    "hint": "Recall how relabel regexes behaved.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "regex matcher",
+      "label matcher"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors",
+        "title": "Querying basics › Instant vector selectors"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-matchers",
+    "type": "single",
+    "stem": "Which query selects http_requests_total for the staging and testing environments, excluding the GET method?",
+    "options": [
+      {
+        "id": "a",
+        "text": "http_requests_total{environment=~\"staging|testing\", method!=\"GET\"}",
+        "correct": true,
+        "note": "Right. =~ with alternation for the environments, != for the method."
+      },
+      {
+        "id": "b",
+        "text": "http_requests_total{environment=\"staging|testing\", method!=\"GET\"}",
+        "correct": false,
+        "note": "= is an exact string match, so this looks for the literal value \"staging|testing\"."
+      },
+      {
+        "id": "c",
+        "text": "http_requests_total{environment=~\"staging|testing\", method!~\"GET.*\"} offset 5m",
+        "correct": false,
+        "note": "The offset shifts time, which wasn't asked for, and the method regex is broader than needed."
+      },
+      {
+        "id": "d",
+        "text": "http_requests_total[environment=~\"staging|testing\"]",
+        "correct": false,
+        "note": "Matchers go in curly braces. Square brackets are for range durations."
+      }
+    ],
+    "explanation": "Use =~ for regex matches (such as alternation with |), and != for not-equal. Matchers go inside curly braces.",
+    "hint": "Alternation with | needs a regex matcher.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "label matcher",
+      "regex matcher"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors",
+        "title": "Querying basics › Instant vector selectors"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-empty-matcher",
+    "type": "multi",
+    "stem": "Given these series, which does http_requests_total{environment=\"\"} return? Select all that apply.",
+    "code": "http_requests_total\nhttp_requests_total{replica=\"rep-a\"}\nhttp_requests_total{replica=\"rep-b\"}\nhttp_requests_total{environment=\"development\"}",
+    "codeLang": "text",
+    "options": [
+      {
+        "id": "a",
+        "text": "http_requests_total",
+        "correct": true,
+        "note": "Right. It has no environment label, and an empty matcher also matches a missing label."
+      },
+      {
+        "id": "b",
+        "text": "http_requests_total{replica=\"rep-a\"}",
+        "correct": true,
+        "note": "Right. No environment label, so it matches."
+      },
+      {
+        "id": "c",
+        "text": "http_requests_total{environment=\"development\"}",
+        "correct": false,
+        "note": "Its environment is \"development\", not empty."
+      },
+      {
+        "id": "d",
+        "text": "http_requests_total{replica=\"rep-b\"}",
+        "correct": true,
+        "note": "Right. No environment label, so it matches."
+      }
+    ],
+    "explanation": "Label matchers that match empty label values also select all series that don't have that label set at all.",
+    "hint": "An empty label value is the same as no label.",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "label matcher",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors",
+        "title": "Querying basics › Instant vector selectors"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-illegal",
+    "type": "single",
+    "stem": "Which of these selectors is illegal?",
+    "options": [
+      {
+        "id": "a",
+        "text": "{job=~\".*\"}",
+        "correct": true,
+        "note": "Right. It has no metric name and its only matcher matches the empty string, which isn't allowed."
+      },
+      {
+        "id": "b",
+        "text": "{job=~\".+\"}",
+        "correct": false,
+        "note": "Valid. .+ can't match the empty string."
+      },
+      {
+        "id": "c",
+        "text": "{job=~\".*\", method=\"get\"}",
+        "correct": false,
+        "note": "Valid. method=\"get\" can't match an empty value."
+      },
+      {
+        "id": "d",
+        "text": "{__name__=~\"job:.*\"}",
+        "correct": false,
+        "note": "Valid. It matches on the metric name label, and that regex can't match empty."
+      }
+    ],
+    "explanation": "Selectors must specify a name or at least one label matcher that doesn't match the empty string. {job=~\".*\"} is the docs' own example of a bad selector.",
+    "hint": "Which one could, in principle, match every series in the database?",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "selector",
+      "label matcher"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors",
+        "title": "Querying basics › Instant vector selectors"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-offset-placement",
+    "type": "single",
+    "stem": "Which expression correctly gets the sum of GET requests as they were 5 minutes ago?",
+    "options": [
+      {
+        "id": "a",
+        "text": "sum(http_requests_total{method=\"GET\"} offset 5m)",
+        "correct": true,
+        "note": "Right. offset follows the selector directly, inside the aggregation."
+      },
+      {
+        "id": "b",
+        "text": "sum(http_requests_total{method=\"GET\"}) offset 5m",
+        "correct": false,
+        "note": "Invalid. offset must come immediately after the selector, not after the aggregation."
+      },
+      {
+        "id": "c",
+        "text": "offset 5m sum(http_requests_total{method=\"GET\"})",
+        "correct": false,
+        "note": "offset is a postfix modifier on the selector, not a prefix."
+      },
+      {
+        "id": "d",
+        "text": "sum(http_requests_total{method=\"GET\"}[offset 5m])",
+        "correct": false,
+        "note": "offset doesn't go inside range brackets."
+      }
+    ],
+    "explanation": "The offset modifier always needs to follow the selector immediately. sum(x offset 5m) is valid; sum(x) offset 5m is not.",
+    "hint": "The modifier attaches to the selector, not to the function around it.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "offset",
+      "selector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#offset-modifier",
+        "title": "Querying basics › Offset modifier"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-offset-rate",
+    "type": "single",
+    "stem": "What does rate(http_requests_total[5m] offset 1w) return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The 5-minute rate that http_requests_total had one week before the evaluation time",
+        "correct": true,
+        "note": "Right. The offset shifts the whole 5m window back by a week."
+      },
+      {
+        "id": "b",
+        "text": "The rate over the past week",
+        "correct": false,
+        "note": "That would be rate(http_requests_total[1w]). Here the window is still 5 minutes, just shifted."
+      },
+      {
+        "id": "c",
+        "text": "The rate averaged over 5 minutes, every week",
+        "correct": false,
+        "note": "offset is a single time shift, not a repeating schedule."
+      },
+      {
+        "id": "d",
+        "text": "An error, because offset can't be used with range vectors",
+        "correct": false,
+        "note": "offset works with range vectors too, and this is the docs' own example."
+      }
+    ],
+    "explanation": "offset works the same for range vectors. This example returns the 5-minute rate that http_requests_total had a week ago.",
+    "hint": "The window size and the shift are separate things.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "offset",
+      "range vector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#offset-modifier",
+        "title": "Querying basics › Offset modifier"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-at-modifier",
+    "type": "single",
+    "stem": "What does the @ in http_requests_total @ 1609746000 do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Evaluates the selector at the absolute Unix time 1609746000",
+        "correct": true,
+        "note": "Right. @ pins the evaluation time to a specific timestamp."
+      },
+      {
+        "id": "b",
+        "text": "Shifts the evaluation back by 1609746000 seconds",
+        "correct": false,
+        "note": "Relative shifts are what offset does. @ takes an absolute timestamp."
+      },
+      {
+        "id": "c",
+        "text": "Filters series whose value equals 1609746000",
+        "correct": false,
+        "note": "Filtering by value uses comparison operators, not @."
+      },
+      {
+        "id": "d",
+        "text": "Limits the result to 1609746000 series",
+        "correct": false,
+        "note": "@ is about time, not result size."
+      }
+    ],
+    "explanation": "The @ modifier changes the evaluation time for an individual selector. The value is a Unix timestamp, here 2021-01-04T07:40:00Z.",
+    "hint": "Absolute vs relative time.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "@ modifier"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics › @ modifier"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-at-offset-order",
+    "type": "single",
+    "stem": "How do http_requests_total @ 1609746000 offset 5m and http_requests_total offset 5m @ 1609746000 compare?",
+    "options": [
+      {
+        "id": "a",
+        "text": "They return the same result: the value 5 minutes before 1609746000",
+        "correct": true,
+        "note": "Right. The offset is applied relative to the @ time, whatever order you write them in."
+      },
+      {
+        "id": "b",
+        "text": "The first is valid and the second is a syntax error",
+        "correct": false,
+        "note": "Both orders are valid."
+      },
+      {
+        "id": "c",
+        "text": "The first looks 5 minutes after the timestamp",
+        "correct": false,
+        "note": "A positive offset looks back, relative to the @ time."
+      },
+      {
+        "id": "d",
+        "text": "They differ because modifiers are applied left to right",
+        "correct": false,
+        "note": "The docs say the result is the same irrespective of order."
+      }
+    ],
+    "explanation": "@ works with offset, where the offset is applied relative to the @ time. The results are the same whichever order the modifiers are in.",
+    "hint": "Order doesn't matter here.",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "@ modifier",
+      "offset"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics › @ modifier"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-lookback",
+    "type": "single",
+    "stem": "An instant query evaluates at 12:00. A series' most recent sample is from 11:57, and it hasn't been marked stale. What is returned for that series with the default lookback?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The 11:57 sample's value",
+        "correct": true,
+        "note": "Right. It's within the default 5-minute lookback period."
+      },
+      {
+        "id": "b",
+        "text": "Nothing, because there's no sample at exactly 12:00",
+        "correct": false,
+        "note": "Prometheus uses the newest sample within the lookback period. It doesn't need an exact timestamp match."
+      },
+      {
+        "id": "c",
+        "text": "An interpolated value between samples",
+        "correct": false,
+        "note": "Instant selectors take the most recent sample. They don't interpolate."
+      },
+      {
+        "id": "d",
+        "text": "Zero",
+        "correct": false,
+        "note": "Prometheus doesn't fill in zeros. It returns the most recent real sample."
+      }
+    ],
+    "explanation": "For each series, Prometheus takes the newest sample less than the lookback period ago, which is 5 minutes by default (--query.lookback-delta).",
+    "hint": "How far back does Prometheus look by default?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "staleness"
+    ],
+    "uses": [
+      "lookback period",
+      "instant vector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#staleness",
+        "title": "Querying basics › Staleness"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors",
+        "title": "Querying basics › Instant vector selectors"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-staleness",
+    "type": "single",
+    "stem": "A target is removed from service discovery. What happens to its series in queries shortly afterwards?",
+    "options": [
+      {
+        "id": "a",
+        "text": "They're marked stale and stop being returned for later evaluation times",
+        "correct": true,
+        "note": "Right. Prometheus marks them stale soon after removal, so they disappear from graphs."
+      },
+      {
+        "id": "b",
+        "text": "They keep returning their last value forever",
+        "correct": false,
+        "note": "Staleness handling prevents that for normally scraped series."
+      },
+      {
+        "id": "c",
+        "text": "They return zero",
+        "correct": false,
+        "note": "Stale series return nothing, not zero."
+      },
+      {
+        "id": "d",
+        "text": "They're deleted from disk immediately",
+        "correct": false,
+        "note": "The historical data stays until retention removes it. Only new evaluations skip them."
+      }
+    ],
+    "explanation": "If a target is removed, its previously retrieved series are marked stale soon after. Queries evaluated after that point return no value for them.",
+    "hint": "The term is in the lesson's staleness section.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "staleness"
+    ],
+    "uses": [
+      "staleness"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#staleness",
+        "title": "Querying basics › Staleness"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-range-boundary",
+    "type": "single",
+    "stem": "In current Prometheus, a range selector [5m] evaluated at time T includes which samples?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Samples with timestamps after T-5m, up to and including T",
+        "correct": true,
+        "note": "Right. Ranges are left-open and right-closed: the left boundary is excluded, the right included."
+      },
+      {
+        "id": "b",
+        "text": "Samples from T-5m to T, including both boundaries",
+        "correct": false,
+        "note": "The left boundary is excluded (left-open). In 2.x it was included."
+      },
+      {
+        "id": "c",
+        "text": "Only the sample exactly at T-5m",
+        "correct": false,
+        "note": "A range selects every sample in the window, not one point."
+      },
+      {
+        "id": "d",
+        "text": "Samples from T to T+5m",
+        "correct": false,
+        "note": "Ranges look back from the evaluation time, not forward."
+      }
+    ],
+    "explanation": "The range is a left-open, right-closed interval: samples coinciding with the left boundary are excluded, and samples on the right boundary are included. (Prometheus 2.x was left-closed.)",
+    "hint": "Open means the boundary itself is excluded.",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "selectors"
+    ],
+    "uses": [
+      "range vector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#range-vector-selectors",
+        "title": "Querying basics › Range vector selectors"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sel-durations",
+    "type": "multi",
+    "stem": "Which durations are valid in PromQL? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "1h30m",
+        "correct": true,
+        "note": "Right. Units can be combined from longest to shortest."
+      },
+      {
+        "id": "b",
+        "text": "5m",
+        "correct": true,
+        "note": "Right. The classic example."
+      },
+      {
+        "id": "c",
+        "text": "1.5h",
+        "correct": false,
+        "note": "Time units can't be combined with a floating-point number. Write 1h30m."
+      },
+      {
+        "id": "d",
+        "text": "30m1h",
+        "correct": false,
+        "note": "Units must be ordered from longest to shortest."
+      }
+    ],
+    "explanation": "Duration literals combine decimal integers with units (ms, s, m, h, d, w, y), ordered longest to shortest. Floats can't take units, so 1.5h is invalid.",
+    "hint": "Two rules: integers only, largest unit first.",
+    "difficulty": 3,
+    "tags": [
+      "promql"
+    ],
+    "uses": [
+      "range vector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#float-literals-and-time-durations",
+        "title": "Querying basics › Float literals and time durations"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

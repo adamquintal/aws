@@ -1,0 +1,82 @@
+---
+id: fund-limitations
+title: What Prometheus is not good at
+summary: Prometheus is built for reliable, operational monitoring, not for perfect accuracy, event logging, or clustered long-term storage. Knowing its limits, and the usual workarounds, is part of using it well.
+analogy: "Prometheus is like a smoke detector rather than a CCTV system. It's cheap, independent and extremely reliable at telling you something is wrong right now. But it doesn't record every detail of every event, it doesn't keep footage for years on its own, and you wouldn't use it to send customers itemised bills."
+keyPoints:
+  - "Not for 100% accuracy: data won't be detailed or complete enough for per-request billing. Use another system for billing and Prometheus for monitoring."
+  - Not an event logging system. Don't feed logs into it. Use a log system such as Loki or OpenSearch.
+  - Local storage isn't clustered or replicated, so treat it like a single-node database. Use remote write/read integrations for durable or long-term storage.
+  - Default retention is 15 days (--storage.tsdb.retention.time), at roughly 1–2 bytes per sample on disk.
+  - High cardinality is the main scaling risk, because every label combination is a new series. A single server handles tens of millions of active series.
+  - High availability means running two or more identical servers. Deduplicate with tools such as Thanos or a remote-write backend, and Alertmanager deduplicates identical alerts.
+  - Sample values are float64, which is exact for integers only up to 2^53. All times are Unix time internally and UTC in displays.
+  - Pull needs network reachability to targets. Short-lived jobs need the Pushgateway, with its own trade-offs.
+  - NFS (including AWS EFS) isn't supported for local storage. Use a local filesystem.
+commonTrap: Assuming one Prometheus server is a durable, long-term, replicated store, or that "HA Prometheus" means clustering. Local storage is single-node and not replicated. HA comes from running identical, independent servers that both scrape the same targets, with deduplication done downstream (for example Thanos, a remote-write backend, or Alertmanager for alerts).
+explainBack:
+  prompt: A product manager wants to use Prometheus data to bill customers per API call and keep it for five years. What would you tell them, and what would you suggest instead?
+  modelAnswer: Prometheus isn't suited to either requirement on its own. Its data is sampled and aggregated for operational monitoring, so it isn't complete or exact enough for per-request billing. The docs specifically say to use a different system for billing. Local storage is a single-node database with a default retention of 15 days. It isn't clustered or replicated, so long-term durable storage would need remote write to a dedicated long-term store. I'd suggest recording billable events in a proper transactional system or event log, and keeping Prometheus for monitoring and alerting.
+introduces: [retention, high availability, thanos, federation, float64 precision, billing accuracy]
+sources:
+  - url: https://prometheus.io/docs/introduction/overview/#when-does-it-not-fit
+    title: Overview › When does it not fit?
+    readFrom: github.com/prometheus/docs@605cf81 docs/introduction/overview.md
+  - url: https://prometheus.io/docs/prometheus/latest/storage/
+    title: Storage (local storage limits, retention, remote storage)
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/storage.md
+  - url: https://prometheus.io/docs/introduction/faq/
+    title: FAQ (HA, scaling, logs, float64, UTC)
+    readFrom: github.com/prometheus/docs@605cf81 docs/introduction/faq.md
+  - url: https://prometheus.io/docs/introduction/comparison/
+    title: Comparison to alternatives
+    readFrom: github.com/prometheus/docs@605cf81 docs/introduction/comparison.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Designed for reliability, not completeness
+
+Prometheus's design goal is to be **the system you go to during an outage**. Each server is standalone and depends on nothing else. That focus brings some deliberate trade-offs.
+
+### 1. Not for 100% accuracy
+
+The overview says it directly: if you need 100% accuracy, **such as per-request billing**, Prometheus isn't a good choice. The data won't be detailed and complete enough. Use another system for billing and keep Prometheus for the rest of your monitoring.
+
+### 2. Not an event or log store
+
+Prometheus collects **metrics**: numbers sampled at intervals. It doesn't record individual events. The FAQ answers "How do I feed logs into Prometheus?" with "**Don't!**" and points to log systems such as Grafana Loki or OpenSearch. (Logs and events get their own topic later.)
+
+### 3. Local storage is single-node
+
+The storage docs note that local storage is **not clustered or replicated**, so it isn't arbitrarily scalable or durable against disk or node failure. Treat it like any other single-node database:
+
+- Default retention is **15 days** (`--storage.tsdb.retention.time`), and you can also cap it by size (`--storage.tsdb.retention.size`).
+- Prometheus stores an average of **1–2 bytes per sample**, so needed disk ≈ retention seconds × samples per second × bytes per sample.
+- Use **snapshots** for backups. **NFS (including AWS EFS) isn't supported** for local storage.
+- For long-term or durable storage, use **remote write / remote read** integrations.
+
+### 4. Cardinality is the real scaling limit
+
+The FAQ says a single Prometheus server can run reliably with **tens of millions of active series**, and calls "Prometheus doesn't scale" mostly a marketing claim. What breaks servers in practice is **cardinality explosions**: labels with unbounded values such as user IDs. Beyond one server, options include federation and long-term storage systems.
+
+### 5. High availability is "run two"
+
+There's no built-in clustering of the server. For HA, **run identical Prometheus servers on two or more machines**, all scraping the same targets. Then:
+
+- systems such as **Thanos**, or many remote-write backends, can deduplicate the data;
+- **Alertmanager** deduplicates the identical alerts both servers send, and can itself be clustered for HA.
+
+### 6. Numbers and time
+
+- Every sample value is a **64-bit float**. Integers are exact up to **2⁵³**. The FAQ notes that a counter incremented a million times a second would take over 285 years to hit precision issues.
+- Internally everything is **Unix time**, and all components display **UTC**, to avoid timezone and daylight-saving confusion.
+
+### 7. Pull has prerequisites
+
+Prometheus must be able to **reach** its targets over the network, and very short-lived jobs need the **Pushgateway**, which has trade-offs of its own. Firewalls and NAT are usually solved by running Prometheus inside the network.
+
+## The honest summary
+
+The comparison page puts it well. Prometheus is better if you're **primarily doing metrics** and want powerful querying, alerting and high availability for graphing and alerting. A clustered or event-logging system is the better fit for **event logging** or for clustered, long-term historical storage on its own.

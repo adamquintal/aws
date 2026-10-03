@@ -1,0 +1,152 @@
+---
+id: promql-binary
+title: Arithmetic, comparisons, set operators and vector matching
+summary: Binary operators do maths (+ - * / % ^), compare values (== != > < >= <=), or combine series sets (and, or, unless). Between two vectors, Prometheus pairs series whose labels match exactly. on, ignoring, group_left and group_right let you adjust that pairing.
+analogy: "Vector matching is like joining two guest lists for a wedding. By default you only pair up guests whose full name, table and meal choice all match exactly. ignoring(meal) says \"pair people even if their meal choices differ\". on(table) says \"pair only by table number\". group_left is for when one table on the right matches many guests on the left, so each guest gets their table's details copied across."
+keyPoints:
+  - "Arithmetic: +, -, *, /, % (modulo) and ^ (power). They work between scalar/scalar, vector/scalar and vector/vector. With vectors involved, the metric name is dropped."
+  - "Comparisons: ==, !=, >, <, >= and <=. By default they filter: series where the comparison is false are dropped. Add bool to get 0 or 1 instead, which also drops the metric name."
+  - Comparing two scalars requires bool.
+  - "Set operators work only between instant vectors and match on exact label sets: and (intersection), or (union), unless (complement)."
+  - One-to-one matching pairs series with identical label sets. ignoring(labels) leaves some labels out of the comparison, and on(labels) compares only the listed ones.
+  - Series with no match on the other side are dropped from the result.
+  - group_left (many-to-one) and group_right (one-to-many) allow one series on one side to match several on the other. Left or right names the side with higher cardinality.
+  - Precedence, highest to lowest, is ^, then * / % atan2, then + -, then comparisons, then and unless, then or. ^ is right-associative and the rest are left-associative.
+  - To aggregate ratios, sum the numerator and denominator separately, then divide. Don't average ratios or averages.
+commonTrap: "Dividing two vectors whose label sets differ, as in errors{method, code} / requests{method}, and getting an empty result. Without ignoring(code) or on(method), nothing matches. A second classic: expecting up == 0 to return series with value 0 for healthy targets. Comparisons filter by default, so you only get the matches. Use up == bool 0 for a 0 or 1 for every series."
+explainBack:
+  prompt: Explain why method_code:http_errors:rate5m / method:http_requests:rate5m returns nothing, and how ignoring(code) group_left fixes it.
+  modelAnswer: Binary operations between vectors pair series with exactly the same label set. The errors series have both method and code labels, while the requests series only have method, so nothing pairs and the result is empty. ignoring(code) leaves code out of the comparison so series can pair on method. Several error series (one per code) now match the same request series, which is many-to-one, so group_left is needed to allow it. The result is one error ratio per method and code.
+introduces: [arithmetic operator, comparison operator, bool, set operator, and, or, unless, vector matching, one-to-one matching, many-to-one matching, on, ignoring, group_left, group_right, operator precedence]
+versionNotes:
+  - Newer Prometheus versions add experimental fill modifiers (fill(), fill_left(), fill_right()) to fill in missing matches, plus histogram trim operators. Both need feature flags and are beyond exam-era material.
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/querying/operators/#binary-operators
+    title: Operators › Binary operators
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/operators.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/operators/#vector-matching
+    title: Operators › Vector matching
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/operators.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/operators/#binary-operator-precedence
+    title: Operators › Binary operator precedence
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/operators.md
+  - url: https://prometheus.io/docs/practices/rules/#aggregation
+    title: Recording rules › Aggregation (ratios)
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/rules.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Arithmetic
+
+`+  -  *  /  %  ^` work between scalars, between a vector and a scalar (applied to every sample), and between two vectors (applied to each **matched pair**).
+
+```promql
+(instance_memory_limit_bytes - instance_memory_usage_bytes) / 1024 / 1024   # unused memory in MiB
+```
+
+When vectors are involved, **the metric name is dropped** from the result, because "limit minus usage" isn't either original metric any more.
+
+## Comparisons filter by default
+
+`==  !=  >  <  >=  <=`
+
+```promql
+up == 0                        # only the targets that are down
+node_load1 > 4                 # only the series above 4
+```
+
+A comparison against a vector **filters**: series where it's false are removed, and survivors keep their original values. Add **`bool`** to get a 0 or 1 for every series instead:
+
+```promql
+up == bool 0                   # 1 for down targets, 0 for healthy ones
+```
+
+`bool` also drops the metric name. Between two **scalars**, `bool` is required (`2 > bool 1` returns 1).
+
+## Set operators: and, or, unless
+
+These work only between instant vectors, and match on **exact label sets**:
+
+| Expression | Result |
+|---|---|
+| `a and b` | series in `a` that have a matching label set in `b` (values from `a`) |
+| `a or b` | all of `a`, plus series from `b` with no match in `a` |
+| `a unless b` | series in `a` that have **no** match in `b` |
+
+## Vector matching
+
+When both sides are vectors, each series on the left looks for a partner on the right. By default, partners must have **exactly the same labels**. Unmatched series are dropped.
+
+Using the docs' example data:
+
+```text
+method_code:http_errors:rate5m{method="get", code="500"}  24
+method_code:http_errors:rate5m{method="get", code="404"}  30
+method_code:http_errors:rate5m{method="put", code="501"}  3
+method_code:http_errors:rate5m{method="post", code="500"} 6
+method_code:http_errors:rate5m{method="post", code="404"} 21
+
+method:http_requests:rate5m{method="get"}  600
+method:http_requests:rate5m{method="del"}  34
+method:http_requests:rate5m{method="post"} 120
+```
+
+### One-to-one with ignoring / on
+
+```promql
+method_code:http_errors:rate5m{code="500"} / ignoring(code) method:http_requests:rate5m
+```
+
+```text
+{method="get"}  0.04     # 24 / 600
+{method="post"} 0.05     #  6 / 120
+```
+
+- `ignoring(code)` compares labels **except** `code`. `on(method)` would compare **only** `method`, with the same effect here.
+- `put` and `del` have no partner, so they're dropped.
+
+### Many-to-one with group_left
+
+Without the `{code="500"}` filter, the left side has **several** series per `method` (one per code), all wanting the same right-hand partner. That has to be allowed explicitly:
+
+```promql
+method_code:http_errors:rate5m / ignoring(code) group_left method:http_requests:rate5m
+```
+
+```text
+{method="get", code="500"}  0.04    # 24 / 600
+{method="get", code="404"}  0.05    # 30 / 600
+{method="post", code="500"} 0.05    #  6 / 120
+{method="post", code="404"} 0.175   # 21 / 120
+```
+
+- **`group_left`**: the **left** side has higher cardinality (many-to-one).
+- **`group_right`**: the **right** side has higher cardinality (one-to-many).
+- You can list extra labels to copy from the "one" side, as in `group_left(team)`.
+
+The docs advise care: often a well-chosen `ignoring(...)` is enough.
+
+## Precedence (highest first)
+
+1. `^` (right-associative: `2 ^ 3 ^ 2` = `2 ^ (3 ^ 2)`)
+2. `*  /  %  atan2`
+3. `+  -`
+4. `==  !=  <=  <  >=  >`
+5. `and  unless`
+6. `or`
+
+Everything except `^` is left-associative: `2 * 3 % 2` = `(2 * 3) % 2`.
+
+## Ratios: divide sums, don't average ratios
+
+To get an error ratio across many instances, **sum the numerator and the denominator first, then divide**:
+
+```promql
+sum without (instance) (rate(http_errors_total[5m]))
+/
+sum without (instance) (rate(http_requests_total[5m]))
+```
+
+The recording rules guide warns that averaging ratios, or averaging averages, isn't statistically valid.

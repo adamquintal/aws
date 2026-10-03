@@ -1,0 +1,835 @@
+[
+  {
+    "id": "bin-filter",
+    "type": "single",
+    "stem": "There are 10 targets, 2 of which are down. What does up == 0 return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The 2 series for the down targets, each with value 0",
+        "correct": true,
+        "note": "Right. Comparisons filter by default, keeping only matching series with their original values."
+      },
+      {
+        "id": "b",
+        "text": "All 10 series, with 1 for down and 0 for up",
+        "correct": false,
+        "note": "That's what up == bool 0 gives."
+      },
+      {
+        "id": "c",
+        "text": "A single scalar, 2",
+        "correct": false,
+        "note": "Comparisons don't count. You'd need count(up == 0) for that."
+      },
+      {
+        "id": "d",
+        "text": "All 10 series, unchanged",
+        "correct": false,
+        "note": "Series where the comparison is false are dropped."
+      }
+    ],
+    "explanation": "Comparison operators filter by default: vector elements for which the comparison is false are dropped. The bool modifier returns 0 or 1 instead.",
+    "hint": "Default behaviour is to filter.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "comparison operator",
+      "up"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#comparison-binary-operators",
+        "title": "Operators › Comparison binary operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-bool",
+    "type": "single",
+    "stem": "What does up == bool 0 return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Every up series, with value 1 where the target is down and 0 where it's up",
+        "correct": true,
+        "note": "Right. bool turns the filter into a 0/1 result for every matched series."
+      },
+      {
+        "id": "b",
+        "text": "Only down targets",
+        "correct": false,
+        "note": "That's up == 0 without bool."
+      },
+      {
+        "id": "c",
+        "text": "Only up targets",
+        "correct": false,
+        "note": "bool doesn't filter at all."
+      },
+      {
+        "id": "d",
+        "text": "The same series with the metric name up preserved",
+        "correct": false,
+        "note": "bool drops the metric name."
+      }
+    ],
+    "explanation": "With bool, elements that would have been filtered out get value 0 instead, those that match get 1, and the metric name is dropped.",
+    "hint": "bool means true/false as numbers.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "bool",
+      "comparison operator"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#comparison-binary-operators",
+        "title": "Operators › Comparison binary operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-scalar-bool",
+    "type": "single",
+    "stem": "Which comparison between two scalars is valid?",
+    "options": [
+      {
+        "id": "a",
+        "text": "2 > bool 1",
+        "correct": true,
+        "note": "Right. Between two scalars, bool must be provided. This returns 1."
+      },
+      {
+        "id": "b",
+        "text": "2 > 1",
+        "correct": false,
+        "note": "Between two scalars the bool modifier is required."
+      },
+      {
+        "id": "c",
+        "text": "2 >> 1",
+        "correct": false,
+        "note": ">> isn't a PromQL operator."
+      },
+      {
+        "id": "d",
+        "text": "bool(2 > 1)",
+        "correct": false,
+        "note": "bool is a modifier placed after the operator, not a function."
+      }
+    ],
+    "explanation": "Between two scalars, the bool modifier must be provided, and these operators return 0 (false) or 1 (true).",
+    "hint": "There's nothing to filter between two scalars.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "bool",
+      "scalar"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#comparison-binary-operators",
+        "title": "Operators › Comparison binary operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-name-dropped",
+    "type": "single",
+    "stem": "What happens to the metric name in (instance_memory_limit_bytes - instance_memory_usage_bytes)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It's dropped from the result series",
+        "correct": true,
+        "note": "Right. Any arithmetic binary operation involving vectors drops the metric name."
+      },
+      {
+        "id": "b",
+        "text": "The left-hand metric name is kept",
+        "correct": false,
+        "note": "That's true for comparisons without bool, not for arithmetic."
+      },
+      {
+        "id": "c",
+        "text": "The two names are concatenated",
+        "correct": false,
+        "note": "No such merging happens."
+      },
+      {
+        "id": "d",
+        "text": "The query fails because the names differ",
+        "correct": false,
+        "note": "Different names are fine. Matching uses labels, not names."
+      }
+    ],
+    "explanation": "In any arithmetic binary operation involving vectors, the metric name is dropped.",
+    "hint": "The result is a new quantity, neither of the originals.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "arithmetic operator"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#arithmetic-binary-operators",
+        "title": "Operators › Arithmetic binary operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-scalar-vector",
+    "type": "single",
+    "stem": "What does node_memory_MemAvailable_bytes / 1024 / 1024 do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Divides every series' value by 1024 twice, converting bytes to MiB, with one result per input series",
+        "correct": true,
+        "note": "Right. Between a vector and a scalar, the operator is applied to every sample."
+      },
+      {
+        "id": "b",
+        "text": "Returns a single scalar total in MiB",
+        "correct": false,
+        "note": "Scalar arithmetic doesn't aggregate. Every series stays separate."
+      },
+      {
+        "id": "c",
+        "text": "Fails, because you can't divide a vector by a scalar",
+        "correct": false,
+        "note": "vector/scalar arithmetic is explicitly supported."
+      },
+      {
+        "id": "d",
+        "text": "Keeps only series larger than 1024",
+        "correct": false,
+        "note": "That would be a comparison, not division."
+      }
+    ],
+    "explanation": "Between an instant vector and a scalar, the operator is applied to the value of every data sample in the vector.",
+    "hint": "Think of applying the same division to every row.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "arithmetic operator",
+      "scalar",
+      "instant vector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#arithmetic-binary-operators",
+        "title": "Operators › Arithmetic binary operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-no-match",
+    "type": "single",
+    "stem": "Using the data shown, what does method_code:http_errors:rate5m / method:http_requests:rate5m return (with no matching keywords)?",
+    "code": "method_code:http_errors:rate5m{method=\"get\", code=\"500\"}  24\nmethod_code:http_errors:rate5m{method=\"get\", code=\"404\"}  30\nmethod_code:http_errors:rate5m{method=\"post\", code=\"500\"} 6\nmethod_code:http_errors:rate5m{method=\"post\", code=\"404\"} 21\n\nmethod:http_requests:rate5m{method=\"get\"}  600\nmethod:http_requests:rate5m{method=\"post\"} 120",
+    "codeLang": "text",
+    "options": [
+      {
+        "id": "a",
+        "text": "An empty result",
+        "correct": true,
+        "note": "Right. The left series have method and code labels, the right only method. No label sets match exactly, so nothing pairs."
+      },
+      {
+        "id": "b",
+        "text": "One ratio per method",
+        "correct": false,
+        "note": "That needs ignoring(code), plus group_left because there are several codes per method."
+      },
+      {
+        "id": "c",
+        "text": "One ratio per method and code",
+        "correct": false,
+        "note": "That needs ignoring(code) group_left."
+      },
+      {
+        "id": "d",
+        "text": "An error about different metric names",
+        "correct": false,
+        "note": "Names don't matter for matching. Labels do, and here they don't match."
+      }
+    ],
+    "explanation": "By default, two entries match only if they have exactly the same set of labels and values. Unmatched series aren't part of the result.",
+    "hint": "Compare the label sets on each side.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "vector matching",
+      "one-to-one matching"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#one-to-one-vector-matches",
+        "title": "Operators › One-to-one vector matches"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#vector-matching",
+        "title": "Operators › Vector matching"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-ignoring",
+    "type": "single",
+    "stem": "Which expression returns the fraction of requests with code 500 for each method, using the data shown?",
+    "code": "method_code:http_errors:rate5m{method=\"get\", code=\"500\"}  24\nmethod_code:http_errors:rate5m{method=\"get\", code=\"404\"}  30\nmethod_code:http_errors:rate5m{method=\"post\", code=\"500\"} 6\nmethod_code:http_errors:rate5m{method=\"post\", code=\"404\"} 21\n\nmethod:http_requests:rate5m{method=\"get\"}  600\nmethod:http_requests:rate5m{method=\"post\"} 120",
+    "codeLang": "text",
+    "options": [
+      {
+        "id": "a",
+        "text": "method_code:http_errors:rate5m{code=\"500\"} / ignoring(code) method:http_requests:rate5m",
+        "correct": true,
+        "note": "Right. With code=\"500\" there's one left series per method, and ignoring(code) lets it pair with the right side."
+      },
+      {
+        "id": "b",
+        "text": "method_code:http_errors:rate5m{code=\"500\"} / method:http_requests:rate5m",
+        "correct": false,
+        "note": "Without ignoring(code) the label sets differ, so nothing matches."
+      },
+      {
+        "id": "c",
+        "text": "method_code:http_errors:rate5m{code=\"500\"} / on(code) method:http_requests:rate5m",
+        "correct": false,
+        "note": "The right side has no code label, so on(code) can't pair series by method."
+      },
+      {
+        "id": "d",
+        "text": "method_code:http_errors:rate5m{code=\"500\"} and method:http_requests:rate5m",
+        "correct": false,
+        "note": "and is a set operator. It doesn't divide."
+      }
+    ],
+    "explanation": "The docs' one-to-one example: ignoring(code) lets errors{method, code=\"500\"} match requests{method}, giving {method=\"get\"} 0.04 and {method=\"post\"} 0.05.",
+    "hint": "Which label must be left out of the comparison?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "ignoring",
+      "one-to-one matching"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#one-to-one-vector-matches",
+        "title": "Operators › One-to-one vector matches"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-on-vs-ignoring",
+    "type": "single",
+    "stem": "How do on(...) and ignoring(...) differ?",
+    "options": [
+      {
+        "id": "a",
+        "text": "on compares only the listed labels; ignoring compares all labels except the listed ones",
+        "correct": true,
+        "note": "Right. One is a whitelist, the other a blacklist."
+      },
+      {
+        "id": "b",
+        "text": "on compares all labels except the listed ones; ignoring compares only the listed ones",
+        "correct": false,
+        "note": "Reversed."
+      },
+      {
+        "id": "c",
+        "text": "They're synonyms",
+        "correct": false,
+        "note": "They're opposites in how they choose the labels to compare."
+      },
+      {
+        "id": "d",
+        "text": "on is for set operators only; ignoring is for arithmetic only",
+        "correct": false,
+        "note": "Both work with arithmetic and comparison operators."
+      }
+    ],
+    "explanation": "on(<label list>) only matches on the provided labels. ignoring(<label list>) ignores the provided labels when matching.",
+    "hint": "Compare with how by and without behave for aggregation.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "on",
+      "ignoring"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#vector-matching",
+        "title": "Operators › Vector matching"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-group-left",
+    "type": "single",
+    "stem": "In the data shown, each requests series (one per method) must match several errors series (one per method and code). Which modifier makes method_code:http_errors:rate5m / ignoring(code) … method:http_requests:rate5m work?",
+    "code": "method_code:http_errors:rate5m{method=\"get\", code=\"500\"}  24\nmethod_code:http_errors:rate5m{method=\"get\", code=\"404\"}  30\nmethod_code:http_errors:rate5m{method=\"post\", code=\"500\"} 6\nmethod_code:http_errors:rate5m{method=\"post\", code=\"404\"} 21\n\nmethod:http_requests:rate5m{method=\"get\"}  600\nmethod:http_requests:rate5m{method=\"post\"} 120",
+    "codeLang": "text",
+    "options": [
+      {
+        "id": "a",
+        "text": "group_left",
+        "correct": true,
+        "note": "Right. The left side has higher cardinality (many-to-one), so you use group_left."
+      },
+      {
+        "id": "b",
+        "text": "group_right",
+        "correct": false,
+        "note": "group_right is for when the right side has the higher cardinality."
+      },
+      {
+        "id": "c",
+        "text": "bool",
+        "correct": false,
+        "note": "bool changes comparison output. It doesn't allow many-to-one matching."
+      },
+      {
+        "id": "d",
+        "text": "No modifier is needed; ignoring(code) is enough",
+        "correct": false,
+        "note": "Several left series share each right partner, which is many-to-one and must be requested explicitly."
+      }
+    ],
+    "explanation": "Many-to-one and one-to-many matching must be explicitly requested with group_left or group_right. left/right names the side with higher cardinality.",
+    "hint": "Which side has more series per method?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "group_left",
+      "many-to-one matching",
+      "ignoring"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#many-to-one-and-one-to-many-vector-matches",
+        "title": "Operators › Many-to-one and one-to-many vector matches"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#group-modifiers",
+        "title": "Operators › Group modifiers"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-group-left-result",
+    "type": "single",
+    "stem": "What is the result for {method=\"post\", code=\"404\"} in method_code:http_errors:rate5m / ignoring(code) group_left method:http_requests:rate5m, using the data shown?",
+    "code": "method_code:http_errors:rate5m{method=\"get\", code=\"500\"}  24\nmethod_code:http_errors:rate5m{method=\"get\", code=\"404\"}  30\nmethod_code:http_errors:rate5m{method=\"post\", code=\"500\"} 6\nmethod_code:http_errors:rate5m{method=\"post\", code=\"404\"} 21\n\nmethod:http_requests:rate5m{method=\"get\"}  600\nmethod:http_requests:rate5m{method=\"post\"} 120",
+    "codeLang": "text",
+    "options": [
+      {
+        "id": "a",
+        "text": "0.175",
+        "correct": true,
+        "note": "Right. 21 / 120 = 0.175."
+      },
+      {
+        "id": "b",
+        "text": "0.05",
+        "correct": false,
+        "note": "That's the post/500 result (6 / 120)."
+      },
+      {
+        "id": "c",
+        "text": "21",
+        "correct": false,
+        "note": "That's the raw error rate before dividing."
+      },
+      {
+        "id": "d",
+        "text": "No result, because group_left drops it",
+        "correct": false,
+        "note": "group_left is exactly what lets every code match."
+      }
+    ],
+    "explanation": "With group_left, each right-side element matches multiple left elements with the same method. The docs show {method=\"post\", code=\"404\"} 0.175 (21 / 120).",
+    "hint": "Find the post rows and divide.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "group_left"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#many-to-one-and-one-to-many-vector-matches",
+        "title": "Operators › Many-to-one and one-to-many vector matches"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-set-and",
+    "type": "single",
+    "stem": "What does vector1 and vector2 return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Elements of vector1 that have an exactly matching label set in vector2, with vector1's values",
+        "correct": true,
+        "note": "Right. and is an intersection that keeps the left-hand values."
+      },
+      {
+        "id": "b",
+        "text": "All elements from both vectors",
+        "correct": false,
+        "note": "That's closer to or."
+      },
+      {
+        "id": "c",
+        "text": "Elements of vector1 with no match in vector2",
+        "correct": false,
+        "note": "That's unless."
+      },
+      {
+        "id": "d",
+        "text": "The values of vector1 and vector2 added together",
+        "correct": false,
+        "note": "and is a set operation. It doesn't do arithmetic."
+      }
+    ],
+    "explanation": "vector1 and vector2 results in the elements of vector1 for which there are elements in vector2 with exactly matching label sets. The metric name and values come from the left side.",
+    "hint": "Intersection.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "and",
+      "set operator"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#logicalset-binary-operators",
+        "title": "Operators › Logical/set binary operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-set-unless",
+    "type": "single",
+    "stem": "Which set operator returns elements of the left vector that have NO matching label set on the right?",
+    "options": [
+      {
+        "id": "a",
+        "text": "unless",
+        "correct": true,
+        "note": "Right. unless is the complement."
+      },
+      {
+        "id": "b",
+        "text": "and",
+        "correct": false,
+        "note": "and keeps only the elements that do match."
+      },
+      {
+        "id": "c",
+        "text": "or",
+        "correct": false,
+        "note": "or is a union."
+      },
+      {
+        "id": "d",
+        "text": "!=",
+        "correct": false,
+        "note": "!= compares values. It isn't a set operator."
+      }
+    ],
+    "explanation": "vector1 unless vector2 results in the elements of vector1 for which there are no elements in vector2 with exactly matching label sets.",
+    "hint": "Keep this unless it's also over there.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "unless",
+      "set operator"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#logicalset-binary-operators",
+        "title": "Operators › Logical/set binary operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-set-or",
+    "type": "single",
+    "stem": "What does vector1 or vector2 return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "All elements of vector1, plus elements of vector2 whose label sets don't appear in vector1",
+        "correct": true,
+        "note": "Right. A union where the left side wins on overlap."
+      },
+      {
+        "id": "b",
+        "text": "Only elements present in both",
+        "correct": false,
+        "note": "That's and."
+      },
+      {
+        "id": "c",
+        "text": "Elements of vector2 only",
+        "correct": false,
+        "note": "All of vector1 is included."
+      },
+      {
+        "id": "d",
+        "text": "The larger value from each matched pair",
+        "correct": false,
+        "note": "Set operators don't compare values."
+      }
+    ],
+    "explanation": "vector1 or vector2 contains all original elements of vector1 and additionally all elements of vector2 that don't have matching label sets in vector1.",
+    "hint": "Union, with the left side taking priority.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "or",
+      "set operator"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#logicalset-binary-operators",
+        "title": "Operators › Logical/set binary operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-precedence",
+    "type": "single",
+    "stem": "How is 2 * 3 % 2 evaluated, and how is 2 ^ 3 ^ 2 evaluated?",
+    "options": [
+      {
+        "id": "a",
+        "text": "(2 * 3) % 2 = 0, and 2 ^ (3 ^ 2) = 512",
+        "correct": true,
+        "note": "Right. * and % share a level and are left-associative, while ^ is right-associative."
+      },
+      {
+        "id": "b",
+        "text": "2 * (3 % 2) = 2, and (2 ^ 3) ^ 2 = 64",
+        "correct": false,
+        "note": "Same-level operators are left-associative, except ^ which is right-associative."
+      },
+      {
+        "id": "c",
+        "text": "(2 * 3) % 2 = 0, and (2 ^ 3) ^ 2 = 64",
+        "correct": false,
+        "note": "^ is the exception: it's right-associative."
+      },
+      {
+        "id": "d",
+        "text": "2 * (3 % 2) = 2, and 2 ^ (3 ^ 2) = 512",
+        "correct": false,
+        "note": "* and % are left-associative, so * happens first here."
+      }
+    ],
+    "explanation": "Operators on the same precedence level are left-associative (2 * 3 % 2 = (2 * 3) % 2), but ^ is right-associative (2 ^ 3 ^ 2 = 2 ^ (3 ^ 2)).",
+    "hint": "The docs give these exact two examples.",
+    "difficulty": 3,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "operator precedence"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#binary-operator-precedence",
+        "title": "Operators › Binary operator precedence"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-precedence-order",
+    "type": "single",
+    "stem": "Which operator has the LOWEST precedence?",
+    "options": [
+      {
+        "id": "a",
+        "text": "or",
+        "correct": true,
+        "note": "Right. or is at the bottom of the precedence list."
+      },
+      {
+        "id": "b",
+        "text": "and",
+        "correct": false,
+        "note": "and (with unless) sits just above or."
+      },
+      {
+        "id": "c",
+        "text": "==",
+        "correct": false,
+        "note": "Comparisons are above and, unless and or."
+      },
+      {
+        "id": "d",
+        "text": "+",
+        "correct": false,
+        "note": "Arithmetic binds more tightly than comparisons and set operators."
+      }
+    ],
+    "explanation": "Precedence from highest to lowest: ^; * / % atan2; + -; comparisons; and unless; or.",
+    "hint": "Think union last.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary"
+    ],
+    "uses": [
+      "operator precedence",
+      "or"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/#binary-operator-precedence",
+        "title": "Operators › Binary operator precedence"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "bin-ratio-agg",
+    "type": "single",
+    "stem": "You want the overall error ratio for a job with many instances. Which approach do the best practices recommend?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Sum the error rates and the request rates separately, then divide",
+        "correct": true,
+        "note": "Right. Aggregate the numerator and the denominator first, then divide."
+      },
+      {
+        "id": "b",
+        "text": "Calculate each instance's ratio, then avg() them",
+        "correct": false,
+        "note": "Averaging ratios isn't statistically valid."
+      },
+      {
+        "id": "c",
+        "text": "Take max() of each instance's ratio",
+        "correct": false,
+        "note": "That's the worst instance, not the overall ratio."
+      },
+      {
+        "id": "d",
+        "text": "Divide the raw counters without rate()",
+        "correct": false,
+        "note": "Raw counters reflect totals since restart, not current behaviour."
+      }
+    ],
+    "explanation": "When aggregating up ratios, aggregate the numerator and denominator separately and then divide. Don't take the average of a ratio or the average of an average.",
+    "hint": "Instances with very different traffic shouldn't count equally.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "binary",
+      "best-practice"
+    ],
+    "uses": [
+      "sum",
+      "arithmetic operator",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/rules/#aggregation",
+        "title": "Recording rules › Aggregation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

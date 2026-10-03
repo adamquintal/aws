@@ -1,0 +1,102 @@
+---
+id: fund-data-model
+title: Time series, metric names and labels
+summary: Every time series is identified by a metric name plus a set of labels. Change any label value and you have a different series. This "dimensional" model is what makes PromQL powerful, and also what makes careless labels expensive.
+analogy: "Think of a spreadsheet of shipping parcels. The metric name is the column heading (\"parcels delivered\"), and labels are tags on each row, such as city=\"Leeds\" or courier=\"Fast\". Every unique combination of tags gets its own row. Tag by city and you get a few dozen rows. Tag by customer email and suddenly you have millions of rows, and the spreadsheet grinds to a halt."
+keyPoints:
+  - A time series is uniquely identified by its metric name plus its full set of labels (key-value pairs).
+  - Adding, removing or changing any label value creates a different time series.
+  - A sample is one float64 (or native histogram) value plus a millisecond-precision timestamp.
+  - "Notation: metric_name{label=\"value\", ...}. Internally the metric name is just the label __name__."
+  - Label names starting with __ are reserved for Prometheus's internal use. A label with an empty value is the same as no label.
+  - Colons in metric names are reserved for recording rules.
+  - Prometheus adds job and instance labels to every scraped series automatically.
+  - Every unique label combination costs memory, CPU and disk. Avoid unbounded values such as user IDs or email addresses.
+commonTrap: Putting high-cardinality values (user IDs, email addresses, full URLs with IDs) into labels. Every distinct value creates a new time series, so cardinality can explode into millions of series and overwhelm the server.
+explainBack:
+  prompt: What makes two time series different from each other in Prometheus, and why does that make some labels a bad idea?
+  modelAnswer: A series is identified by its metric name together with all of its label key-value pairs. If any label value differs, or a label is added or removed, it's a separate series. Each series costs memory, CPU and disk, so a label with many possible values, like a user ID or email, multiplies the number of series and can overwhelm Prometheus. Labels should hold small, bounded sets of values like HTTP method or status code.
+introduces: [label, sample, instance, __name__, cardinality, dimensional data model]
+versionNotes:
+  - Since Prometheus 3.0, metric and label names may contain any UTF-8 characters. Names outside the recommended character set must be quoted in PromQL, for example {"my.metric"}. The recommended sets are still [a-zA-Z_:][a-zA-Z0-9_:]* for metric names and [a-zA-Z_][a-zA-Z0-9_]* for label names, and most exam-era material assumes them.
+sources:
+  - url: https://prometheus.io/docs/concepts/data_model/
+    title: Concepts › Data model
+    readFrom: github.com/prometheus/docs@605cf81 docs/concepts/data_model.md
+  - url: https://prometheus.io/docs/concepts/jobs_instances/
+    title: Concepts › Jobs and instances
+    readFrom: github.com/prometheus/docs@605cf81 docs/concepts/jobs_instances.md
+  - url: https://prometheus.io/docs/practices/instrumentation/#do-not-overuse-labels
+    title: Instrumentation › Do not overuse labels
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/instrumentation.md
+  - url: https://prometheus.io/docs/practices/naming/#labels
+    title: Metric and label naming › Labels
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/naming.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## What identifies a time series
+
+Prometheus stores everything as time series: streams of timestamped values that share the same metric name and the same set of **labels**. A label is a key-value pair such as `method="POST"`.
+
+The usual notation is the metric name followed by labels in braces:
+
+```text
+api_http_requests_total{method="POST", handler="/messages"}
+```
+
+These are **three different time series**:
+
+```text
+api_http_requests_total{method="POST", handler="/messages"}
+api_http_requests_total{method="GET",  handler="/messages"}
+api_http_requests_total{method="POST", handler="/users"}
+```
+
+Same metric name, but the label values differ, so each is its own stream of data. The docs are explicit: changing any label value, or adding or removing a label, creates a new time series. This is the **dimensional data model**. Labels are dimensions you can later filter and aggregate by with PromQL.
+
+## Samples
+
+The actual data points are **samples**. Each sample is:
+
+- a value, which is a 64-bit float (or a native histogram), and
+- a timestamp with millisecond precision.
+
+## The metric name is a label too
+
+Internally, the metric name is stored as a special label called `__name__`. So these two notations point at the same series:
+
+```text
+http_requests_total{job="api"}
+{__name__="http_requests_total", job="api"}
+```
+
+## Naming rules worth remembering
+
+- Recommended metric name characters are letters, digits, underscores and colons, and the name must not start with a digit.
+- **Colons are reserved for recording rules**, so exporters and instrumented code shouldn't use them.
+- Label names beginning with **two underscores (`__`)** are reserved for Prometheus internals.
+- A label with an **empty value** is treated as if the label weren't there.
+
+## Labels Prometheus adds for you: job and instance
+
+When Prometheus scrapes a target, it attaches two labels to everything it collects:
+
+- `job`: the configured job name the target belongs to.
+- `instance`: the `host:port` of the target that was scraped. An **instance** is one scrapeable endpoint, usually one process.
+
+So an API job with four replicas produces four instances, and every series scraped from them is labelled with both `job` and `instance`.
+
+## Labels have a cost: cardinality
+
+Every unique combination of labels is another series, and each one uses RAM, CPU, disk and network. The number of distinct series a metric has is its **cardinality**.
+
+The instrumentation guide offers rough guidance:
+
+- Keep most metrics' cardinality **below 10**, and most metrics should have **no labels at all**.
+- If a metric has, or could grow to, cardinality **over 100**, look for another approach.
+- Never use unbounded values like **user IDs or email addresses** as label values.
+
+A good label has a small, known set of values: `method`, `code`, `stage`, `operation`. If you're unsure, start with no labels and add them when a real need appears.

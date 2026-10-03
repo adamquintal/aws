@@ -1,0 +1,559 @@
+[
+  {
+    "id": "sd-why",
+    "type": "single",
+    "stem": "What problem does service discovery solve for Prometheus?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Keeping the list of scrape targets current as instances come and go",
+        "correct": true,
+        "note": "Right. SD asks an authoritative system for the current targets, so you don't hard-code them."
+      },
+      {
+        "id": "b",
+        "text": "Compressing samples on disk",
+        "correct": false,
+        "note": "Compression is a storage concern, unrelated to SD."
+      },
+      {
+        "id": "c",
+        "text": "Routing alerts to the right team",
+        "correct": false,
+        "note": "That's Alertmanager's routing, not service discovery."
+      },
+      {
+        "id": "d",
+        "text": "Turning logs into metrics",
+        "correct": false,
+        "note": "Service discovery finds targets. It doesn't process logs."
+      }
+    ],
+    "explanation": "Targets may be configured statically via static_configs or discovered dynamically using one of the supported service discovery mechanisms.",
+    "hint": "Think about a cluster where pods are rescheduled all the time.",
+    "difficulty": 1,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "service discovery",
+      "target"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-file-reload",
+    "type": "single",
+    "stem": "You add a new target to a file used by file_sd_configs. What do you need to do for Prometheus to pick it up?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Nothing. File changes are detected through disk watches and applied immediately",
+        "correct": true,
+        "note": "Right. File SD watches its files, so no restart or reload is needed."
+      },
+      {
+        "id": "b",
+        "text": "Restart Prometheus",
+        "correct": false,
+        "note": "Not needed. File SD detects changes on its own."
+      },
+      {
+        "id": "c",
+        "text": "Send SIGHUP to reload the configuration",
+        "correct": false,
+        "note": "That's for changes to prometheus.yml itself. File SD target files are watched."
+      },
+      {
+        "id": "d",
+        "text": "Wait for the next evaluation_interval",
+        "correct": false,
+        "note": "evaluation_interval is for rule evaluation, not target discovery."
+      }
+    ],
+    "explanation": "File-based SD reads files containing static configs. Changes to all defined files are detected via disk watches and applied immediately, with a periodic re-read as a fallback.",
+    "hint": "File SD is designed so other tools can update targets without touching Prometheus.",
+    "difficulty": 2,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "file_sd",
+      "target"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config",
+        "title": "Configuration › file_sd_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-file-custom",
+    "type": "single",
+    "stem": "Your company uses an in-house service registry that Prometheus doesn't support. What does the documentation suggest?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Write the registry's targets to files and use file-based service discovery",
+        "correct": true,
+        "note": "Right. File SD is the docs' suggested interface for unsupported discovery systems (HTTP SD is a related option)."
+      },
+      {
+        "id": "b",
+        "text": "Fork Prometheus and add the registry to its source code",
+        "correct": false,
+        "note": "Possible in theory, but the docs point to file SD as the generic interface."
+      },
+      {
+        "id": "c",
+        "text": "Make each service push to the Pushgateway",
+        "correct": false,
+        "note": "That swaps discovery for pushing and brings the Pushgateway's pitfalls."
+      },
+      {
+        "id": "d",
+        "text": "Add the registry lookup inside each exporter",
+        "correct": false,
+        "note": "The docs say service discovery should be done in Prometheus, not in exporters."
+      }
+    ],
+    "explanation": "File-based SD provides a generic way to configure static targets and serves as an interface to plug in custom service discovery mechanisms.",
+    "hint": "Which SD mechanism is described as a generic interface?",
+    "difficulty": 2,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "file_sd",
+      "service discovery"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config",
+        "title": "Configuration › file_sd_config"
+      },
+      {
+        "url": "https://prometheus.io/docs/guides/file-sd/",
+        "title": "Guide › Use file-based service discovery"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-file-formats",
+    "type": "multi",
+    "stem": "Which file formats does file-based service discovery accept? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "YAML",
+        "correct": true,
+        "note": "Right. Files may be YAML."
+      },
+      {
+        "id": "b",
+        "text": "JSON",
+        "correct": true,
+        "note": "Right. Files may be JSON."
+      },
+      {
+        "id": "c",
+        "text": "CSV",
+        "correct": false,
+        "note": "CSV isn't supported. Use YAML or JSON lists of static configs."
+      },
+      {
+        "id": "d",
+        "text": "The Prometheus text exposition format",
+        "correct": false,
+        "note": "That format is for metrics, not target lists."
+      }
+    ],
+    "explanation": "File SD files may be provided in YAML or JSON format, containing a list of static configs.",
+    "hint": "Two structured data formats.",
+    "difficulty": 1,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "file_sd"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config",
+        "title": "Configuration › file_sd_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-meta-dropped",
+    "type": "single",
+    "stem": "Kubernetes SD gives each target a __meta_kubernetes_namespace label. You don't add any relabel rules. Will stored series carry this label?",
+    "options": [
+      {
+        "id": "a",
+        "text": "No. Labels starting with __ are dropped after relabeling, so you must copy it into a normal label",
+        "correct": true,
+        "note": "Right. __meta labels are only available during the relabeling phase."
+      },
+      {
+        "id": "b",
+        "text": "Yes, all SD metadata is stored with every series",
+        "correct": false,
+        "note": "Metadata labels start with __ and are removed after relabeling."
+      },
+      {
+        "id": "c",
+        "text": "Yes, but only for pod-role targets",
+        "correct": false,
+        "note": "The rule is the same for every role: __ labels are dropped."
+      },
+      {
+        "id": "d",
+        "text": "Only if honor_labels is true",
+        "correct": false,
+        "note": "honor_labels deals with conflicts between scraped and server labels, not with __meta labels."
+      }
+    ],
+    "explanation": "SD mechanisms add labels prefixed with __meta_ during relabeling. Labels starting with __ are removed after target relabeling, so you copy what you need into regular labels.",
+    "hint": "Remember what happens to double-underscore labels.",
+    "difficulty": 2,
+    "tags": [
+      "sd",
+      "relabeling"
+    ],
+    "uses": [
+      "__meta labels",
+      "relabeling"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-copy-meta",
+    "type": "single",
+    "stem": "Which relabel rule copies the discovered Kubernetes namespace into a namespace label on every scraped series?",
+    "options": [
+      {
+        "id": "a",
+        "text": "source_labels: [__meta_kubernetes_namespace], target_label: namespace (default replace action)",
+        "correct": true,
+        "note": "Right. replace with the default regex (.*) copies the whole value into target_label."
+      },
+      {
+        "id": "b",
+        "text": "source_labels: [namespace], target_label: __meta_kubernetes_namespace",
+        "correct": false,
+        "note": "That copies in the wrong direction, into a label that gets dropped anyway."
+      },
+      {
+        "id": "c",
+        "text": "action: labeldrop, regex: __meta_kubernetes_namespace",
+        "correct": false,
+        "note": "labeldrop removes labels. It doesn't copy them."
+      },
+      {
+        "id": "d",
+        "text": "action: drop, source_labels: [__meta_kubernetes_namespace]",
+        "correct": false,
+        "note": "drop removes whole targets that match. It doesn't copy anything."
+      }
+    ],
+    "explanation": "replace (the default action) matches regex (default (.*)) against the source labels and writes the replacement (default $1) into target_label.",
+    "hint": "Source is the meta label; target is the label you want to keep.",
+    "difficulty": 3,
+    "tags": [
+      "sd",
+      "relabeling"
+    ],
+    "uses": [
+      "__meta labels",
+      "relabeling",
+      "kubernetes_sd"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config",
+        "title": "Configuration › kubernetes_sd_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-k8s-roles",
+    "type": "multi",
+    "stem": "Which of these are valid role values for kubernetes_sd_configs? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "pod",
+        "correct": true,
+        "note": "Right. Discovers pods and exposes their container ports as targets."
+      },
+      {
+        "id": "b",
+        "text": "node",
+        "correct": true,
+        "note": "Right. One target per cluster node."
+      },
+      {
+        "id": "c",
+        "text": "service",
+        "correct": true,
+        "note": "Right. One target per service port, often for blackbox probing."
+      },
+      {
+        "id": "d",
+        "text": "deployment",
+        "correct": false,
+        "note": "There's no deployment role. The roles are node, service, pod, endpoints, endpointslice and ingress."
+      }
+    ],
+    "explanation": "Kubernetes SD roles: node, service, pod, endpoints, endpointslice and ingress.",
+    "hint": "One of these is a Kubernetes object that isn't directly scrapeable.",
+    "difficulty": 2,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "kubernetes_sd"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config",
+        "title": "Configuration › kubernetes_sd_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-k8s-sync",
+    "type": "single",
+    "stem": "How does Kubernetes service discovery get its targets?",
+    "options": [
+      {
+        "id": "a",
+        "text": "By retrieving them from the Kubernetes REST API and staying synchronised with cluster state",
+        "correct": true,
+        "note": "Right. That's how the docs describe it."
+      },
+      {
+        "id": "b",
+        "text": "By reading a file the cluster writes every 5 minutes",
+        "correct": false,
+        "note": "That would be file SD. Kubernetes SD talks to the API directly."
+      },
+      {
+        "id": "c",
+        "text": "By scanning every IP in the cluster network",
+        "correct": false,
+        "note": "There's no network scanning. It uses the API."
+      },
+      {
+        "id": "d",
+        "text": "By having each pod push its address to Prometheus",
+        "correct": false,
+        "note": "Prometheus pulls the information from the Kubernetes API."
+      }
+    ],
+    "explanation": "Kubernetes SD configurations allow retrieving scrape targets from Kubernetes' REST API and always staying synchronised with the cluster state.",
+    "hint": "Kubernetes has an API that knows about every object.",
+    "difficulty": 1,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "kubernetes_sd"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config",
+        "title": "Configuration › kubernetes_sd_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-http-vs-file",
+    "type": "single",
+    "stem": "How does HTTP SD differ from file SD?",
+    "options": [
+      {
+        "id": "a",
+        "text": "HTTP SD polls an endpoint on a refresh interval; file SD is event-based and updates instantly via file watches",
+        "correct": true,
+        "note": "Right. That's the comparison table in the HTTP SD docs."
+      },
+      {
+        "id": "b",
+        "text": "HTTP SD supports YAML while file SD supports only JSON",
+        "correct": false,
+        "note": "Reversed. File SD accepts YAML or JSON, while HTTP SD uses JSON."
+      },
+      {
+        "id": "c",
+        "text": "HTTP SD requires restarting Prometheus to see changes",
+        "correct": false,
+        "note": "Neither needs a restart. HTTP SD refreshes on its interval."
+      },
+      {
+        "id": "d",
+        "text": "File SD supports TLS and OAuth2",
+        "correct": false,
+        "note": "Those security options apply to HTTP SD's transport. File SD relies on file permissions."
+      }
+    ],
+    "explanation": "From the comparison table: file SD is event-based (inotify) with instant updates and YAML/JSON. HTTP SD follows refresh_interval, uses JSON over HTTP(S), and supports TLS, basic auth and OAuth2.",
+    "hint": "One reacts to events; the other checks on a timer.",
+    "difficulty": 3,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "http_sd",
+      "file_sd"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/http_sd/",
+        "title": "Writing HTTP service discovery"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-exporters",
+    "type": "single",
+    "stem": "Where should service discovery logic live, according to the exporter-writing guide?",
+    "options": [
+      {
+        "id": "a",
+        "text": "In Prometheus, not in exporters",
+        "correct": true,
+        "note": "Right. Exporters stay simple, and Prometheus discovers the targets."
+      },
+      {
+        "id": "b",
+        "text": "Inside each exporter",
+        "correct": false,
+        "note": "The guide says the opposite."
+      },
+      {
+        "id": "c",
+        "text": "In Alertmanager",
+        "correct": false,
+        "note": "Alertmanager handles alerts, not targets."
+      },
+      {
+        "id": "d",
+        "text": "In Grafana",
+        "correct": false,
+        "note": "Grafana visualises data. It doesn't discover scrape targets."
+      }
+    ],
+    "explanation": "The deployment section of the exporter-writing guide states that all service discovery is done in Prometheus, not in exporters.",
+    "hint": "Keep exporters simple.",
+    "difficulty": 2,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "service discovery",
+      "exporter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#deployment",
+        "title": "Writing exporters › Deployment"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "sd-dns",
+    "type": "multi",
+    "stem": "Which DNS record types can dns_sd_configs query? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "SRV",
+        "correct": true,
+        "note": "Right. SRV records carry both host and port."
+      },
+      {
+        "id": "b",
+        "text": "A",
+        "correct": true,
+        "note": "Right. Basic A records are supported."
+      },
+      {
+        "id": "c",
+        "text": "AAAA",
+        "correct": true,
+        "note": "Right. IPv6 AAAA records are supported."
+      },
+      {
+        "id": "d",
+        "text": "TXT",
+        "correct": false,
+        "note": "TXT isn't in the supported list (A, AAAA, MX, NS, SRV)."
+      }
+    ],
+    "explanation": "DNS SD supports basic DNS A, AAAA, MX, NS and SRV record queries, but not the advanced DNS-SD approach in RFC 6763.",
+    "hint": "Think of records that point at hosts (and ports).",
+    "difficulty": 3,
+    "tags": [
+      "sd"
+    ],
+    "uses": [
+      "dns_sd"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#dns_sd_config",
+        "title": "Configuration › dns_sd_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

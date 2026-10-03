@@ -1,0 +1,707 @@
+[
+  {
+    "id": "cfg-default-interval",
+    "type": "single",
+    "stem": "If scrape_interval isn't set anywhere in prometheus.yml, how often does Prometheus scrape targets?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Every 1 minute",
+        "correct": true,
+        "note": "Right. The built-in global default for scrape_interval is 1m."
+      },
+      {
+        "id": "b",
+        "text": "Every 15 seconds",
+        "correct": false,
+        "note": "15s is common in examples, including the getting-started guide, but it isn't the built-in default."
+      },
+      {
+        "id": "c",
+        "text": "Every 10 seconds",
+        "correct": false,
+        "note": "10s is the default scrape_timeout, not the interval."
+      },
+      {
+        "id": "d",
+        "text": "Every 5 minutes",
+        "correct": false,
+        "note": "No scrape setting defaults to 5 minutes."
+      }
+    ],
+    "explanation": "In the global configuration, scrape_interval defaults to 1m, scrape_timeout to 10s, and evaluation_interval to 1m.",
+    "hint": "Examples often override it. What's the value when nobody does?",
+    "difficulty": 1,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "scrape_interval"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file",
+        "title": "Configuration › Configuration file"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-defaults-set",
+    "type": "multi",
+    "stem": "Which pairs correctly match a global setting with its built-in default? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "scrape_timeout: 10s",
+        "correct": true,
+        "note": "Right. The default scrape timeout is 10 seconds."
+      },
+      {
+        "id": "b",
+        "text": "evaluation_interval: 1m",
+        "correct": true,
+        "note": "Right. Rules are evaluated every minute by default."
+      },
+      {
+        "id": "c",
+        "text": "scrape_interval: 30s",
+        "correct": false,
+        "note": "The default scrape_interval is 1m."
+      },
+      {
+        "id": "d",
+        "text": "scrape_timeout: 1m",
+        "correct": false,
+        "note": "The default timeout is 10s, and it can't exceed the scrape interval."
+      }
+    ],
+    "explanation": "Defaults: scrape_interval 1m, scrape_timeout 10s (never greater than the interval), evaluation_interval 1m.",
+    "hint": "The timeout is the short one.",
+    "difficulty": 2,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "scrape_timeout",
+      "evaluation_interval",
+      "scrape_interval"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file",
+        "title": "Configuration › Configuration file"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-flags-vs-file",
+    "type": "single",
+    "stem": "Which setting belongs in a command-line flag rather than in prometheus.yml?",
+    "options": [
+      {
+        "id": "a",
+        "text": "How long to retain data on disk",
+        "correct": true,
+        "note": "Right. Storage retention is an immutable system parameter set by flags such as --storage.tsdb.retention.time."
+      },
+      {
+        "id": "b",
+        "text": "The list of targets for a job",
+        "correct": false,
+        "note": "Scrape jobs and targets are defined in the configuration file."
+      },
+      {
+        "id": "c",
+        "text": "Which rule files to load",
+        "correct": false,
+        "note": "Rule files are listed in the configuration file."
+      },
+      {
+        "id": "d",
+        "text": "A job's scrape interval",
+        "correct": false,
+        "note": "Scrape intervals are configured in the config file, globally or per job."
+      }
+    ],
+    "explanation": "Command-line flags configure immutable system parameters such as storage locations and retention. The config file defines scrape jobs, their instances, and which rule files to load.",
+    "hint": "Which one is about the server's storage rather than what it scrapes?",
+    "difficulty": 2,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "prometheus.yml"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/",
+        "title": "Configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-reload",
+    "type": "multi",
+    "stem": "Which of these trigger a configuration reload in a running Prometheus? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Sending SIGHUP to the Prometheus process",
+        "correct": true,
+        "note": "Right. SIGHUP triggers a reload."
+      },
+      {
+        "id": "b",
+        "text": "An HTTP POST to /-/reload when --web.enable-lifecycle is enabled",
+        "correct": true,
+        "note": "Right. The lifecycle endpoint needs that flag."
+      },
+      {
+        "id": "c",
+        "text": "Editing the file. Prometheus watches it and reloads automatically",
+        "correct": false,
+        "note": "Prometheus doesn't automatically reload prometheus.yml when it changes. You trigger a reload."
+      },
+      {
+        "id": "d",
+        "text": "An HTTP GET to /metrics",
+        "correct": false,
+        "note": "That's Prometheus's own metrics endpoint. It doesn't reload anything."
+      }
+    ],
+    "explanation": "A configuration reload is triggered by sending SIGHUP to the process, or by an HTTP POST to /-/reload when --web.enable-lifecycle is enabled. Invalid configs aren't applied.",
+    "hint": "One is a Unix signal, the other an HTTP endpoint behind a flag.",
+    "difficulty": 2,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "config reload"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/",
+        "title": "Configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-invalid-reload",
+    "type": "single",
+    "stem": "You reload Prometheus with a config file containing a YAML error. What happens?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The new configuration isn't applied, and Prometheus keeps running with the previous one",
+        "correct": true,
+        "note": "Right. If the new config isn't well-formed, the changes aren't applied."
+      },
+      {
+        "id": "b",
+        "text": "Prometheus crashes immediately",
+        "correct": false,
+        "note": "A bad reload doesn't take the server down. The changes are simply rejected."
+      },
+      {
+        "id": "c",
+        "text": "Prometheus applies the valid parts and skips the rest",
+        "correct": false,
+        "note": "It's all or nothing. A malformed config isn't applied."
+      },
+      {
+        "id": "d",
+        "text": "Prometheus resets to built-in defaults",
+        "correct": false,
+        "note": "It keeps the last good configuration rather than resetting."
+      }
+    ],
+    "explanation": "Prometheus can reload its configuration at runtime. If the new configuration isn't well-formed, the changes won't be applied.",
+    "hint": "Prometheus is designed to stay up.",
+    "difficulty": 2,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "config reload"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/",
+        "title": "Configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-metrics-path",
+    "type": "multi",
+    "stem": "A target exposes metrics at http://app:8080/metrics. Which scrape_config settings can you leave at their defaults? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "metrics_path",
+        "correct": true,
+        "note": "Right. It defaults to /metrics."
+      },
+      {
+        "id": "b",
+        "text": "scheme",
+        "correct": true,
+        "note": "Right. It defaults to http."
+      },
+      {
+        "id": "c",
+        "text": "job_name",
+        "correct": false,
+        "note": "job_name is required. Every scrape config names its job."
+      },
+      {
+        "id": "d",
+        "text": "The target address",
+        "correct": false,
+        "note": "Prometheus can't guess the host and port. You list them, or discover them."
+      }
+    ],
+    "explanation": "Defaults in scrape_config: metrics_path is /metrics and scheme is http. job_name and the targets must be provided.",
+    "hint": "Which values match well-known defaults?",
+    "difficulty": 2,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "scrape_config",
+      "target"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-honor-labels",
+    "type": "single",
+    "stem": "With the default honor_labels: false, a scraped series already has a job=\"batch\" label, which conflicts with the job label Prometheus attaches. What happens?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The scraped label is renamed to exported_job and Prometheus's job label is attached",
+        "correct": true,
+        "note": "Right. Conflicting scraped labels become exported_<name>."
+      },
+      {
+        "id": "b",
+        "text": "The scraped job=\"batch\" label is kept and the server's value is ignored",
+        "correct": false,
+        "note": "That's what honor_labels: true does."
+      },
+      {
+        "id": "c",
+        "text": "The scrape fails",
+        "correct": false,
+        "note": "Conflicts are resolved, not treated as failures."
+      },
+      {
+        "id": "d",
+        "text": "Both labels are kept under the same name",
+        "correct": false,
+        "note": "A series can't have two values for one label name."
+      }
+    ],
+    "explanation": "With honor_labels false, conflicts are resolved by renaming the scraped labels to exported_<original-label> (such as exported_job) and then attaching the server-side labels. True keeps the scraped values, which is useful for federation and the Pushgateway.",
+    "hint": "Look for the prefix Prometheus adds to the loser of a conflict.",
+    "difficulty": 3,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "honor_labels",
+      "job"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-honor-labels-pgw",
+    "type": "single",
+    "stem": "When is setting honor_labels: true typically useful?",
+    "options": [
+      {
+        "id": "a",
+        "text": "When scraping the Pushgateway or in federation, where the target's own labels should be preserved",
+        "correct": true,
+        "note": "Right. The docs name exactly these two cases."
+      },
+      {
+        "id": "b",
+        "text": "When you want Prometheus to ignore all target labels",
+        "correct": false,
+        "note": "The opposite. It preserves labels from the scraped data."
+      },
+      {
+        "id": "c",
+        "text": "To speed up scrapes",
+        "correct": false,
+        "note": "It's about resolving label conflicts, not performance."
+      },
+      {
+        "id": "d",
+        "text": "To enable TLS",
+        "correct": false,
+        "note": "TLS is configured with tls_config, unrelated to honor_labels."
+      }
+    ],
+    "explanation": "Setting honor_labels to true is useful for federation and scraping the Pushgateway, where all labels specified in the target should be preserved.",
+    "hint": "Where would the scraped job and instance labels be the meaningful ones?",
+    "difficulty": 2,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "honor_labels",
+      "pushgateway"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-relabel-vs-metric",
+    "type": "single",
+    "stem": "You want to stop storing one very expensive metric from a target while still scraping the target. Which section do you use?",
+    "options": [
+      {
+        "id": "a",
+        "text": "metric_relabel_configs with a drop action on __name__",
+        "correct": true,
+        "note": "Right. Metric relabeling runs on scraped samples just before ingestion, so it can drop individual series."
+      },
+      {
+        "id": "b",
+        "text": "relabel_configs with a drop action on __name__",
+        "correct": false,
+        "note": "Target relabeling runs before the scrape and acts on the target's labels. It can't see individual metrics."
+      },
+      {
+        "id": "c",
+        "text": "A recording rule",
+        "correct": false,
+        "note": "Recording rules create new series. They don't stop existing ones being stored."
+      },
+      {
+        "id": "d",
+        "text": "Increase scrape_timeout",
+        "correct": false,
+        "note": "The timeout doesn't filter metrics."
+      }
+    ],
+    "explanation": "Metric relabeling is applied to samples as the last step before ingestion. One use is excluding series that are too expensive to ingest. Target relabeling rewrites target labels before scraping.",
+    "hint": "Which section runs after the samples have arrived?",
+    "difficulty": 2,
+    "tags": [
+      "relabeling"
+    ],
+    "uses": [
+      "metric_relabel_configs",
+      "relabel_configs"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#metric_relabel_configs",
+        "title": "Configuration › metric_relabel_configs"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-relabel-anchored",
+    "type": "single",
+    "stem": "In a relabel config with action: keep and regex: web, which source label value would be kept?",
+    "options": [
+      {
+        "id": "a",
+        "text": "web",
+        "correct": true,
+        "note": "Right. Relabel regexes are anchored at both ends, so only the exact value web matches."
+      },
+      {
+        "id": "b",
+        "text": "webserver",
+        "correct": false,
+        "note": "The regex is anchored, so web doesn't match webserver. You'd need web.* for that."
+      },
+      {
+        "id": "c",
+        "text": "my-web",
+        "correct": false,
+        "note": "Anchoring means the match must cover the whole value."
+      },
+      {
+        "id": "d",
+        "text": "All three, because they contain \"web\"",
+        "correct": false,
+        "note": "Anchoring rules that out. Use .*web.* to match anywhere."
+      }
+    ],
+    "explanation": "Relabel regexes are RE2 and anchored on both ends. To un-anchor, use .*<regex>.*.",
+    "hint": "Think ^web$.",
+    "difficulty": 3,
+    "tags": [
+      "relabeling"
+    ],
+    "uses": [
+      "relabeling"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-relabel-actions",
+    "type": "single",
+    "stem": "Which relabel action drops targets whose concatenated source labels do NOT match the regex?",
+    "options": [
+      {
+        "id": "a",
+        "text": "keep",
+        "correct": true,
+        "note": "Right. keep retains only matching targets and drops the rest."
+      },
+      {
+        "id": "b",
+        "text": "drop",
+        "correct": false,
+        "note": "drop removes targets that do match."
+      },
+      {
+        "id": "c",
+        "text": "labeldrop",
+        "correct": false,
+        "note": "labeldrop removes labels whose names match. It doesn't drop targets."
+      },
+      {
+        "id": "d",
+        "text": "replace",
+        "correct": false,
+        "note": "replace writes a value into target_label. It doesn't drop anything."
+      }
+    ],
+    "explanation": "keep drops targets for which the regex doesn't match the concatenated source_labels. drop removes those that do match.",
+    "hint": "Think of the name: what do you keep?",
+    "difficulty": 2,
+    "tags": [
+      "relabeling"
+    ],
+    "uses": [
+      "relabeling"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-double-underscore",
+    "type": "single",
+    "stem": "After target relabeling finishes, what happens to labels whose names start with __ (such as __address__ or __meta_*)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "They're removed from the label set",
+        "correct": true,
+        "note": "Right. Double-underscore labels are dropped after relabeling. Copy any you need into a normal label first."
+      },
+      {
+        "id": "b",
+        "text": "They're stored with the series",
+        "correct": false,
+        "note": "They're internal and removed after relabeling, so they don't end up on stored series."
+      },
+      {
+        "id": "c",
+        "text": "They're renamed to exported_*",
+        "correct": false,
+        "note": "exported_ renaming is part of honor_labels conflict handling, not this."
+      },
+      {
+        "id": "d",
+        "text": "They cause the target to be dropped",
+        "correct": false,
+        "note": "They're just removed. The target is still scraped."
+      }
+    ],
+    "explanation": "Labels starting with __ are removed from the label set after target relabeling. The instance label defaults to __address__ if it wasn't set during relabeling.",
+    "hint": "Recall what the __ prefix means in the data model.",
+    "difficulty": 2,
+    "tags": [
+      "relabeling"
+    ],
+    "uses": [
+      "relabeling",
+      "__address__",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-instance-default",
+    "type": "single",
+    "stem": "If relabeling doesn't set the instance label, what value does it take?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The value of __address__ (the target's host:port)",
+        "correct": true,
+        "note": "Right. instance defaults to __address__."
+      },
+      {
+        "id": "b",
+        "text": "The job name",
+        "correct": false,
+        "note": "The job name goes into the job label."
+      },
+      {
+        "id": "c",
+        "text": "The hostname of the Prometheus server",
+        "correct": false,
+        "note": "instance identifies the target, not the scraper."
+      },
+      {
+        "id": "d",
+        "text": "It's left empty",
+        "correct": false,
+        "note": "It's set from __address__ by default."
+      }
+    ],
+    "explanation": "After relabeling, the instance label is set to the value of __address__ by default if it wasn't set during relabeling.",
+    "hint": "Which special label holds the target's host and port?",
+    "difficulty": 2,
+    "tags": [
+      "relabeling"
+    ],
+    "uses": [
+      "instance",
+      "__address__"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cfg-external-labels",
+    "type": "single",
+    "stem": "When are global external_labels attached to series or alerts?",
+    "options": [
+      {
+        "id": "a",
+        "text": "When Prometheus communicates with external systems such as federation, remote storage or Alertmanager",
+        "correct": true,
+        "note": "Right. That's what external means here."
+      },
+      {
+        "id": "b",
+        "text": "On every sample stored in the local TSDB",
+        "correct": false,
+        "note": "They aren't added to locally stored samples. They're applied when talking to external systems."
+      },
+      {
+        "id": "c",
+        "text": "Only in Grafana dashboards",
+        "correct": false,
+        "note": "Grafana doesn't apply them. Prometheus does, towards external systems."
+      },
+      {
+        "id": "d",
+        "text": "Only to the up metric",
+        "correct": false,
+        "note": "They're not specific to up."
+      }
+    ],
+    "explanation": "external_labels are the labels to add to any time series or alerts when communicating with external systems: federation, remote storage and Alertmanager.",
+    "hint": "The name tells you the audience.",
+    "difficulty": 2,
+    "tags": [
+      "config"
+    ],
+    "uses": [
+      "external_labels",
+      "alertmanager",
+      "remote write"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file",
+        "title": "Configuration › Configuration file"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/getting_started/",
+        "title": "Getting started"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

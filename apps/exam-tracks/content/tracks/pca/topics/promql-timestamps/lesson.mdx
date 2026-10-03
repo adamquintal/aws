@@ -1,0 +1,113 @@
+---
+id: promql-timestamps
+title: "Timestamps: time(), timestamp() and _timestamp_seconds"
+summary: For "how long ago did X happen?", export the Unix timestamp of X as a gauge (named *_timestamp_seconds) and compute time() - metric in PromQL. timestamp() tells you when a sample was taken, and the date functions turn timestamps into hours or weekdays.
+analogy: "Instead of a sign that says \"Last cleaned 3 hours ago\", which someone has to keep updating and which is wrong the moment they forget, hang a sign with the time it was cleaned: \"Cleaned at 09:00\". Anyone can work out \"how long ago\" by looking at a clock. That's time() - last_cleaned_timestamp_seconds."
+keyPoints:
+  - time() returns the evaluation time as seconds since 1970-01-01 UTC. That isn't necessarily "now", because in a range query it's each step's time.
+  - timestamp(v) returns the timestamp of each sample in v, in seconds since the epoch.
+  - To track time since something happened, export the Unix timestamp of the event, not the elapsed time. Then compute time() - my_timestamp_metric.
+  - Naming convention is the _timestamp_seconds suffix, for example data_pipeline_last_record_processed_timestamp_seconds.
+  - The key metric of a batch job is the time it last succeeded, exported as a timestamp gauge.
+  - Client libraries export process_start_time_seconds, so time() - process_start_time_seconds is the process uptime.
+  - day_of_week(), day_of_month(), day_of_year(), hour(), minute(), month(), year() and days_in_month() interpret values as Unix timestamps and return calendar parts in UTC. They default to vector(time()).
+  - Exporters normally shouldn't put timestamps on the samples they expose. Let Prometheus assign the scrape time.
+commonTrap: Exporting "seconds since last success" as a gauge. It needs constant update logic, and if that logic gets stuck the value silently freezes. Export the timestamp of the last success instead, and let PromQL compute time() - metric. Also watch units. Prometheus timestamps in PromQL are seconds, while the exposition format's optional sample timestamps are milliseconds.
+explainBack:
+  prompt: Your nightly backup job should alert if it hasn't succeeded in over 26 hours. What metric should it expose, and what PromQL would you use?
+  modelAnswer: When the backup succeeds, the job should set a gauge to the current Unix time, named something like backup_last_success_timestamp_seconds. Pushing it to the Pushgateway suits a batch job. Then time() - backup_last_success_timestamp_seconds is how many seconds have passed since the last success, and an alert condition such as time() - backup_last_success_timestamp_seconds > 26 * 3600 fires if it's been more than 26 hours. Exporting the timestamp rather than an elapsed time means there's no update logic that can get stuck.
+introduces: [time(), timestamp(), _timestamp_seconds, unix timestamp, day_of_week, hour, process_start_time_seconds]
+versionNotes:
+  - The curriculum's "Timestamp Metrics" item isn't defined in detail anywhere official. This topic covers the timestamp functions and the timestamp-metric best practices the docs describe, which is our interpretation of that item.
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#time
+    title: Functions › time() and timestamp()
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#day_of_week
+    title: Functions › day_of_week(), hour() and other date functions
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+  - url: https://prometheus.io/docs/practices/instrumentation/#timestamps-not-time-since
+    title: Instrumentation › Timestamps, not time since
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/instrumentation.md
+  - url: https://prometheus.io/docs/practices/naming/#metric-names
+    title: Metric and label naming › Metric names
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/naming.md
+  - url: https://prometheus.io/docs/instrumenting/writing_exporters/#scheduling
+    title: Writing exporters › Scheduling
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/writing_exporters.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Two time functions
+
+| Function | Returns |
+|---|---|
+| `time()` | The **evaluation time** as seconds since 1970-01-01 UTC. In a range query that's each step's time, not the wall clock. |
+| `timestamp(v)` | The **timestamp of each sample** in `v`, in seconds since the epoch |
+
+```promql
+time() - timestamp(up)    # how old is each target's latest up sample?
+```
+
+## Timestamps, not "time since"
+
+The instrumentation guide gives a clear rule. If you want to know **how long ago** something happened, **export the Unix timestamp at which it happened**, not the time elapsed since.
+
+```promql
+time() - my_timestamp_metric
+```
+
+Why? A "seconds since" gauge needs code that keeps updating it. If that code gets stuck, the value freezes and looks healthy. A timestamp never needs updating. PromQL works out the elapsed time at query time, using `time()`.
+
+### Naming
+
+By convention timestamp metrics end in `_timestamp_seconds`, in base units with the unit suffix:
+
+```text
+data_pipeline_last_record_processed_timestamp_seconds
+```
+
+### Real examples
+
+Client libraries expose the process start time as a gauge:
+
+```text
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.54115492874e+09
+```
+
+(From the multi-target exporter guide.) So the uptime of every process is:
+
+```promql
+time() - process_start_time_seconds
+```
+
+For **batch jobs**, the docs name the key metric as **the last time the job succeeded**, exported as a timestamp gauge and usually pushed to the Pushgateway. "Hasn't succeeded for over a day" then becomes:
+
+```promql
+time() - my_batch_job_last_success_timestamp_seconds > 86400
+```
+
+## Turning timestamps into calendar parts
+
+These functions read sample values **as Unix timestamps** and return calendar parts in **UTC**. With no argument, they use `vector(time())`:
+
+| Function | Range |
+|---|---|
+| `day_of_week()` | 0 to 6 (0 = Sunday) |
+| `day_of_month()` | 1 to 31 |
+| `day_of_year()` | 1 to 365/366 |
+| `hour()` | 0 to 23 |
+| `minute()`, `month()`, `year()`, `days_in_month()` | as named |
+
+```promql
+day_of_week()                           # today's weekday, in UTC
+hour(process_start_time_seconds)        # the UTC hour each process started
+```
+
+## Exporters and timestamps
+
+The exporter-writing guide says exporters generally **shouldn't set timestamps** on the samples they expose. Let Prometheus use the scrape time. (If you think you need custom timestamps, the guide suggests you probably want the Pushgateway.) Remember the unit difference: optional timestamps in the exposition format are **milliseconds**, while PromQL's time functions work in **seconds**.

@@ -1,0 +1,137 @@
+---
+id: promql-selecting
+title: "Selecting series: matchers, ranges, offset and @"
+summary: Every PromQL query starts by selecting series. An instant vector selector picks the latest sample of each matching series. Add a [range] to get a range vector of recent samples. offset and @ shift when you look.
+analogy: "Selecting series is like searching a photo library. The metric name is the album, and label matchers are filters (location = \"Paris\", person != \"Bob\"). An instant vector is the single latest photo from each matching camera. A range vector is the last five minutes of photos from each camera. offset is \"show me this as it was a week ago\", and @ is \"show me this exactly as it was at 09:00 on 4 January\"."
+keyPoints:
+  - "PromQL expressions evaluate to one of four types: instant vector, range vector, scalar or string (string is currently unused)."
+  - An instant vector selector returns one sample per series, the most recent one at or before the evaluation time, if it's within the lookback period (5 minutes by default).
+  - Label matchers are = (equal), != (not equal), =~ (regex match) and !~ (regex not match). Regexes are RE2 and fully anchored.
+  - A range vector selector adds a duration in square brackets, such as [5m]. The range is left-open and right-closed.
+  - offset shifts a selector back in time (offset 5m, offset 1w) and must come directly after the selector. Negative offsets look forward.
+  - "@ pins a selector to an absolute Unix timestamp (@ 1609746000); start() and end() are special values. Like offset, it must follow the selector directly."
+  - "A selector must include a metric name or at least one matcher that doesn't match the empty string, so {job=~\".*\"} on its own is invalid."
+  - A matcher that matches the empty string, such as env="", also matches series that don't have that label at all.
+commonTrap: "Putting offset or @ after a function or aggregation, as in sum(x) offset 5m. That's invalid. The modifier must come right after the selector: sum(x offset 5m). A second trap is forgetting that regex matchers are anchored: env=~\"prod\" matches only exactly \"prod\", not \"production\"."
+explainBack:
+  prompt: What's the difference between http_requests_total and http_requests_total[5m], and when would you use each?
+  modelAnswer: http_requests_total is an instant vector selector. For each matching series it returns one value, the most recent sample at the evaluation time, which is what you graph or compare directly. http_requests_total[5m] is a range vector selector. For each series it returns all samples from the last five minutes. You can't graph a range vector directly. You pass it to a function such as rate() or avg_over_time() that turns those samples into one value per series.
+introduces: [instant vector, range vector, scalar, selector, label matcher, regex matcher, offset, "@ modifier", lookback period, staleness, instant query, range query]
+versionNotes:
+  - Prometheus 3.0 made range selectors left-open, so a sample exactly on the left boundary is excluded. In 2.x they were left-closed. The difference rarely matters in practice but appears in newer docs.
+  - The @ modifier and negative offsets needed feature flags in early 2.x versions. They've been on by default for a long time.
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/querying/basics/#expression-language-data-types
+    title: Querying basics › Expression language data types
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/basics.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors
+    title: Querying basics › Instant vector selectors
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/basics.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/basics/#range-vector-selectors
+    title: Querying basics › Range vector selectors
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/basics.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/basics/#offset-modifier
+    title: Querying basics › Offset modifier and @ modifier
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/basics.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/basics/#staleness
+    title: Querying basics › Gotchas › Staleness
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/basics.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Instant and range queries
+
+You can run a PromQL expression two ways:
+
+- An **instant query** evaluates the expression at a single point in time. It's the "Table" tab in the Prometheus UI.
+- A **range query** evaluates it at evenly spaced steps between a start and an end time. It's the "Graph" tab. A range query is really just the same instant query repeated at each step.
+
+## The four result types
+
+Every expression or sub-expression evaluates to one of these:
+
+| Type | What it is |
+|---|---|
+| **Instant vector** | A set of series, each with **one** sample, all at the same timestamp |
+| **Range vector** | A set of series, each with a **range** of samples over time |
+| **Scalar** | A single floating-point number |
+| **String** | A string value, currently unused |
+
+You can only graph instant vectors and scalars. Range vectors are inputs to functions.
+
+## Instant vector selectors
+
+The simplest query is a metric name:
+
+```promql
+http_requests_total
+```
+
+This returns every series with that name, with the **most recent sample** at or before the evaluation time for each. A series only appears if that sample is newer than the **lookback period**, which is 5 minutes by default.
+
+Filter with **label matchers** in braces:
+
+```promql
+http_requests_total{job="prometheus", group="canary"}
+http_requests_total{environment=~"staging|testing|development", method!="GET"}
+```
+
+| Matcher | Meaning |
+|---|---|
+| `=` | equals |
+| `!=` | does not equal |
+| `=~` | matches regex |
+| `!~` | does not match regex |
+
+Regexes use RE2 syntax and are **fully anchored**: `env=~"foo"` behaves like `env=~"^foo$"`.
+
+A few rules that come up a lot:
+
+- **Empty matches include missing labels.** `{environment=""}` returns series with no `environment` label at all.
+- **Several matchers on one label must all pass.** `{replica!="rep-a", replica=~"rep.*"}` returns `rep-b` but not `rep-a`.
+- **You need something that can't match empty.** `{job=~".*"}` is invalid because it would match everything. `{job=~".+"}` is fine.
+- **The name is a label.** `{__name__=~"job:.*"}` selects all metrics whose names start with `job:`.
+
+## Range vector selectors
+
+Add a duration in square brackets to get every sample in a window, back from the evaluation time:
+
+```promql
+http_requests_total{job="prometheus"}[5m]
+```
+
+Durations use units `ms`, `s`, `m`, `h`, `d`, `w` and `y`, and can be combined from largest to smallest, as in `1h30m`. The window is **left-open, right-closed**: a sample exactly at the start of the window is excluded, and one exactly at the end is included.
+
+## offset: look back relative to now
+
+```promql
+http_requests_total offset 5m
+rate(http_requests_total[5m] offset 1w)   # the 5-minute rate as it was a week ago
+```
+
+`offset` must follow the selector directly:
+
+```promql
+sum(http_requests_total{method="GET"} offset 5m)   # valid
+sum(http_requests_total{method="GET"}) offset 5m   # INVALID
+```
+
+A **negative** offset (`offset -1w`) looks forward in time, which is handy when comparing with a past evaluation time.
+
+## @: pin to an absolute time
+
+```promql
+http_requests_total @ 1609746000             # value at 2021-01-04T07:40:00Z
+rate(http_requests_total[5m] @ 1609746000)
+http_requests_total @ start()                # start of the range query
+```
+
+The `@` value is a Unix timestamp in seconds. Like `offset`, it must come straight after the selector. Combining them works in either order: the offset is applied relative to the `@` time. `start()` and `end()` resolve to the start and end of a range query, and both equal the evaluation time in an instant query.
+
+## Staleness and the lookback period
+
+When a query evaluates at some timestamp, Prometheus picks, for each series, the newest sample **less than the lookback period ago**. That's 5 minutes by default, configurable with `--query.lookback-delta`.
+
+If a target stops exporting a series, or the target disappears, Prometheus marks the series **stale**. After that point, queries return nothing for it, so it drops off graphs instead of flat-lining for 5 minutes.

@@ -1,0 +1,603 @@
+[
+  {
+    "id": "lim-billing",
+    "type": "single",
+    "stem": "Why is Prometheus a poor choice for per-request customer billing?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It isn't designed for 100% accuracy, so the data won't be detailed and complete enough",
+        "correct": true,
+        "note": "Right. The overview names billing as the example of when Prometheus doesn't fit."
+      },
+      {
+        "id": "b",
+        "text": "It can't store integers",
+        "correct": false,
+        "note": "Values are float64, which is exact for integers up to 2^53. Precision isn't the main issue."
+      },
+      {
+        "id": "c",
+        "text": "It can only keep data for 24 hours",
+        "correct": false,
+        "note": "Default retention is 15 days, and it's configurable."
+      },
+      {
+        "id": "d",
+        "text": "It has no query language",
+        "correct": false,
+        "note": "PromQL is very capable. The problem is completeness of the data."
+      }
+    ],
+    "explanation": "If you need 100% accuracy, such as for per-request billing, Prometheus isn't a good choice, because the collected data won't be detailed and complete enough.",
+    "hint": "What does reliability-first monitoring trade away?",
+    "difficulty": 1,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "billing accuracy"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/#when-does-it-not-fit",
+        "title": "Overview › When does it not fit?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-logs",
+    "type": "single",
+    "stem": "Someone asks how to feed application logs into Prometheus. What do the docs answer?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Don't. Use a log system such as Grafana Loki or OpenSearch instead",
+        "correct": true,
+        "note": "Right. Prometheus collects metrics. It isn't an event logging system."
+      },
+      {
+        "id": "b",
+        "text": "Send them through the Pushgateway",
+        "correct": false,
+        "note": "The Pushgateway is for batch job metrics, not logs."
+      },
+      {
+        "id": "c",
+        "text": "Expose each log line as a label value",
+        "correct": false,
+        "note": "That would explode cardinality and still isn't a log store."
+      },
+      {
+        "id": "d",
+        "text": "Use remote write",
+        "correct": false,
+        "note": "Remote write ships samples, not logs."
+      }
+    ],
+    "explanation": "The FAQ's short answer is \"Don't!\". Use something like Grafana Loki or OpenSearch. Prometheus is a system to collect and process metrics, not an event logging system.",
+    "hint": "The FAQ answer is one word long.",
+    "difficulty": 1,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "metric"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#how-to-feed-logs-into-prometheus",
+        "title": "FAQ › How to feed logs into Prometheus?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-storage-replicated",
+    "type": "single",
+    "stem": "Which statement about Prometheus local storage is correct?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It isn't clustered or replicated, so it should be managed like a single-node database",
+        "correct": true,
+        "note": "Right. That's the main limitation of local storage."
+      },
+      {
+        "id": "b",
+        "text": "It automatically replicates data to all other Prometheus servers",
+        "correct": false,
+        "note": "There's no replication between servers."
+      },
+      {
+        "id": "c",
+        "text": "It's a distributed database across all scrape targets",
+        "correct": false,
+        "note": "Data lives only on the server's local disk."
+      },
+      {
+        "id": "d",
+        "text": "It requires NFS for durability",
+        "correct": false,
+        "note": "NFS (including AWS EFS) isn't supported. Use a local filesystem."
+      }
+    ],
+    "explanation": "A limitation of local storage is that it isn't clustered or replicated, so it isn't arbitrarily scalable or durable against drive or node outages and should be managed like any single-node database.",
+    "hint": "Where is the data physically stored?",
+    "difficulty": 2,
+    "tags": [
+      "limitations",
+      "storage"
+    ],
+    "uses": [
+      "tsdb"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/",
+        "title": "Storage"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-retention",
+    "type": "single",
+    "stem": "If neither retention flag is set, how long does Prometheus keep samples?",
+    "options": [
+      {
+        "id": "a",
+        "text": "15 days",
+        "correct": true,
+        "note": "Right. --storage.tsdb.retention.time defaults to 15d when no retention is configured."
+      },
+      {
+        "id": "b",
+        "text": "Forever",
+        "correct": false,
+        "note": "There's a default time-based retention."
+      },
+      {
+        "id": "c",
+        "text": "24 hours",
+        "correct": false,
+        "note": "That's much shorter than the default."
+      },
+      {
+        "id": "d",
+        "text": "1 year",
+        "correct": false,
+        "note": "The default is 15 days."
+      }
+    ],
+    "explanation": "If neither --storage.tsdb.retention.time nor --storage.tsdb.retention.size is set, retention time defaults to 15d.",
+    "hint": "About two weeks.",
+    "difficulty": 1,
+    "tags": [
+      "limitations",
+      "storage"
+    ],
+    "uses": [
+      "retention"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/#operational-aspects",
+        "title": "Storage › Operational aspects"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-long-term",
+    "type": "single",
+    "stem": "You need to keep metrics for several years with durability. What's the usual approach?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Use remote write to send samples to an external long-term storage system",
+        "correct": true,
+        "note": "Right. External storage through remote read/write is the documented route."
+      },
+      {
+        "id": "b",
+        "text": "Set retention to 5 years on a single server and rely on it",
+        "correct": false,
+        "note": "Possible in theory, but local storage isn't replicated or durable against node failure."
+      },
+      {
+        "id": "c",
+        "text": "Push everything through the Pushgateway",
+        "correct": false,
+        "note": "The Pushgateway isn't a storage system."
+      },
+      {
+        "id": "d",
+        "text": "Increase scrape_interval to 1 hour",
+        "correct": false,
+        "note": "That reduces resolution. It doesn't give durability."
+      }
+    ],
+    "explanation": "External storage may be used via the remote read/write APIs. These systems vary greatly in durability, performance and efficiency.",
+    "hint": "Prometheus can send its samples elsewhere as they arrive.",
+    "difficulty": 2,
+    "tags": [
+      "limitations",
+      "storage"
+    ],
+    "uses": [
+      "remote write",
+      "retention"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/",
+        "title": "Storage"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-ha",
+    "type": "single",
+    "stem": "How do the docs say to make Prometheus highly available?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Run identical Prometheus servers on two or more separate machines",
+        "correct": true,
+        "note": "Right. Deduplicate downstream, and Alertmanager deduplicates identical alerts."
+      },
+      {
+        "id": "b",
+        "text": "Enable built-in clustering with --cluster.peer",
+        "correct": false,
+        "note": "The Prometheus server has no built-in clustering. That flag belongs to Alertmanager's HA."
+      },
+      {
+        "id": "c",
+        "text": "Put Prometheus behind a load balancer with shared NFS storage",
+        "correct": false,
+        "note": "NFS isn't supported for local storage, and that isn't the documented approach."
+      },
+      {
+        "id": "d",
+        "text": "It can't be made highly available",
+        "correct": false,
+        "note": "It can, by running identical servers."
+      }
+    ],
+    "explanation": "Run identical Prometheus servers on two or more separate machines. Systems like Thanos, or remote-write backends, can deduplicate the data. Identical alerts are deduplicated by Alertmanager.",
+    "hint": "Redundancy through duplication.",
+    "difficulty": 2,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "high availability",
+      "alertmanager"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#can-prometheus-be-made-highly-available",
+        "title": "FAQ › Can Prometheus be made highly available?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-ha-dedupe",
+    "type": "single",
+    "stem": "Two identical Prometheus servers both fire the same alert. What stops on-call engineers getting two notifications?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Alertmanager deduplicates identical alerts",
+        "correct": true,
+        "note": "Right. That's part of the HA story in the FAQ."
+      },
+      {
+        "id": "b",
+        "text": "The second Prometheus detects the first and stays silent",
+        "correct": false,
+        "note": "The servers are independent and don't coordinate."
+      },
+      {
+        "id": "c",
+        "text": "The Pushgateway merges them",
+        "correct": false,
+        "note": "The Pushgateway isn't involved in alerting."
+      },
+      {
+        "id": "d",
+        "text": "Nothing. Duplicate pages are expected with HA",
+        "correct": false,
+        "note": "Alertmanager handles the deduplication."
+      }
+    ],
+    "explanation": "In the HA setup, identical alerts from the redundant servers are deduplicated by Alertmanager, which can itself be clustered for HA.",
+    "hint": "Which component sits between alerts and notifications?",
+    "difficulty": 2,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "alertmanager",
+      "high availability",
+      "alert"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#can-prometheus-be-made-highly-available",
+        "title": "FAQ › Can Prometheus be made highly available?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-cardinality",
+    "type": "single",
+    "stem": "What's the most common practical cause of a Prometheus server running out of resources?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A cardinality explosion from labels with unbounded values",
+        "correct": true,
+        "note": "Right. Each label combination is a new series with RAM, CPU and disk costs."
+      },
+      {
+        "id": "b",
+        "text": "Too many PromQL functions in one query",
+        "correct": false,
+        "note": "Complex queries cost CPU, but unbounded series growth is the classic resource killer."
+      },
+      {
+        "id": "c",
+        "text": "Using the text exposition format",
+        "correct": false,
+        "note": "The format choice doesn't cause resource exhaustion."
+      },
+      {
+        "id": "d",
+        "text": "Having more than five scrape jobs",
+        "correct": false,
+        "note": "Prometheus handles many jobs easily. Series count matters far more."
+      }
+    ],
+    "explanation": "Each labelset is an additional series with RAM, CPU, disk and network costs. Unbounded label values such as per-user labels can push a server into millions of series, which is too much.",
+    "hint": "Recall the data model topic.",
+    "difficulty": 2,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "cardinality",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#do-not-overuse-labels",
+        "title": "Instrumentation › Do not overuse labels"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#i-was-told-prometheus-doesnt-scale",
+        "title": "FAQ › I was told Prometheus “doesn't scale”"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-scale",
+    "type": "single",
+    "stem": "Roughly how many active series do the docs say a single Prometheus server can run reliably?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Tens of millions",
+        "correct": true,
+        "note": "Right. The FAQ says you can run Prometheus reliably with tens of millions of active series."
+      },
+      {
+        "id": "b",
+        "text": "A few thousand",
+        "correct": false,
+        "note": "That's far below what a single server can handle."
+      },
+      {
+        "id": "c",
+        "text": "Exactly 1 million, a hard limit",
+        "correct": false,
+        "note": "There's no such hard limit."
+      },
+      {
+        "id": "d",
+        "text": "Unlimited, because cardinality never matters",
+        "correct": false,
+        "note": "Cardinality matters a lot. There are practical limits."
+      }
+    ],
+    "explanation": "The FAQ calls \"Prometheus doesn't scale\" more of a marketing claim and says you can run Prometheus reliably with tens of millions of active series.",
+    "hint": "The FAQ addresses this claim directly.",
+    "difficulty": 2,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "cardinality"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#i-was-told-prometheus-doesnt-scale",
+        "title": "FAQ › I was told Prometheus “doesn't scale”"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-float",
+    "type": "single",
+    "stem": "Sample values are 64-bit floats. Up to what size are integers represented exactly?",
+    "options": [
+      {
+        "id": "a",
+        "text": "2^53",
+        "correct": true,
+        "note": "Right. IEEE 754 doubles are integer-exact up to 2^53."
+      },
+      {
+        "id": "b",
+        "text": "2^32",
+        "correct": false,
+        "note": "Doubles go well beyond that."
+      },
+      {
+        "id": "c",
+        "text": "2^63",
+        "correct": false,
+        "note": "That's the 64-bit integer limit. Floats are exact only to 2^53."
+      },
+      {
+        "id": "d",
+        "text": "Any size",
+        "correct": false,
+        "note": "Beyond 2^53, not all integers can be represented exactly."
+      }
+    ],
+    "explanation": "The IEEE 754 double-precision format supports integer precision for values up to 2^53. A counter incremented a million times per second would take over 285 years to hit precision issues.",
+    "hint": "The FAQ gives the exponent.",
+    "difficulty": 3,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "float64 precision",
+      "sample"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#why-are-all-sample-values-64-bit-floats",
+        "title": "FAQ › Why are all sample values 64-bit floats?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-utc",
+    "type": "single",
+    "stem": "Why do Prometheus components display times in UTC?",
+    "options": [
+      {
+        "id": "a",
+        "text": "To avoid timezone confusion, especially around daylight saving time",
+        "correct": true,
+        "note": "Right. Unix time internally and UTC for display."
+      },
+      {
+        "id": "b",
+        "text": "Because Prometheus can't store timezone data",
+        "correct": false,
+        "note": "It's a deliberate design choice to avoid confusion."
+      },
+      {
+        "id": "c",
+        "text": "Because the CNCF requires it",
+        "correct": false,
+        "note": "That isn't the reason given in the FAQ."
+      },
+      {
+        "id": "d",
+        "text": "Because scrapes only happen at midnight UTC",
+        "correct": false,
+        "note": "Scrapes happen continuously."
+      }
+    ],
+    "explanation": "To avoid any kind of timezone confusion, especially with daylight saving time, Prometheus uses Unix time internally and UTC for display in all components.",
+    "hint": "Think about clocks changing twice a year.",
+    "difficulty": 2,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "unix timestamp"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#can-i-change-the-timezone-why-is-everything-in-utc",
+        "title": "FAQ › Why is everything in UTC?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "lim-fit",
+    "type": "single",
+    "stem": "According to the comparison page, when is Prometheus the better fit?",
+    "options": [
+      {
+        "id": "a",
+        "text": "When you're primarily doing metrics and want strong querying, alerting and availability",
+        "correct": true,
+        "note": "Right. That's how the docs describe where Prometheus wins."
+      },
+      {
+        "id": "b",
+        "text": "When you're primarily doing event logging",
+        "correct": false,
+        "note": "The docs say event-logging-oriented systems fit that better."
+      },
+      {
+        "id": "c",
+        "text": "When you need a clustered long-term store as the core requirement",
+        "correct": false,
+        "note": "Clustered long-term storage isn't Prometheus's built-in strength."
+      },
+      {
+        "id": "d",
+        "text": "When you need per-transaction billing data",
+        "correct": false,
+        "note": "That needs 100% accuracy, which Prometheus doesn't aim for."
+      }
+    ],
+    "explanation": "The comparison page says Prometheus is better if you're primarily doing metrics, with a more powerful query language, alerting and notification, and higher availability for graphing and alerting.",
+    "hint": "Play to its strength.",
+    "difficulty": 2,
+    "tags": [
+      "limitations"
+    ],
+    "uses": [
+      "metric"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/comparison/",
+        "title": "Comparison to alternatives"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

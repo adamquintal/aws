@@ -1,0 +1,732 @@
+[
+  {
+    "id": "rate-what",
+    "type": "single",
+    "stem": "What does rate(http_requests_total[5m]) return for each series?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The per-second average rate of increase over the last 5 minutes",
+        "correct": true,
+        "note": "Right. rate is per-second and averaged over the window."
+      },
+      {
+        "id": "b",
+        "text": "The total number of requests in the last 5 minutes",
+        "correct": false,
+        "note": "That's increase(). rate() is per second."
+      },
+      {
+        "id": "c",
+        "text": "The per-minute rate over the last 5 minutes",
+        "correct": false,
+        "note": "PromQL rates are per second, not per minute."
+      },
+      {
+        "id": "d",
+        "text": "The rate between the last two samples only",
+        "correct": false,
+        "note": "That's irate(). rate() uses the whole window."
+      }
+    ],
+    "explanation": "rate(v range-vector) calculates the per-second average rate of increase of the series in the range vector.",
+    "hint": "Unit: per second. Method: average over the window.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "rate",
+      "range vector",
+      "counter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#rate",
+        "title": "Functions › rate()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "rate-resets",
+    "type": "single",
+    "stem": "A server restarts halfway through a 5-minute window, so its counter drops to zero and climbs again. How does rate() handle this?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It treats the drop as a counter reset and adjusts, so the result still reflects real traffic",
+        "correct": true,
+        "note": "Right. Breaks in monotonicity, such as counter resets from restarts, are automatically adjusted for."
+      },
+      {
+        "id": "b",
+        "text": "It returns a large negative rate",
+        "correct": false,
+        "note": "That's exactly what reset handling prevents."
+      },
+      {
+        "id": "c",
+        "text": "It returns no value for that window",
+        "correct": false,
+        "note": "rate still returns a value. It just corrects for the reset."
+      },
+      {
+        "id": "d",
+        "text": "It ignores all samples after the restart",
+        "correct": false,
+        "note": "Samples after the reset are used. The drop is compensated for."
+      }
+    ],
+    "explanation": "rate automatically adjusts for breaks in monotonicity, such as counter resets due to target restarts.",
+    "hint": "Counters only go down when the process restarts.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "rate",
+      "counter reset"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#rate",
+        "title": "Functions › rate()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "rate-vs-irate-alert",
+    "type": "single",
+    "stem": "You're writing an alert on request error rate. Which function do the docs recommend?",
+    "options": [
+      {
+        "id": "a",
+        "text": "rate()",
+        "correct": true,
+        "note": "Right. rate is best suited for alerting and for slow-moving counters."
+      },
+      {
+        "id": "b",
+        "text": "irate()",
+        "correct": false,
+        "note": "irate reacts to the last two samples only, so brief changes can reset an alert's waiting period. The docs advise against it for alerts."
+      },
+      {
+        "id": "c",
+        "text": "deriv()",
+        "correct": false,
+        "note": "deriv is meant for gauges, not counters such as error totals."
+      },
+      {
+        "id": "d",
+        "text": "delta()",
+        "correct": false,
+        "note": "delta is meant for gauges, not counters."
+      }
+    ],
+    "explanation": "Use rate for alerts and slow-moving counters, because brief changes in the rate can reset the FOR clause. irate is for graphing volatile, fast-moving counters.",
+    "hint": "Alerts benefit from smoothing.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "rate",
+      "irate",
+      "alerting rule"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#rate",
+        "title": "Functions › rate()"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#irate",
+        "title": "Functions › irate()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "irate-points",
+    "type": "single",
+    "stem": "How many samples does irate() use from its range vector to calculate the rate?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The last two",
+        "correct": true,
+        "note": "Right. irate is based on the last two data points."
+      },
+      {
+        "id": "b",
+        "text": "All samples in the window",
+        "correct": false,
+        "note": "That describes how rate() works."
+      },
+      {
+        "id": "c",
+        "text": "Only the first and last",
+        "correct": false,
+        "note": "irate uses the two most recent samples, not the first and last."
+      },
+      {
+        "id": "d",
+        "text": "Exactly one",
+        "correct": false,
+        "note": "You need at least two points to calculate a rate."
+      }
+    ],
+    "explanation": "irate calculates the per-second instant rate of increase based on the last two data points. The range only sets how far back to look for them.",
+    "hint": "The i is for instant.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "irate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#irate",
+        "title": "Functions › irate()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "irate-use",
+    "type": "single",
+    "stem": "When is irate() the better choice over rate()?",
+    "options": [
+      {
+        "id": "a",
+        "text": "When graphing volatile, fast-moving counters",
+        "correct": true,
+        "note": "Right. That's the use the docs recommend."
+      },
+      {
+        "id": "b",
+        "text": "When writing alerting rules",
+        "correct": false,
+        "note": "The docs recommend rate for alerts."
+      },
+      {
+        "id": "c",
+        "text": "When working with gauges",
+        "correct": false,
+        "note": "irate, like rate, should only be used with counters."
+      },
+      {
+        "id": "d",
+        "text": "In recording rules that compute daily totals",
+        "correct": false,
+        "note": "irate's last-two-points view isn't suited to longer summaries."
+      }
+    ],
+    "explanation": "irate should only be used when graphing volatile, fast-moving counters. Use rate for alerts and slow-moving counters.",
+    "hint": "Where would a jumpy but quick-to-react line be useful?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "irate",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#irate",
+        "title": "Functions › irate()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "increase-what",
+    "type": "single",
+    "stem": "What does increase(http_requests_total{job=\"api-server\"}[5m]) return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The increase in the counter over the last 5 minutes (about how many requests happened)",
+        "correct": true,
+        "note": "Right. It's rate multiplied by the window's seconds."
+      },
+      {
+        "id": "b",
+        "text": "The per-second rate",
+        "correct": false,
+        "note": "That's rate()."
+      },
+      {
+        "id": "c",
+        "text": "The current counter value",
+        "correct": false,
+        "note": "That's just the instant selector, with no range."
+      },
+      {
+        "id": "d",
+        "text": "How many times the counter was reset",
+        "correct": false,
+        "note": "That's resets()."
+      }
+    ],
+    "explanation": "increase calculates the increase in the series over the range, adjusting for counter resets. It's syntactic sugar for rate(v) × seconds in the range.",
+    "hint": "The name says it.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "increase",
+      "counter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#increase",
+        "title": "Functions › increase()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "increase-nonint",
+    "type": "single",
+    "stem": "A counter only ever increments by whole numbers, yet increase(x[5m]) returns 41.7. Why?",
+    "options": [
+      {
+        "id": "a",
+        "text": "increase extrapolates to cover the full window, so the result can be a non-integer",
+        "correct": true,
+        "note": "Right. Extrapolation to the window's edges produces fractional results."
+      },
+      {
+        "id": "b",
+        "text": "The counter must have been reset",
+        "correct": false,
+        "note": "Resets are compensated for, but they aren't why the result is fractional."
+      },
+      {
+        "id": "c",
+        "text": "It's a bug, since increase() should always return integers",
+        "correct": false,
+        "note": "The docs say non-integer results are expected."
+      },
+      {
+        "id": "d",
+        "text": "increase returns a per-second value",
+        "correct": false,
+        "note": "increase gives the total over the window, not per second."
+      }
+    ],
+    "explanation": "The increase is extrapolated to cover the full time range of the selector, so a non-integer result is possible even when a counter only increases by integer increments.",
+    "hint": "Think about what happens near the edges of the window.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "increase",
+      "extrapolation"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#increase",
+        "title": "Functions › increase()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "increase-equiv",
+    "type": "single",
+    "stem": "Over a 5-minute window, increase(x[5m]) is equivalent to which expression?",
+    "options": [
+      {
+        "id": "a",
+        "text": "rate(x[5m]) * 300",
+        "correct": true,
+        "note": "Right. increase is rate multiplied by the window length in seconds."
+      },
+      {
+        "id": "b",
+        "text": "rate(x[5m]) * 5",
+        "correct": false,
+        "note": "rate is per second, so multiply by seconds (300), not minutes."
+      },
+      {
+        "id": "c",
+        "text": "rate(x[5m]) / 300",
+        "correct": false,
+        "note": "Dividing would make it even smaller. You multiply."
+      },
+      {
+        "id": "d",
+        "text": "irate(x[5m]) * 300",
+        "correct": false,
+        "note": "increase is based on rate, not irate."
+      }
+    ],
+    "explanation": "increase is syntactic sugar for rate(v) multiplied by the number of seconds in the window.",
+    "hint": "rate is per second, and 5 minutes is how many seconds?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "increase",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#increase",
+        "title": "Functions › increase()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "rate-counters-only",
+    "type": "multi",
+    "stem": "Which metrics should rate() be applied to? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "http_requests_total (a counter)",
+        "correct": true,
+        "note": "Right. A counter is exactly what rate is for."
+      },
+      {
+        "id": "b",
+        "text": "process_cpu_seconds_total (a counter)",
+        "correct": true,
+        "note": "Right. A counter of CPU seconds. Its rate is CPU usage."
+      },
+      {
+        "id": "c",
+        "text": "process_resident_memory_bytes (a gauge)",
+        "correct": false,
+        "note": "Memory goes up and down. rate would misread drops as counter resets."
+      },
+      {
+        "id": "d",
+        "text": "node_filesystem_avail_bytes (a gauge)",
+        "correct": false,
+        "note": "A gauge. Use deriv or predict_linear for trends, not rate."
+      }
+    ],
+    "explanation": "rate should only be used with counters. The instrumentation guide says you should never take a rate() of a gauge.",
+    "hint": "Which of these can go down?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "rate",
+      "counter",
+      "gauge"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#rate",
+        "title": "Functions › rate()"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#counter-vs-gauge-summary-vs-histogram",
+        "title": "Instrumentation › Counter vs. gauge"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "deriv-gauge",
+    "type": "single",
+    "stem": "You want the per-second rate of change of a gauge, such as queue length, using linear regression. Which function?",
+    "options": [
+      {
+        "id": "a",
+        "text": "deriv()",
+        "correct": true,
+        "note": "Right. deriv calculates a per-second derivative using simple linear regression, and it's for gauges."
+      },
+      {
+        "id": "b",
+        "text": "rate()",
+        "correct": false,
+        "note": "rate is for counters. It would treat drops in the queue as counter resets."
+      },
+      {
+        "id": "c",
+        "text": "irate()",
+        "correct": false,
+        "note": "irate is also counters-only."
+      },
+      {
+        "id": "d",
+        "text": "increase()",
+        "correct": false,
+        "note": "increase is counters-only too."
+      }
+    ],
+    "explanation": "deriv calculates the per-second derivative of each series using simple linear regression. It should only be used with gauges and needs at least two samples.",
+    "hint": "Derivative, for gauges.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "deriv",
+      "gauge"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#deriv",
+        "title": "Functions › deriv()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "predict-linear",
+    "type": "single",
+    "stem": "What does predict_linear(node_filesystem_avail_bytes[1h], 4 * 3600) return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The predicted available bytes 4 hours from now, based on a linear fit over the last hour",
+        "correct": true,
+        "note": "Right. t is in seconds: 4 × 3600 is 4 hours."
+      },
+      {
+        "id": "b",
+        "text": "The average available bytes over the last 4 hours",
+        "correct": false,
+        "note": "That would be an _over_time function. predict_linear projects forward."
+      },
+      {
+        "id": "c",
+        "text": "The rate of change per hour",
+        "correct": false,
+        "note": "deriv gives a rate of change (per second). predict_linear gives a predicted value."
+      },
+      {
+        "id": "d",
+        "text": "The value 4 hours ago",
+        "correct": false,
+        "note": "Looking back is what offset does. predict_linear looks forward."
+      }
+    ],
+    "explanation": "predict_linear(v range-vector, t scalar) predicts the value of a series t seconds from now, based on v, using simple linear regression. It's for gauges.",
+    "hint": "The second argument is a number of seconds into the future.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "predict_linear",
+      "gauge"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#predict_linear",
+        "title": "Functions › predict_linear()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "delta-gauge",
+    "type": "single",
+    "stem": "delta(cpu_temp_celsius{host=\"zeus\"}[2h]) returns what?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The change in CPU temperature between now and 2 hours ago (extrapolated)",
+        "correct": true,
+        "note": "Right. That's the docs' own example. delta is for gauges."
+      },
+      {
+        "id": "b",
+        "text": "The per-second rate of temperature increase",
+        "correct": false,
+        "note": "delta is a difference, not per second. deriv would give per-second change."
+      },
+      {
+        "id": "c",
+        "text": "The number of times the temperature changed",
+        "correct": false,
+        "note": "That's changes()."
+      },
+      {
+        "id": "d",
+        "text": "The maximum temperature in the last 2 hours",
+        "correct": false,
+        "note": "That would be max_over_time."
+      }
+    ],
+    "explanation": "delta calculates the difference between the first and last value of each series in the range vector, extrapolated to the full range. It should only be used with gauges.",
+    "hint": "Delta means difference.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "delta",
+      "gauge"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#delta",
+        "title": "Functions › delta()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "resets-changes",
+    "type": "single",
+    "stem": "Which function counts how many times a counter was reset within a window?",
+    "options": [
+      {
+        "id": "a",
+        "text": "resets()",
+        "correct": true,
+        "note": "Right. resets returns the number of counter resets in the range."
+      },
+      {
+        "id": "b",
+        "text": "changes()",
+        "correct": false,
+        "note": "changes counts any value change, not just resets."
+      },
+      {
+        "id": "c",
+        "text": "delta()",
+        "correct": false,
+        "note": "delta returns a difference, not a count of resets."
+      },
+      {
+        "id": "d",
+        "text": "increase()",
+        "correct": false,
+        "note": "increase returns how much the counter grew, with resets compensated for."
+      }
+    ],
+    "explanation": "resets(v range-vector) returns the number of counter resets in the range. Any decrease between consecutive float samples counts as one. changes() counts how many times the value changed.",
+    "hint": "The function name matches the thing it counts.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "resets",
+      "changes",
+      "counter reset"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#resets",
+        "title": "Functions › resets()"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#changes",
+        "title": "Functions › changes()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "rate-output-type",
+    "type": "single",
+    "stem": "rate() takes a range vector. What does it return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "An instant vector, with one value per input series",
+        "correct": true,
+        "note": "Right. That's why rate(x[5m]) can be graphed while x[5m] can't."
+      },
+      {
+        "id": "b",
+        "text": "A range vector",
+        "correct": false,
+        "note": "It turns the range of samples into one value per series."
+      },
+      {
+        "id": "c",
+        "text": "A scalar",
+        "correct": false,
+        "note": "It returns one value per series, not a single number overall."
+      },
+      {
+        "id": "d",
+        "text": "A string",
+        "correct": false,
+        "note": "Strings aren't used here."
+      }
+    ],
+    "explanation": "Functions such as rate, irate, increase, delta and deriv take a range vector and return an instant vector with one value per series.",
+    "hint": "Could you graph the result?",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "rates"
+    ],
+    "uses": [
+      "rate",
+      "instant vector",
+      "range vector"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#rate",
+        "title": "Functions › rate()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

@@ -1,0 +1,134 @@
+---
+id: promql-histograms
+title: Histograms, summaries and histogram_quantile
+summary: Histograms count observations into buckets, so the server can estimate any percentile over any window and aggregate across instances with histogram_quantile(). Summaries calculate fixed percentiles inside the application. Those are accurate, but they can't be aggregated.
+analogy: "Picture timing runners in a race. A summary is each marshal shouting out \"the median runner at my checkpoint took 22 minutes\". You can't combine marshals' medians into an overall median. A histogram is each marshal keeping tallies: under 20 min, under 25, under 30… You can add the tallies from every checkpoint and then estimate any percentile you like from the combined tallies."
+keyPoints:
+  - "Classic histogram series: name_bucket{le=\"…\"} (cumulative counters), name_sum and name_count. The le label is the inclusive upper bound."
+  - "Percentile from a classic histogram: histogram_quantile(0.9, rate(name_bucket[10m])). Use rate() to set the time window."
+  - "To aggregate, sum the bucket rates and keep le: histogram_quantile(0.9, sum by (job, le) (rate(name_bucket[10m])))."
+  - "Average observation: rate(name_sum[5m]) / rate(name_count[5m]). rate(name_count[5m]) alone is the request rate."
+  - "Fraction under a threshold (classic): rate of the le=\"0.3\" bucket divided by the rate of _count. This needs a bucket boundary at exactly 0.3."
+  - histogram_quantile interpolates linearly within a bucket for classic histograms, so the error is limited by the bucket's width.
+  - If the quantile falls in the +Inf bucket, the upper bound of the second-highest bucket is returned. Fewer than 2 buckets returns NaN.
+  - "Summaries expose pre-calculated quantiles ({quantile=\"0.95\"}). They're accurate, but can't be aggregated, so avg(x{quantile=\"0.95\"}) is statistically meaningless."
+  - "Rules of thumb: use native histograms if available, classic histograms if you need aggregation, and summaries only when aggregation isn't needed."
+commonTrap: "Dropping the le label when aggregating classic histograms, as in histogram_quantile(0.9, sum by (job) (rate(x_bucket[5m]))). Without le, histogram_quantile can't tell the buckets apart and returns nothing useful. Keep le in the by clause: sum by (job, le). The other big trap is averaging summary quantiles across instances, which is statistically meaningless."
+explainBack:
+  prompt: You run 10 replicas of an API, each exposing a classic histogram of request durations. How do you get the overall 95th percentile latency for the whole service over the last 5 minutes, and why can't you do this with a summary?
+  modelAnswer: Take the per-second rate of each bucket over 5 minutes, sum those rates across replicas while keeping the le label, then pass the result to histogram_quantile with 0.95. That's histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m]))). Buckets are counters, so they can be added across replicas, and the server estimates the percentile from the combined buckets. A summary's quantiles are calculated inside each replica, and averaging percentiles from different replicas doesn't give the true overall percentile, so summaries can't be aggregated.
+introduces: [histogram_quantile, le, native histogram, classic histogram, interpolation, apdex, histogram_fraction]
+versionNotes:
+  - Native histograms (one series holding every bucket) are stable since Prometheus 3.8 but must be enabled with scrape_native_histograms. With native histograms you drop the _bucket suffix and the le label, as in histogram_quantile(0.9, rate(http_request_duration_seconds[10m])). The current docs now favour native histograms, while most exam-era material focuses on classic ones. Learn both forms.
+  - Since 3.0, le label values are normalised (le="1" becomes le="1.0"), which can affect queries that match exact le strings.
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#histogram_quantile
+    title: Functions › histogram_quantile()
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+  - url: https://prometheus.io/docs/practices/histograms/
+    title: Best practices › Histograms and summaries
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/histograms.md
+  - url: https://prometheus.io/docs/concepts/metric_types/#histogram
+    title: Metric types › Histogram
+    readFrom: github.com/prometheus/docs@605cf81 docs/concepts/metric_types.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Two ways to describe a distribution
+
+For request durations or response sizes you care about the **distribution**, not just one number. Prometheus offers two approaches:
+
+| | Summary | Histogram |
+|---|---|---|
+| Who calculates percentiles? | The application, over a sliding window | The Prometheus server, with `histogram_quantile()` |
+| Can you pick a different percentile or window later? | No, they're fixed at instrumentation time | Yes, in the query |
+| Can you aggregate across instances? | **No** | **Yes** |
+| Cost per observation | Relatively expensive | Cheap (just increments counters) |
+| Accuracy | Generally very accurate | Limited by bucket width (classic) or resolution (native) |
+
+## Classic histogram series
+
+```text
+http_request_duration_seconds_bucket{le="0.1"}  33444
+http_request_duration_seconds_bucket{le="0.2"} 100392
+http_request_duration_seconds_bucket{le="0.5"} 129389
+http_request_duration_seconds_bucket{le="+Inf"} 144320
+http_request_duration_seconds_sum   53423
+http_request_duration_seconds_count 144320
+```
+
+`le` means "less than or equal": each bucket counts **all** observations up to its bound, so the buckets are cumulative.
+
+## Percentiles with histogram_quantile()
+
+The 90th percentile of request duration over the last 10 minutes (from the docs):
+
+```promql
+histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[10m]))
+```
+
+- `rate()` sets the **time window**. Buckets are counters, so you always rate them first.
+- The result is calculated **per label combination**, for example per instance.
+
+To aggregate, **sum the bucket rates, keeping `le`**:
+
+```promql
+# 90th percentile per job
+histogram_quantile(0.9, sum by (job, le) (rate(http_request_duration_seconds_bucket[10m])))
+
+# 90th percentile across everything
+histogram_quantile(0.9, sum by (le) (rate(http_request_duration_seconds_bucket[10m])))
+```
+
+`histogram_quantile()` uses `le` to know which bucket is which. Drop it and the calculation can't work.
+
+### How it estimates
+
+The answer is an **estimate**. For classic histograms, it assumes observations are spread evenly within the bucket the quantile lands in (**linear interpolation**), so the error is bounded by that bucket's width. Special cases:
+
+- If the quantile falls in the top (`+Inf`) bucket, it returns the **upper bound of the second-highest bucket**.
+- Fewer than two buckets, or a highest bucket that isn't `+Inf`, gives `NaN`.
+
+## Averages and rates from _sum and _count
+
+```promql
+# average request duration over 5 minutes
+rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])
+
+# requests per second (the _count series behaves exactly like a request counter)
+rate(http_request_duration_seconds_count[5m])
+
+# average per job: aggregate after the rate, before dividing
+sum by (job) (rate(http_request_duration_seconds_sum[5m]))
+/
+sum by (job) (rate(http_request_duration_seconds_count[5m]))
+```
+
+## "What fraction were fast enough?"
+
+Suppose your target is 95% of requests within 300 ms. With classic histograms, divide the rate of the 0.3 bucket by the rate of the count:
+
+```promql
+sum by (job) (rate(http_request_duration_seconds_bucket{le="0.3"}[5m]))
+/
+sum by (job) (rate(http_request_duration_seconds_count[5m]))
+```
+
+This **requires a bucket boundary at exactly 0.3**. With no such bucket you get no result, not an estimate. (Note the base unit: 300 ms is written `0.3` seconds.) The same bucket arithmetic powers **Apdex** scores.
+
+## Don't average summary quantiles
+
+```promql
+avg(http_request_duration_seconds{quantile="0.95"})                                   # BAD
+histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))  # GOOD
+```
+
+Averaging pre-calculated percentiles from several instances gives a statistically meaningless number. That's the main reason to choose histograms.
+
+## Rules of thumb from the docs
+
+1. If you can, use **native histograms** at a resolution that fits your accuracy needs.
+2. If not, and you need **aggregation**, use **classic histograms** with buckets chosen around the values you care about.
+3. Consider **summaries** only when aggregation isn't needed.

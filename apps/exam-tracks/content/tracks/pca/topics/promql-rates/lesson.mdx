@@ -1,0 +1,99 @@
+---
+id: promql-rates
+title: rate, irate, increase, deriv and predict_linear
+summary: Counters only make sense once you measure how fast they grow. rate() gives the per-second average increase over a window and handles counter resets. irate() looks only at the last two samples. increase() gives the total growth over the window. For gauges, use deriv(), delta() and predict_linear() instead.
+analogy: "A counter is your car's odometer. rate() is your average speed over the last five minutes of driving, worked out from the odometer, and it copes if someone resets the trip meter. irate() is a glance at the speed between the last two odometer readings: jumpy, but quick to react. increase() is how many kilometres you covered in those five minutes. predict_linear() is the sat-nav saying \"at this pace, you'll run out of fuel in 40 minutes\"."
+keyPoints:
+  - rate(v[d]) is the per-second average rate of increase over the window. It adjusts for counter resets and extrapolates to the window's edges. Use it for alerting and slow-moving counters.
+  - irate(v[d]) uses only the last two samples in the window. Use it for graphing volatile, fast-moving counters, not for alerts.
+  - increase(v[d]) is the total increase over the window. It's syntactic sugar for rate × window seconds, so it can return non-integers. Prefer rate in recording rules.
+  - rate, irate and increase are for counters only. A range vector goes in, an instant vector comes out.
+  - When combining with aggregation, always take rate()/irate() first, then aggregate. Otherwise counter resets can't be detected.
+  - deriv(v[d]) is the per-second derivative of a gauge, using simple linear regression.
+  - predict_linear(v[d], t) predicts a gauge's value t seconds from now, using simple linear regression.
+  - delta(v[d]) is the difference between the first and last value of a gauge over the window, extrapolated. idelta() uses the last two samples. resets() counts counter resets, and changes() counts value changes.
+commonTrap: Using rate() on a gauge, such as memory in use, or deriv()/delta() on a counter. rate assumes any drop is a counter reset and "corrects" it, which gives nonsense for gauges. Another classic is using irate() in an alert. One brief spike or dip can reset the alert's timer, so use rate() for alerting.
+explainBack:
+  prompt: Explain why rate(http_requests_total[5m]) gives a sensible answer even if the server restarted during those 5 minutes.
+  modelAnswer: http_requests_total is a counter, so it only goes up, except when the process restarts and it drops back to zero. rate() treats any decrease between samples as a counter reset and adjusts for it. It adds the post-reset values on top of what came before, instead of counting a huge negative change. It then divides the total increase by the window, extrapolating to the window's edges, to give an average per-second rate.
+introduces: [rate, irate, increase, counter reset, deriv, predict_linear, delta, idelta, resets, changes, extrapolation]
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#rate
+    title: Functions › rate()
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#irate
+    title: Functions › irate()
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#increase
+    title: Functions › increase()
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#deriv
+    title: Functions › deriv(), predict_linear(), delta()
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Why counters need rate()
+
+A raw counter is a running total since the process started, such as `http_requests_total = 18,442,019`. That number on its own tells you almost nothing. What you want is **how fast it's growing**. All the functions here take a **range vector** (some samples per series) and return an **instant vector** (one value per series).
+
+## rate(): the workhorse
+
+```promql
+rate(http_requests_total{job="api-server"}[5m])
+```
+
+This returns the **per-second average rate of increase** over the last 5 minutes, for each series. Two things make it robust:
+
+1. **Counter resets are handled.** When a process restarts, its counters drop to zero. `rate()` treats any decrease as a reset and adjusts, instead of seeing a giant negative change.
+2. **Extrapolation.** It extrapolates to the edges of the window, which allows for missed scrapes and scrape times that don't line up with the window.
+
+The docs recommend `rate()` for **alerting** and for graphing **slow-moving counters**.
+
+## irate(): the last two points
+
+```promql
+irate(http_requests_total{job="api-server"}[5m])
+```
+
+`irate()` calculates the per-second rate from **only the last two samples** in the window. The `[5m]` here just says how far back to look for those two points. It reacts instantly, which suits graphs of **volatile, fast-moving counters**.
+
+The docs warn against using it for alerts: brief changes can reset an alert's waiting period, and graphs made only of rare spikes are hard to read.
+
+## increase(): total growth in the window
+
+```promql
+increase(http_requests_total{job="api-server"}[5m])
+```
+
+This is the **total number of requests in the last 5 minutes**. It's simply `rate()` multiplied by the number of seconds in the window, offered for readability. Because of extrapolation, it can return non-integer values even when the counter only goes up in whole steps. The docs suggest using `rate` in recording rules so increases are tracked consistently per second.
+
+## Rate first, then aggregate
+
+Soon you'll learn aggregation operators such as `sum()`. The rule to remember now: **take `rate()` (or `irate()`) first, then aggregate.** If you add up raw counters across several series first, a reset in one series is hidden inside the total, and `rate()` can no longer detect it.
+
+## Functions for gauges
+
+Gauges go up and down, so "counter reset" logic would be wrong for them. Use these instead:
+
+| Function | What it gives you | Example |
+|---|---|---|
+| `delta(v[d])` | Difference between first and last value over the window, extrapolated | `delta(cpu_temp_celsius{host="zeus"}[2h])` is the change in CPU temperature over 2 hours |
+| `idelta(v[d])` | Difference between the last two samples | |
+| `deriv(v[d])` | Per-second derivative, using simple linear regression (needs at least 2 samples) | How fast a queue is growing |
+| `predict_linear(v[d], t)` | Predicted value `t` seconds from now, using simple linear regression | Will the disk be full in 4 hours? |
+
+An illustration of the classic "disk will fill up" pattern, using a Node Exporter gauge:
+
+```promql
+predict_linear(node_filesystem_avail_bytes[1h], 4 * 3600) < 0
+```
+
+This means: based on the last hour's trend, available space will be below zero 4 hours (14,400 seconds) from now.
+
+## Counting events in a window
+
+- `resets(v[d])` gives the number of counter resets in the window. Use it with counters.
+- `changes(v[d])` gives the number of times the value changed in the window.

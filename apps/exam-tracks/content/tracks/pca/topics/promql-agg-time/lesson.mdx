@@ -1,0 +1,105 @@
+---
+id: promql-agg-time
+title: "*_over_time functions and subqueries"
+summary: The _over_time functions squash each series' window of samples into one value, such as its average, maximum or count. Subqueries let you run an instant query repeatedly over a window, so you can apply _over_time to the result of another function such as rate().
+analogy: "Imagine a week of daily step counts on your fitness tracker. avg_over_time is your average daily steps that week. max_over_time is your best day. count_over_time is how many days the tracker recorded. A subquery is like asking the tracker to work out your hourly walking pace every 10 minutes over the past day, and then asking for the best of those values."
+keyPoints:
+  - The _over_time functions take a range vector and return an instant vector with one aggregated value per series. Labels are kept.
+  - The main ones are avg_over_time, min_over_time, max_over_time, sum_over_time, count_over_time, quantile_over_time(φ, v), stddev_over_time, stdvar_over_time, last_over_time and present_over_time.
+  - Every sample in the window carries equal weight, even if samples are unevenly spaced.
+  - "Unlike rate(), these work on gauges just as well. max_over_time(temperature[1h]) is the hottest reading in the last hour."
+  - absent_over_time(v[d]) returns 1 if no samples existed in the whole window. It's useful for alerting on missing data.
+  - "Subquery syntax: <instant_query>[<range>:<resolution>]. The result is a range vector. If you leave out the resolution, the global evaluation interval is used."
+  - "Subqueries let you combine functions: max_over_time(rate(x[5m])[1h:]) is the highest 5-minute rate seen in the last hour."
+  - The docs warn that using subqueries unnecessarily is unwise. Recording rules are often a better choice.
+commonTrap: "Writing max_over_time(rate(x[5m])) or max_over_time(rate(x[5m])[1h]). The _over_time functions need a range vector, and rate() returns an instant vector. You need a subquery with the colon, as in max_over_time(rate(x[5m])[1h:]), to turn it back into a range."
+explainBack:
+  prompt: What's the difference between avg_over_time(x[1h]) and a plain x? And why does max_over_time(rate(x[5m])[1h:]) need the colon?
+  modelAnswer: Plain x returns the latest sample of each series. avg_over_time(x[1h]) averages all of each series' samples from the last hour into one value, with every sample weighted equally. rate(x[5m]) returns an instant vector, one value per series, but max_over_time needs a range vector. The [1h:] subquery re-runs the inner expression at regular steps over the last hour (at the evaluation interval by default) and collects the results into a range vector that max_over_time can work on.
+introduces: [avg_over_time, max_over_time, min_over_time, sum_over_time, count_over_time, quantile_over_time, last_over_time, present_over_time, absent_over_time, absent, subquery, _over_time]
+versionNotes:
+  - first_over_time() became a standard function in Prometheus 3.14. Experimental functions such as mad_over_time need the promql-experimental-functions feature flag. Neither is likely to appear in exam-era material.
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#aggregation_over_time
+    title: Functions › aggregation_over_time()
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/functions/#absent_over_time
+    title: Functions › absent() and absent_over_time()
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/functions.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/basics/#subquery
+    title: Querying basics › Subquery
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/basics.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/examples/#subquery
+    title: Query examples › Subquery
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/examples.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Squashing a window into one number
+
+The previous topic's functions (`rate`, `deriv` and so on) measure *change*. The `_over_time` family **summarises** a window instead. Each one takes a range vector and returns one value per series, keeping the series' labels:
+
+| Function | Result per series |
+|---|---|
+| `avg_over_time(v[d])` | average of the samples in the window |
+| `min_over_time(v[d])` / `max_over_time(v[d])` | lowest / highest sample |
+| `sum_over_time(v[d])` | sum of the samples |
+| `count_over_time(v[d])` | number of samples |
+| `quantile_over_time(φ, v[d])` | the φ-quantile (0 ≤ φ ≤ 1) of the samples |
+| `stddev_over_time` / `stdvar_over_time` | population standard deviation / variance |
+| `last_over_time(v[d])` | the most recent sample |
+| `present_over_time(v[d])` | 1 for any series that had a sample in the window |
+
+These work on **gauges** and **counters** alike, because they don't assume anything about direction. Some examples:
+
+```promql
+max_over_time(node_load1[1h])                  # worst 1-minute load in the last hour
+avg_over_time(process_resident_memory_bytes[10m])
+quantile_over_time(0.95, node_load1[1d])       # 95th percentile of load over a day
+count_over_time(up[1h])                        # how many scrapes happened in the last hour
+```
+
+One detail from the docs: **every sample in the window counts equally**, even if samples aren't evenly spaced.
+
+## Detecting missing data
+
+- `absent(v)` returns a single series with value 1 if the instant vector you pass has **no** elements, and nothing otherwise.
+- `absent_over_time(v[d])` does the same for a whole window: 1 if there were no samples at all.
+
+```promql
+absent_over_time(nonexistent{job="myjob"}[1h])   # => {job="myjob"} 1
+```
+
+Both try to derive sensible labels from the selector, which makes them handy in alerts like "this job has reported nothing for an hour".
+
+## Subqueries: a range from any expression
+
+What if you want the **highest request rate** in the last hour? `rate()` returns an instant vector, but `max_over_time` needs a range vector. A **subquery** bridges the gap:
+
+```promql
+max_over_time( rate(http_requests_total[5m])[1h:] )
+```
+
+Syntax: `<instant_query>[<range>:<resolution>]`
+
+- `<range>` is how far back to go (here 1h).
+- `<resolution>` is the step between evaluations. It's optional, and when omitted the **global evaluation interval** is used.
+- The result is a **range vector**, so it can be fed to any `_over_time` function.
+
+From the official examples, here's the 5-minute rate for the past 30 minutes at 1-minute resolution:
+
+```promql
+rate(http_requests_total[5m])[30m:1m]
+```
+
+The docs add a caution: **using subqueries unnecessarily is unwise.** They're expensive. If you need the same subquery often, a recording rule that stores the inner expression is usually better.
+
+## The colon matters
+
+| You write | What it is |
+|---|---|
+| `x[1h]` | a range vector selector (only valid directly on a selector) |
+| `rate(x[5m])[1h:]` | a subquery over an expression |
+| `rate(x[5m])[1h]` | **invalid**, because an expression needs the colon form |

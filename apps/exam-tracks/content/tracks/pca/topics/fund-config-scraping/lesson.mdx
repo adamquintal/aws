@@ -1,0 +1,138 @@
+---
+id: fund-config-scraping
+title: prometheus.yml, scraping and relabeling
+summary: Flags set fixed system options such as storage. The YAML config file defines what to scrape, how often, and which rule files to load. Relabeling lets you rewrite target labels before a scrape, and metric relabeling lets you filter samples before they're stored.
+analogy: "The config file is a delivery driver's route sheet. global sets the defaults (\"visit every stop once a minute, give up after 10 seconds\"). Each scrape_config is a named route (the job) with a list of stops (targets). Relabeling is the driver editing the address labels before setting off: fixing a name, skipping some stops, adding a note."
+keyPoints:
+  - Command-line flags set immutable system parameters such as the storage path and retention. The YAML config file (--config.file) defines scrape jobs and rule files.
+  - Global defaults are scrape_interval 1m, scrape_timeout 10s and evaluation_interval 1m. The timeout can't exceed the interval.
+  - Each scrape_config defines one job (job_name). Targets come from static_configs or service discovery.
+  - Per-job defaults are metrics_path /metrics, scheme http, honor_labels false and honor_timestamps true.
+  - Reload the config at runtime with SIGHUP, or with an HTTP POST to /-/reload when --web.enable-lifecycle is set. An invalid config isn't applied.
+  - relabel_configs rewrite a target's labels before the scrape. metric_relabel_configs act on scraped samples as the last step before ingestion.
+  - Relabel actions include replace (the default), keep, drop, labelmap, labeldrop, labelkeep and hashmod. Regexes are RE2 and anchored at both ends.
+  - Labels starting with __ are dropped after target relabeling. instance defaults to the value of __address__.
+  - With honor_labels false, conflicting labels in scraped data are renamed exported_<name>. True keeps the scraped values, which is useful for federation and the Pushgateway.
+commonTrap: "Assuming the default scrape interval is 15s. Many example configs, including the getting-started guide, set scrape_interval: 15s, but the built-in default is 1m. A second trap is mixing up relabel_configs (which act on targets, before the scrape) with metric_relabel_configs (which act on samples, after the scrape and before storage)."
+explainBack:
+  prompt: You want to stop storing one very expensive metric from a target, but keep scraping everything else. Which config section would you use, and why that one rather than the other relabeling section?
+  modelAnswer: I'd use metric_relabel_configs with a drop action matching that metric's __name__. Metric relabeling runs on the scraped samples as the last step before ingestion, so it can filter individual series out. relabel_configs runs earlier, on targets before the scrape, so it can only change or drop whole targets. It can't remove individual metrics.
+introduces: [prometheus.yml, scrape_interval, scrape_timeout, evaluation_interval, scrape_config, static_configs, relabeling, relabel_configs, metric_relabel_configs, honor_labels, external_labels, __address__, config reload]
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+    title: Configuration › Configuration file (global defaults, reload)
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/configuration.md
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
+    title: Configuration › scrape_config
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/configuration.md
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+    title: Configuration › relabel_config
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/configuration.md
+  - url: https://prometheus.io/docs/prometheus/latest/getting_started/
+    title: Getting started
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/getting_started.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Flags vs. the config file
+
+Prometheus takes two kinds of configuration:
+
+- **Command-line flags** set immutable system parameters: where to store data, how long to keep it, and so on. For example `--storage.tsdb.path` and `--storage.tsdb.retention.time`.
+- **The configuration file**, YAML and loaded with `--config.file`, defines **what to scrape** (jobs and their instances) and **which rule files to load**.
+
+## A real prometheus.yml
+
+This is the starter config from the official getting-started guide:
+
+```yaml
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+  external_labels:
+    monitor: 'codelab-monitor'
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+```
+
+Prometheus exposes its own metrics, so it can scrape itself.
+
+### Global defaults (worth memorising)
+
+| Setting | Built-in default | Meaning |
+|---|---|---|
+| `scrape_interval` | **1m** | How often to scrape targets |
+| `scrape_timeout` | **10s** | How long a scrape may take. Can't be greater than the interval. |
+| `evaluation_interval` | **1m** | How often rules are evaluated |
+
+The example above sets 15s, which is common, but the default when unset is 1 minute. Settings in `global` act as defaults that each `scrape_config` can override.
+
+`external_labels` are added to series and alerts only when Prometheus talks to *external* systems: federation, remote storage and Alertmanager.
+
+## scrape_config: one job
+
+Each entry under `scrape_configs` usually defines one job:
+
+```yaml
+scrape_configs:
+  - job_name: 'node'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:8080', 'localhost:8081']
+        labels:
+          group: 'production'
+      - targets: ['localhost:8082']
+        labels:
+          group: 'canary'
+```
+
+(From the getting-started guide.) Targets can be listed statically with `static_configs`, or found dynamically through service discovery, which is covered in a later topic. Useful per-job settings and their defaults:
+
+- `metrics_path`: `/metrics`
+- `scheme`: `http`
+- `honor_labels`: `false`. If scraped data already has a label Prometheus wants to attach, such as `job` or `instance`, the scraped one is renamed to `exported_job` or `exported_instance`. Set it to `true` to keep the scraped values instead. That's useful for federation and for scraping the Pushgateway.
+- `honor_timestamps`: `true`, meaning timestamps exposed by the target are used.
+
+## Reloading
+
+Prometheus can reload its config without restarting:
+
+- send the process a `SIGHUP`, or
+- `POST` to `/-/reload`, if the `--web.enable-lifecycle` flag is enabled.
+
+If the new file isn't valid, the change isn't applied. Rule files are reloaded at the same time.
+
+## Relabeling
+
+**Target relabeling** (`relabel_configs`) rewrites a target's labels **before it is scraped**. Steps run in order. Each one reads `source_labels`, matches a `regex` against them, and performs an `action`:
+
+| Action | Effect |
+|---|---|
+| `replace` (default) | Write `replacement` (with capture groups) into `target_label` |
+| `keep` | Drop targets whose source labels *don't* match |
+| `drop` | Drop targets whose source labels *do* match |
+| `labelmap` | Copy labels whose *names* match the regex to new names |
+| `labeldrop` / `labelkeep` | Remove labels whose names match / don't match |
+| `hashmod` | Set a label to a hash modulus, used for sharding |
+
+Details that come up often:
+
+- Regexes are **RE2** and **anchored on both ends**, so `regex: foo` only matches exactly `foo`. Use `.*foo.*` to match anywhere.
+- Special labels such as `__address__`, `__scheme__` and `__metrics_path__` control how the target is scraped. Service discovery adds `__meta_*` labels.
+- After relabeling, **labels starting with `__` are removed**, and `instance` is set from `__address__` if you didn't set it yourself.
+
+**Metric relabeling** (`metric_relabel_configs`) uses the same format but is applied **to scraped samples, as the last step before ingestion**. A typical use is dropping series that are too expensive to store. It doesn't affect automatically generated series such as `up`.
+
+```yaml
+metric_relabel_configs:
+  - source_labels: [__name__]
+    regex: 'expensive_metric_.*'
+    action: drop
+```

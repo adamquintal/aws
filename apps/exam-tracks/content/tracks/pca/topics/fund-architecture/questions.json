@@ -1,0 +1,528 @@
+[
+  {
+    "id": "arch-notifications",
+    "type": "single",
+    "stem": "Which component sends notifications to email, Slack or PagerDuty?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Alertmanager",
+        "correct": true,
+        "note": "Right. Alertmanager receives alerts from Prometheus and turns them into notifications."
+      },
+      {
+        "id": "b",
+        "text": "The Prometheus server",
+        "correct": false,
+        "note": "The server evaluates alerting rules and sends alerts to Alertmanager. It doesn't send notifications itself."
+      },
+      {
+        "id": "c",
+        "text": "The Pushgateway",
+        "correct": false,
+        "note": "The Pushgateway holds metrics pushed by batch jobs. It has nothing to do with notifications."
+      },
+      {
+        "id": "d",
+        "text": "An exporter",
+        "correct": false,
+        "note": "Exporters expose metrics from third-party systems. They don't handle alerts."
+      }
+    ],
+    "explanation": "Prometheus fires alerts, and Alertmanager groups, de-duplicates, silences and routes them as notifications to receivers such as email, PagerDuty or Slack.",
+    "hint": "The server raises the alarm, but someone else makes the phone call.",
+    "difficulty": 1,
+    "tags": [
+      "architecture"
+    ],
+    "uses": [
+      "alertmanager",
+      "notification",
+      "alert",
+      "prometheus server"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/glossary/",
+        "title": "Glossary"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/#architecture",
+        "title": "Overview › Architecture"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-pushgateway-purpose",
+    "type": "single",
+    "stem": "What is the Pushgateway mainly for?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Letting short-lived batch jobs make their metrics available after they exit",
+        "correct": true,
+        "note": "Right. A batch job may finish before Prometheus ever scrapes it, so it pushes its final metrics to the Pushgateway, and Prometheus scrapes them from there."
+      },
+      {
+        "id": "b",
+        "text": "Turning Prometheus into a push-based system for all services",
+        "correct": false,
+        "note": "The docs recommend it only for specific cases. Normal collection is pull-based."
+      },
+      {
+        "id": "c",
+        "text": "Forwarding alerts to Alertmanager",
+        "correct": false,
+        "note": "The Prometheus server sends alerts to Alertmanager directly."
+      },
+      {
+        "id": "d",
+        "text": "Long-term storage of metrics",
+        "correct": false,
+        "note": "Long-term storage is done through remote write integrations, not the Pushgateway."
+      }
+    ],
+    "explanation": "The overview describes the Pushgateway as supporting short-lived jobs, and the glossary says it persists the most recent push from batch jobs so Prometheus can scrape them after they terminate.",
+    "hint": "Think about a job that runs for 10 seconds when the scrape interval is a minute.",
+    "difficulty": 1,
+    "tags": [
+      "architecture"
+    ],
+    "uses": [
+      "pushgateway",
+      "scrape"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/#components",
+        "title": "Overview › Components"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/glossary/",
+        "title": "Glossary"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-exporter-def",
+    "type": "single",
+    "stem": "You need metrics from a database whose source code you can't change. What do you typically run?",
+    "options": [
+      {
+        "id": "a",
+        "text": "An exporter next to the database that translates its stats into Prometheus format",
+        "correct": true,
+        "note": "Right. That's the job of an exporter: expose metrics for systems you can't instrument directly."
+      },
+      {
+        "id": "b",
+        "text": "A client library added to the database's code",
+        "correct": false,
+        "note": "Client libraries are for code you own and can change. Here you can't change the code."
+      },
+      {
+        "id": "c",
+        "text": "A second Prometheus server inside the database",
+        "correct": false,
+        "note": "Prometheus scrapes metrics. It doesn't extract them from a database's internals."
+      },
+      {
+        "id": "d",
+        "text": "Alertmanager",
+        "correct": false,
+        "note": "Alertmanager handles alerts. It doesn't collect metrics."
+      }
+    ],
+    "explanation": "An exporter runs alongside the application and exposes Prometheus metrics, usually by converting metrics from a non-Prometheus format.",
+    "hint": "You can't edit the code, so instrumentation has to live outside it.",
+    "difficulty": 1,
+    "tags": [
+      "architecture"
+    ],
+    "uses": [
+      "exporter",
+      "client library"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/glossary/",
+        "title": "Glossary"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/#components",
+        "title": "Overview › Components"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-server-duties",
+    "type": "multi",
+    "stem": "Which of these does the Prometheus server itself do? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Scrape metrics from targets",
+        "correct": true,
+        "note": "Right. The server pulls metrics from instrumented jobs."
+      },
+      {
+        "id": "b",
+        "text": "Store samples in a local time series database",
+        "correct": true,
+        "note": "Right. Scraped samples are stored locally."
+      },
+      {
+        "id": "c",
+        "text": "Evaluate recording and alerting rules",
+        "correct": true,
+        "note": "Right. The server runs rules to record new series or generate alerts."
+      },
+      {
+        "id": "d",
+        "text": "De-duplicate and route notifications to receivers",
+        "correct": false,
+        "note": "That's Alertmanager's job, not the server's."
+      }
+    ],
+    "explanation": "The architecture section says Prometheus scrapes metrics, stores all samples locally, and runs rules to record new time series or generate alerts. Notification handling belongs to Alertmanager.",
+    "hint": "One of these happens after the alert has left the server.",
+    "difficulty": 2,
+    "tags": [
+      "architecture"
+    ],
+    "uses": [
+      "scrape",
+      "target",
+      "tsdb",
+      "recording rule",
+      "alerting rule",
+      "alertmanager"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/#architecture",
+        "title": "Overview › Architecture"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-recording-rule",
+    "type": "single",
+    "stem": "What does a recording rule do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Precomputes a frequently used or expensive expression and saves the result as new time series",
+        "correct": true,
+        "note": "Right. This makes dashboards and alerts that use the expression cheaper and faster."
+      },
+      {
+        "id": "b",
+        "text": "Records raw logs alongside metrics",
+        "correct": false,
+        "note": "Prometheus doesn't store logs. Recording rules produce time series."
+      },
+      {
+        "id": "c",
+        "text": "Records which users ran which queries",
+        "correct": false,
+        "note": "That isn't what recording rules are. They're about precomputing query results."
+      },
+      {
+        "id": "d",
+        "text": "Starts recording metrics from a new target",
+        "correct": false,
+        "note": "Targets come from scrape configuration and service discovery, not recording rules."
+      }
+    ],
+    "explanation": "The glossary defines recording rules as precomputing frequently needed or computationally expensive expressions and saving their results as a new set of time series.",
+    "hint": "The word \"record\" here means saving a result.",
+    "difficulty": 1,
+    "tags": [
+      "architecture",
+      "rules"
+    ],
+    "uses": [
+      "recording rule"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/glossary/",
+        "title": "Glossary"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-standalone",
+    "type": "single",
+    "stem": "Why is each Prometheus server designed to be standalone, without relying on network storage?",
+    "options": [
+      {
+        "id": "a",
+        "text": "So monitoring keeps working when other parts of the infrastructure are broken",
+        "correct": true,
+        "note": "Right. The overview says Prometheus is meant to be the system you go to during an outage."
+      },
+      {
+        "id": "b",
+        "text": "Because Prometheus can't write to disk",
+        "correct": false,
+        "note": "It does write to local disk, in its TSDB."
+      },
+      {
+        "id": "c",
+        "text": "Because it stores everything only in memory",
+        "correct": false,
+        "note": "Data is persisted to disk in blocks, with a WAL protecting recent data."
+      },
+      {
+        "id": "d",
+        "text": "Because standalone servers give 100% accurate data",
+        "correct": false,
+        "note": "The docs say Prometheus is not suited to cases that need 100% accuracy, such as billing."
+      }
+    ],
+    "explanation": "Prometheus is designed for reliability. Each server is standalone, so you can rely on it during failures without extensive infrastructure.",
+    "hint": "When is monitoring most important?",
+    "difficulty": 2,
+    "tags": [
+      "architecture"
+    ],
+    "uses": [
+      "prometheus server"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/#when-does-it-fit",
+        "title": "Overview › When does it fit?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-blocks-wal",
+    "type": "single",
+    "stem": "How does Prometheus's local storage protect the most recent samples, which are still in memory, against a crash?",
+    "options": [
+      {
+        "id": "a",
+        "text": "With a write-ahead log (WAL) that is replayed on restart",
+        "correct": true,
+        "note": "Right. The in-memory head block is secured by the WAL."
+      },
+      {
+        "id": "b",
+        "text": "By replicating each sample to a second server",
+        "correct": false,
+        "note": "Local storage isn't clustered or replicated."
+      },
+      {
+        "id": "c",
+        "text": "By writing each sample to a separate file immediately",
+        "correct": false,
+        "note": "Samples are grouped into blocks. The WAL is what covers the in-memory part."
+      },
+      {
+        "id": "d",
+        "text": "It doesn't. Recent data is always lost on a crash",
+        "correct": false,
+        "note": "The WAL exists precisely to replay recent data after a crash."
+      }
+    ],
+    "explanation": "Samples are grouped into two-hour blocks. The current block is kept in memory and secured by a write-ahead log, which is replayed when the server restarts.",
+    "hint": "Databases often keep a log of writes before applying them.",
+    "difficulty": 2,
+    "tags": [
+      "architecture",
+      "storage"
+    ],
+    "uses": [
+      "wal",
+      "tsdb"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/",
+        "title": "Storage › Local storage"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-block-duration",
+    "type": "single",
+    "stem": "Into what time windows does Prometheus initially group ingested samples on disk?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Two-hour blocks",
+        "correct": true,
+        "note": "Right. Ingested samples are grouped into two-hour blocks, which are later compacted into larger ones."
+      },
+      {
+        "id": "b",
+        "text": "One-day blocks",
+        "correct": false,
+        "note": "Larger blocks only appear later, through compaction. The initial blocks cover two hours."
+      },
+      {
+        "id": "c",
+        "text": "Five-minute blocks",
+        "correct": false,
+        "note": "Too small. The storage docs give two hours."
+      },
+      {
+        "id": "d",
+        "text": "One block per metric name",
+        "correct": false,
+        "note": "Blocks are organised by time window, not by metric name."
+      }
+    ],
+    "explanation": "The storage page says ingested samples are grouped into two-hour blocks. Compaction later merges them into longer blocks in the background.",
+    "hint": "It's a number of hours.",
+    "difficulty": 2,
+    "tags": [
+      "storage"
+    ],
+    "uses": [
+      "tsdb"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/",
+        "title": "Storage › Local storage"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-remote-write",
+    "type": "single",
+    "stem": "Local Prometheus storage isn't clustered or replicated. What feature lets you send samples to a separate long-term storage system?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Remote write",
+        "correct": true,
+        "note": "Right. Remote write sends ingested samples on the fly to other systems, such as long-term storage."
+      },
+      {
+        "id": "b",
+        "text": "The Pushgateway",
+        "correct": false,
+        "note": "The Pushgateway receives pushed metrics for scraping. It isn't for long-term storage."
+      },
+      {
+        "id": "c",
+        "text": "Recording rules",
+        "correct": false,
+        "note": "Recording rules create new series inside Prometheus. They don't ship data elsewhere."
+      },
+      {
+        "id": "d",
+        "text": "Alertmanager",
+        "correct": false,
+        "note": "Alertmanager handles alerts, not samples."
+      }
+    ],
+    "explanation": "Remote write sends ingested samples to other systems, and remote read lets queries transparently read from them. This is how Prometheus gains durable or long-term storage.",
+    "hint": "The name describes writing somewhere remote.",
+    "difficulty": 2,
+    "tags": [
+      "architecture",
+      "storage"
+    ],
+    "uses": [
+      "remote write",
+      "tsdb"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/glossary/",
+        "title": "Glossary"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/",
+        "title": "Storage › Local storage"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "arch-promql-grafana",
+    "type": "single",
+    "stem": "How does Grafana typically get data from Prometheus?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It sends PromQL queries to the Prometheus server's API",
+        "correct": true,
+        "note": "Right. Grafana is an API consumer that queries Prometheus with PromQL."
+      },
+      {
+        "id": "b",
+        "text": "It scrapes the applications' /metrics endpoints itself",
+        "correct": false,
+        "note": "Prometheus does the scraping. Grafana queries Prometheus."
+      },
+      {
+        "id": "c",
+        "text": "It reads the TSDB block files directly from disk",
+        "correct": false,
+        "note": "Grafana uses the HTTP API rather than reading the server's files."
+      },
+      {
+        "id": "d",
+        "text": "Prometheus pushes every sample to Grafana as it arrives",
+        "correct": false,
+        "note": "Grafana pulls data by querying when it draws a dashboard."
+      }
+    ],
+    "explanation": "The overview notes that Grafana or other API consumers can be used to visualise collected data. They query it using PromQL.",
+    "hint": "Grafana is described as an API consumer.",
+    "difficulty": 1,
+    "tags": [
+      "architecture"
+    ],
+    "uses": [
+      "grafana",
+      "promql"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/#architecture",
+        "title": "Overview › Architecture"
+      },
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/",
+        "title": "Grafana support for Prometheus"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

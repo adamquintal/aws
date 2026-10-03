@@ -1,0 +1,185 @@
+[
+  {
+    "id": "met-counter-def",
+    "type": "single",
+    "stem": "Which statement best describes a Prometheus counter?",
+    "options": [
+      { "id": "a", "text": "A value that only increases, except that it resets to zero when the process restarts", "correct": true, "note": "Right. Counters are cumulative totals that only go up, apart from a reset to zero on restart." },
+      { "id": "b", "text": "A value that can go up and down freely", "correct": false, "note": "That's a gauge. Counters are not allowed to decrease, except for a reset on restart." },
+      { "id": "c", "text": "A set of buckets counting observations by size", "correct": false, "note": "That describes a histogram." },
+      { "id": "d", "text": "A value calculated as a quantile over a sliding window", "correct": false, "note": "Client-side quantiles over a sliding window come from a summary." }
+    ],
+    "explanation": "A counter represents a single monotonically increasing value. It can only increase, or reset to zero when the process restarts.",
+    "hint": "Think of a car's odometer.",
+    "difficulty": 1,
+    "tags": ["metric-types"],
+    "uses": ["counter"],
+    "sources": [{ "url": "https://prometheus.io/docs/concepts/metric_types/#counter", "title": "Metric types › Counter" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-pick-running-procs",
+    "type": "single",
+    "stem": "You want to expose the number of worker processes currently running. Which metric type should you use?",
+    "options": [
+      { "id": "a", "text": "Counter", "correct": false, "note": "The number of running processes can go down, so a counter is wrong. The docs use this exact example of what not to use a counter for." },
+      { "id": "b", "text": "Gauge", "correct": true, "note": "Right. The value can go up and down, so it's a gauge." },
+      { "id": "c", "text": "Histogram", "correct": false, "note": "Histograms are for distributions of observations, such as durations, not a single current value." },
+      { "id": "d", "text": "Summary", "correct": false, "note": "Summaries are for distributions of observations with client-side quantiles, not a single current value." }
+    ],
+    "explanation": "If a value can go down, it's a gauge. The metric types page explicitly warns against using a counter for the number of currently running processes.",
+    "hint": "Can this number ever decrease?",
+    "difficulty": 1,
+    "tags": ["metric-types"],
+    "uses": ["counter", "gauge"],
+    "sources": [
+      { "url": "https://prometheus.io/docs/concepts/metric_types/#counter", "title": "Metric types › Counter" },
+      { "url": "https://prometheus.io/docs/practices/instrumentation/#counter-vs-gauge-summary-vs-histogram", "title": "Instrumentation › Counter vs. gauge" }
+    ],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-pick-requests-total",
+    "type": "single",
+    "stem": "Which metric type fits \"total number of HTTP requests served since the process started\"?",
+    "options": [
+      { "id": "a", "text": "Gauge", "correct": false, "note": "A gauge would work technically, but this total never decreases (apart from restarts), and counter is the type made for it." },
+      { "id": "b", "text": "Counter", "correct": true, "note": "Right. Counting events that accumulate is exactly what counters are for." },
+      { "id": "c", "text": "Summary", "correct": false, "note": "A summary is for distributions, such as request durations, not a plain running total." },
+      { "id": "d", "text": "Histogram", "correct": false, "note": "A histogram buckets observed values, such as durations. A simple total of events is a counter." }
+    ],
+    "explanation": "Accumulating the number of events, such as requests served, tasks completed or errors, is the classic use of a counter.",
+    "hint": "Does this number only ever grow?",
+    "difficulty": 1,
+    "tags": ["metric-types"],
+    "uses": ["counter"],
+    "sources": [{ "url": "https://prometheus.io/docs/concepts/metric_types/#counter", "title": "Metric types › Counter" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-gauge-examples",
+    "type": "multi",
+    "stem": "Which of these are good fits for a gauge? Select all that apply.",
+    "options": [
+      { "id": "a", "text": "Current memory usage of a process", "correct": true, "note": "Right. Memory usage rises and falls, which makes it a typical gauge." },
+      { "id": "b", "text": "Number of requests currently in progress", "correct": true, "note": "Right. Concurrent requests go up and down, so this is a gauge." },
+      { "id": "c", "text": "Total errors since the process started", "correct": false, "note": "A total of events that only accumulates is a counter." },
+      { "id": "d", "text": "Room temperature", "correct": true, "note": "Right. Temperature is the docs' own example of a gauge." }
+    ],
+    "explanation": "Gauges represent values that can go up and down, such as temperatures, memory usage and concurrent requests. Accumulating totals are counters.",
+    "hint": "For each one, ask whether the value can go down.",
+    "difficulty": 1,
+    "tags": ["metric-types"],
+    "uses": ["gauge", "counter"],
+    "sources": [{ "url": "https://prometheus.io/docs/concepts/metric_types/#gauge", "title": "Metric types › Gauge" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-histogram-series",
+    "type": "multi",
+    "stem": "A classic histogram has the base name http_request_duration_seconds. Which series does it expose? Select all that apply.",
+    "options": [
+      { "id": "a", "text": "http_request_duration_seconds_bucket{le=\"...\"}", "correct": true, "note": "Right. Each bucket is its own series, labelled with its upper bound `le`." },
+      { "id": "b", "text": "http_request_duration_seconds_sum", "correct": true, "note": "Right. The total sum of all observed values." },
+      { "id": "c", "text": "http_request_duration_seconds_count", "correct": true, "note": "Right. The number of observations, equal to the +Inf bucket." },
+      { "id": "d", "text": "http_request_duration_seconds{quantile=\"0.99\"}", "correct": false, "note": "Series with a `quantile` label come from a summary, not a histogram." }
+    ],
+    "explanation": "A classic histogram exposes cumulative `_bucket{le=...}` counters, a `_sum` and a `_count`. Quantile-labelled series belong to summaries.",
+    "hint": "One of these belongs to the other distribution type.",
+    "difficulty": 2,
+    "tags": ["metric-types", "histogram"],
+    "uses": ["histogram", "summary", "bucket", "quantile"],
+    "sources": [{ "url": "https://prometheus.io/docs/concepts/metric_types/#histogram", "title": "Metric types › Histogram" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-histogram-count-equals",
+    "type": "single",
+    "stem": "In a classic histogram, the _count series always has the same value as which other series?",
+    "options": [
+      { "id": "a", "text": "The bucket with le=\"+Inf\"", "correct": true, "note": "Right. Buckets are cumulative, so the +Inf bucket holds every observation, which is the same number as _count." },
+      { "id": "b", "text": "The _sum series", "correct": false, "note": "_sum adds up the observed values, such as total seconds. It isn't the number of observations." },
+      { "id": "c", "text": "The smallest bucket", "correct": false, "note": "The smallest bucket only counts observations at or below its bound, which is usually far fewer than all of them." },
+      { "id": "d", "text": "The 0.99 quantile", "correct": false, "note": "Histograms don't expose quantile series; those belong to summaries." }
+    ],
+    "explanation": "Buckets are cumulative (each counts everything less than or equal to its upper bound), so the +Inf bucket counts everything. That's why it equals `_count`.",
+    "hint": "Buckets are cumulative. Which bucket would include every observation?",
+    "difficulty": 2,
+    "tags": ["histogram"],
+    "uses": ["histogram", "bucket"],
+    "sources": [{ "url": "https://prometheus.io/docs/concepts/metric_types/#histogram", "title": "Metric types › Histogram" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-summary-quantiles",
+    "type": "single",
+    "stem": "What does a summary provide that a classic histogram does not?",
+    "options": [
+      { "id": "a", "text": "Quantiles calculated in the client over a sliding time window", "correct": true, "note": "Right. Summaries expose ready-made φ-quantiles, calculated by the instrumented application." },
+      { "id": "b", "text": "A count of observations", "correct": false, "note": "Both types expose a `_count`." },
+      { "id": "c", "text": "A sum of observed values", "correct": false, "note": "Both types expose a `_sum`." },
+      { "id": "d", "text": "Buckets with an le label", "correct": false, "note": "That's the histogram's representation, not the summary's." }
+    ],
+    "explanation": "Both types track `_sum` and `_count`. The summary additionally calculates configurable quantiles over a sliding time window in the client, exposed with a `quantile` label.",
+    "hint": "Both have _sum and _count. What is the summary's extra?",
+    "difficulty": 2,
+    "tags": ["metric-types", "summary"],
+    "uses": ["summary", "histogram", "quantile"],
+    "sources": [{ "url": "https://prometheus.io/docs/concepts/metric_types/#summary", "title": "Metric types › Summary" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-time-series-def",
+    "type": "single",
+    "stem": "What is a time series in Prometheus terms?",
+    "options": [
+      { "id": "a", "text": "A sequence of values for one measurement, each stored with the time it was recorded", "correct": true, "note": "Right. Prometheus stores metrics as time series: values plus timestamps (plus optional labels, covered later)." },
+      { "id": "b", "text": "A log file with one line per event", "correct": false, "note": "Logs are a different signal, covered in a later topic. A time series stores numbers, not text lines." },
+      { "id": "c", "text": "A dashboard panel that shows a graph", "correct": false, "note": "A dashboard can display time series, but the series is the data itself." },
+      { "id": "d", "text": "A single reading of a metric at one moment", "correct": false, "note": "One reading is just a single point. A series is the recording of changes over time." }
+    ],
+    "explanation": "The overview defines time series as the recording of changes over time. Prometheus stores each metric value with the timestamp at which it was recorded.",
+    "hint": "The word \"series\" is a clue.",
+    "difficulty": 1,
+    "tags": ["concepts"],
+    "uses": ["time series", "metric"],
+    "sources": [{ "url": "https://prometheus.io/docs/introduction/overview/#what-are-metrics", "title": "Overview › What are metrics?" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-server-types",
+    "type": "single",
+    "stem": "How does the Prometheus server treat the counter/gauge type information when it stores samples (ignoring native histograms)?",
+    "options": [
+      { "id": "a", "text": "It flattens them into untyped time series of floating-point values", "correct": true, "note": "Right. Apart from native histograms, the server stores everything as plain float series. The types matter mostly in client libraries and exposition." },
+      { "id": "b", "text": "It rejects samples whose type doesn't match a schema", "correct": false, "note": "There's no schema enforcement like this. The server doesn't use the type information for storage." },
+      { "id": "c", "text": "It stores counters and gauges in separate databases", "correct": false, "note": "Everything goes into the same local time series database." },
+      { "id": "d", "text": "It automatically converts counters into rates", "correct": false, "note": "Nothing is converted at ingestion. You calculate rates at query time." }
+    ],
+    "explanation": "The metric types page says the server does not yet make use of the type information and flattens all types except native histograms into untyped float series.",
+    "hint": "The docs say types are differentiated mainly in client libraries and exposition protocols.",
+    "difficulty": 3,
+    "tags": ["metric-types"],
+    "uses": ["counter", "gauge"],
+    "sources": [{ "url": "https://prometheus.io/docs/concepts/metric_types/", "title": "Concepts › Metric types" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  },
+  {
+    "id": "met-rate-gauge",
+    "type": "single",
+    "stem": "According to the instrumentation best practices, which statement is true?",
+    "options": [
+      { "id": "a", "text": "Raw counter values are rarely useful; you usually look at how fast they increase, and you should never take a rate of a gauge", "correct": true, "note": "Right. This matches the docs' guidance on counters and gauges." },
+      { "id": "b", "text": "Gauges should always be converted to rates before graphing", "correct": false, "note": "The opposite: the docs say never take a rate of a gauge. Graph gauges directly." },
+      { "id": "c", "text": "Counters are most useful when graphed as raw values", "correct": false, "note": "A raw counter is just a total since the last restart. Its rate of increase is what's informative." },
+      { "id": "d", "text": "Counters and gauges are interchangeable", "correct": false, "note": "They aren't interchangeable. Picking the wrong one breaks how the data can be queried." }
+    ],
+    "explanation": "Counters accumulate, so you look at their per-second rate of increase. Gauges are snapshots of state, and taking a rate of one is meaningless.",
+    "hint": "Which of the two types only goes up?",
+    "difficulty": 2,
+    "tags": ["metric-types", "best-practice"],
+    "uses": ["counter", "gauge"],
+    "sources": [{ "url": "https://prometheus.io/docs/practices/instrumentation/#counter-vs-gauge-summary-vs-histogram", "title": "Instrumentation › Counter vs. gauge" }],
+    "status": "source-checked", "reviewer": null, "version": 1
+  }
+]

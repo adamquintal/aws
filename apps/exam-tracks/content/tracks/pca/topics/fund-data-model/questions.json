@@ -1,0 +1,564 @@
+[
+  {
+    "id": "dm-identity",
+    "type": "single",
+    "stem": "What uniquely identifies a time series in Prometheus?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Its metric name plus its full set of label key-value pairs",
+        "correct": true,
+        "note": "Right. Name plus labels together form the series identity."
+      },
+      {
+        "id": "b",
+        "text": "Its metric name alone",
+        "correct": false,
+        "note": "Many series share a metric name. The labels tell them apart."
+      },
+      {
+        "id": "c",
+        "text": "The target it was scraped from",
+        "correct": false,
+        "note": "The target contributes job and instance labels, but the identity is name plus all labels."
+      },
+      {
+        "id": "d",
+        "text": "The timestamp of its first sample",
+        "correct": false,
+        "note": "Timestamps belong to samples, not to the series identity."
+      }
+    ],
+    "explanation": "Every time series is uniquely identified by its metric name and optional key-value pairs called labels.",
+    "hint": "Two things combined.",
+    "difficulty": 1,
+    "tags": [
+      "data-model"
+    ],
+    "uses": [
+      "label",
+      "time series",
+      "metric"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels",
+        "title": "Data model › Metric names and labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-how-many-series",
+    "type": "single",
+    "stem": "How many distinct time series are shown here?",
+    "code": "api_http_requests_total{method=\"POST\", handler=\"/messages\"}\napi_http_requests_total{method=\"GET\",  handler=\"/messages\"}\napi_http_requests_total{method=\"POST\", handler=\"/users\"}\napi_http_requests_total{handler=\"/messages\", method=\"POST\"}",
+    "codeLang": "text",
+    "options": [
+      {
+        "id": "a",
+        "text": "3",
+        "correct": true,
+        "note": "Right. The first and last lines have identical names and labels (label order doesn't matter), so they're the same series."
+      },
+      {
+        "id": "b",
+        "text": "4",
+        "correct": false,
+        "note": "Look closely: two lines have the same name and the same label set, just written in a different order."
+      },
+      {
+        "id": "c",
+        "text": "2",
+        "correct": false,
+        "note": "The GET line and the /users line both differ from the others in at least one label value."
+      },
+      {
+        "id": "d",
+        "text": "1",
+        "correct": false,
+        "note": "They share a metric name, but different label values mean different series."
+      }
+    ],
+    "explanation": "A series is its name plus its set of labels. Label order in the notation doesn't matter, so `{method=\"POST\", handler=\"/messages\"}` and `{handler=\"/messages\", method=\"POST\"}` are the same series.",
+    "hint": "Compare the label sets, not the line order or text.",
+    "difficulty": 2,
+    "tags": [
+      "data-model"
+    ],
+    "uses": [
+      "label",
+      "time series"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels",
+        "title": "Data model › Metric names and labels"
+      },
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/#notation",
+        "title": "Data model › Notation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-sample",
+    "type": "single",
+    "stem": "What does a single sample consist of?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A float64 (or native histogram) value and a millisecond-precision timestamp",
+        "correct": true,
+        "note": "Right. That's the definition in the data model docs."
+      },
+      {
+        "id": "b",
+        "text": "A metric name and a list of labels",
+        "correct": false,
+        "note": "That's the series identity. A sample is a value and a timestamp within a series."
+      },
+      {
+        "id": "c",
+        "text": "A string message and a severity",
+        "correct": false,
+        "note": "That sounds like a log line. Prometheus samples are numeric."
+      },
+      {
+        "id": "d",
+        "text": "An integer value and a second-precision timestamp",
+        "correct": false,
+        "note": "Values are float64 (or native histograms) and timestamps have millisecond precision."
+      }
+    ],
+    "explanation": "Samples form the actual time series data. Each is a float64 or native histogram value plus a millisecond-precision timestamp.",
+    "hint": "One number, one moment.",
+    "difficulty": 1,
+    "tags": [
+      "data-model"
+    ],
+    "uses": [
+      "sample"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/#samples",
+        "title": "Data model › Samples"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-name-label",
+    "type": "single",
+    "stem": "Which selector refers to the same series as http_requests_total{job=\"api\"}?",
+    "options": [
+      {
+        "id": "a",
+        "text": "{__name__=\"http_requests_total\", job=\"api\"}",
+        "correct": true,
+        "note": "Right. The metric name is stored internally as the special label `__name__`."
+      },
+      {
+        "id": "b",
+        "text": "{name=\"http_requests_total\", job=\"api\"}",
+        "correct": false,
+        "note": "The internal label is `__name__`, with double underscores. `name` would be an ordinary user label."
+      },
+      {
+        "id": "c",
+        "text": "{metric=\"http_requests_total\", job=\"api\"}",
+        "correct": false,
+        "note": "There's no special label called `metric`."
+      },
+      {
+        "id": "d",
+        "text": "http_requests_total[job=\"api\"]",
+        "correct": false,
+        "note": "Labels go in curly braces, not square brackets."
+      }
+    ],
+    "explanation": "Metric names are internally represented as a label pair with the special label name `__name__`.",
+    "hint": "Reserved internal labels start with two underscores.",
+    "difficulty": 2,
+    "tags": [
+      "data-model"
+    ],
+    "uses": [
+      "__name__",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/#notation",
+        "title": "Data model › Notation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-reserved-prefix",
+    "type": "single",
+    "stem": "Label names beginning with which prefix are reserved for internal Prometheus use?",
+    "options": [
+      {
+        "id": "a",
+        "text": "__ (two underscores)",
+        "correct": true,
+        "note": "Right. Names starting with `__` are reserved for Prometheus internals."
+      },
+      {
+        "id": "b",
+        "text": "_ (one underscore)",
+        "correct": false,
+        "note": "A single leading underscore is allowed. The reserved prefix is two underscores."
+      },
+      {
+        "id": "c",
+        "text": "prom_",
+        "correct": false,
+        "note": "There's no such reserved prefix."
+      },
+      {
+        "id": "d",
+        "text": ": (colon)",
+        "correct": false,
+        "note": "Colons are reserved in metric names for recording rules, but that's a different rule."
+      }
+    ],
+    "explanation": "Label names beginning with `__` (two underscores) must be reserved for internal Prometheus use.",
+    "hint": "Think of `__name__`.",
+    "difficulty": 1,
+    "tags": [
+      "data-model"
+    ],
+    "uses": [
+      "label",
+      "__name__"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels",
+        "title": "Data model › Metric names and labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-colon",
+    "type": "single",
+    "stem": "Why shouldn't exporters or directly instrumented code use colons in metric names?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Colons are reserved for user-defined recording rules",
+        "correct": true,
+        "note": "Right. The data model reserves colons for recording rule names."
+      },
+      {
+        "id": "b",
+        "text": "Colons are not valid UTF-8",
+        "correct": false,
+        "note": "Colons are perfectly valid characters. They're reserved by convention."
+      },
+      {
+        "id": "c",
+        "text": "Colons separate the metric name from its value",
+        "correct": false,
+        "note": "A space separates the name and labels from the value in the text format."
+      },
+      {
+        "id": "d",
+        "text": "Colons mark a metric as a counter",
+        "correct": false,
+        "note": "Counters are marked by type metadata, and by convention a `_total` suffix."
+      }
+    ],
+    "explanation": "The data model notes that colons are reserved for user-defined recording rules and should not be used by exporters or direct instrumentation.",
+    "hint": "Which kind of rule creates new series with structured names?",
+    "difficulty": 2,
+    "tags": [
+      "data-model",
+      "naming"
+    ],
+    "uses": [
+      "recording rule",
+      "metric"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels",
+        "title": "Data model › Metric names and labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-empty-label",
+    "type": "single",
+    "stem": "How does Prometheus treat a label whose value is the empty string?",
+    "options": [
+      {
+        "id": "a",
+        "text": "As if the label does not exist",
+        "correct": true,
+        "note": "Right. An empty label value is equivalent to the label being absent."
+      },
+      {
+        "id": "b",
+        "text": "As a distinct value that creates a separate series",
+        "correct": false,
+        "note": "The docs say empty values are equivalent to the label not existing."
+      },
+      {
+        "id": "c",
+        "text": "As an error that fails the scrape",
+        "correct": false,
+        "note": "Empty label values don't fail the scrape."
+      },
+      {
+        "id": "d",
+        "text": "As the literal string \"null\"",
+        "correct": false,
+        "note": "No such conversion happens."
+      }
+    ],
+    "explanation": "Labels with an empty label value are considered equivalent to labels that don't exist.",
+    "hint": "An empty tag is no tag.",
+    "difficulty": 2,
+    "tags": [
+      "data-model"
+    ],
+    "uses": [
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels",
+        "title": "Data model › Metric names and labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-auto-labels",
+    "type": "multi",
+    "stem": "Which labels does Prometheus attach automatically to series it scrapes from a target? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "job",
+        "correct": true,
+        "note": "Right. The configured job name the target belongs to."
+      },
+      {
+        "id": "b",
+        "text": "instance",
+        "correct": true,
+        "note": "Right. The host:port of the scraped target."
+      },
+      {
+        "id": "c",
+        "text": "env",
+        "correct": false,
+        "note": "There's no automatic `env` label. You'd add one yourself through configuration or relabeling."
+      },
+      {
+        "id": "d",
+        "text": "__name__",
+        "correct": false,
+        "note": "Every series has a metric name, but `__name__` isn't attached by the scrape to identify the target. `job` and `instance` are the automatic target labels."
+      }
+    ],
+    "explanation": "When scraping, Prometheus attaches `job` (the configured job name) and `instance` (the host:port that was scraped) to identify the target.",
+    "hint": "One identifies the group, the other identifies the specific endpoint.",
+    "difficulty": 1,
+    "tags": [
+      "data-model"
+    ],
+    "uses": [
+      "job",
+      "instance",
+      "target"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/jobs_instances/",
+        "title": "Jobs and instances"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-instance-def",
+    "type": "single",
+    "stem": "In Prometheus terms, what is an instance?",
+    "options": [
+      {
+        "id": "a",
+        "text": "An endpoint you can scrape, usually corresponding to a single process",
+        "correct": true,
+        "note": "Right. Several instances with the same purpose form a job."
+      },
+      {
+        "id": "b",
+        "text": "A whole group of replicated processes",
+        "correct": false,
+        "note": "That's a job. An instance is one member of it."
+      },
+      {
+        "id": "c",
+        "text": "A single sample",
+        "correct": false,
+        "note": "A sample is a value plus timestamp. An instance is a scrape endpoint."
+      },
+      {
+        "id": "d",
+        "text": "A running Prometheus server",
+        "correct": false,
+        "note": "The term refers to a scrape target endpoint, not the server."
+      }
+    ],
+    "explanation": "An endpoint you can scrape is called an instance, usually corresponding to a single process. A collection of instances with the same purpose is a job.",
+    "hint": "Think of one replica among several.",
+    "difficulty": 1,
+    "tags": [
+      "data-model"
+    ],
+    "uses": [
+      "instance",
+      "job"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/jobs_instances/",
+        "title": "Jobs and instances"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-cardinality-bad",
+    "type": "multi",
+    "stem": "Which of these are poor choices for label values because of cardinality? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "User ID",
+        "correct": true,
+        "note": "Right. User IDs are unbounded, so each one would create new series."
+      },
+      {
+        "id": "b",
+        "text": "Customer email address",
+        "correct": true,
+        "note": "Right. Email addresses are unbounded, and the docs call them out explicitly."
+      },
+      {
+        "id": "c",
+        "text": "HTTP method (GET, POST, …)",
+        "correct": false,
+        "note": "A small, bounded set of values makes a good label."
+      },
+      {
+        "id": "d",
+        "text": "HTTP status code",
+        "correct": false,
+        "note": "Status codes are a small, bounded set, which suits a label well."
+      }
+    ],
+    "explanation": "Every unique label combination is a new time series. Don't use labels for high-cardinality dimensions such as user IDs, email addresses or other unbounded sets.",
+    "hint": "Which values could grow without limit as you gain users?",
+    "difficulty": 1,
+    "tags": [
+      "data-model",
+      "cardinality"
+    ],
+    "uses": [
+      "label",
+      "cardinality"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#labels",
+        "title": "Naming › Labels"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#do-not-overuse-labels",
+        "title": "Instrumentation › Do not overuse labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "dm-cardinality-guideline",
+    "type": "single",
+    "stem": "What does the instrumentation guide suggest about label cardinality?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Keep most metrics below about 10, and investigate alternatives for anything over 100",
+        "correct": true,
+        "note": "Right. Most metrics should have no labels at all, and above 100 you should rethink the design."
+      },
+      {
+        "id": "b",
+        "text": "Cardinality doesn't matter because Prometheus compresses everything",
+        "correct": false,
+        "note": "Each label set costs RAM, CPU, disk and network, so cardinality matters a lot."
+      },
+      {
+        "id": "c",
+        "text": "Aim for at least 1,000 label values to get fine-grained data",
+        "correct": false,
+        "note": "That's the opposite of the guidance."
+      },
+      {
+        "id": "d",
+        "text": "Always add a unique request ID label for traceability",
+        "correct": false,
+        "note": "Request IDs are unbounded, which is exactly what to avoid. That's a job for logs or tracing."
+      }
+    ],
+    "explanation": "The guide suggests keeping cardinality below 10 for most metrics, limiting the exceptions, and looking for alternative solutions if a metric has or could reach cardinality over 100.",
+    "hint": "The numbers in the guide are small.",
+    "difficulty": 2,
+    "tags": [
+      "cardinality"
+    ],
+    "uses": [
+      "cardinality",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#do-not-overuse-labels",
+        "title": "Instrumentation › Do not overuse labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

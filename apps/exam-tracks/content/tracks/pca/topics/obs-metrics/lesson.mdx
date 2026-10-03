@@ -1,0 +1,92 @@
+---
+id: obs-metrics
+title: What metrics are (and the four metric types)
+summary: A metric is a number you measure over and over, so you can see how it changes. Prometheus has four kinds, and picking the right one is the first skill to learn.
+analogy: Think of your car's dashboard. The odometer only ever goes up (until you replace the car), so it's a counter. The speedometer swings up and down, so it's a gauge. If you sorted every trip you took into bins (under 5 km, under 10 km, under 50 km…) and kept a tally for each bin, that would be a histogram.
+keyPoints:
+  - A metric is a numeric measurement; a time series is that measurement recorded again and again with timestamps.
+  - A counter only goes up, or resets to zero when the process restarts. Use it for things you count, like requests served or errors.
+  - A gauge can go up and down. Use it for current state, like memory in use, temperature, or requests in flight.
+  - "Rule of thumb from the docs: if the value can go down, it's a gauge."
+  - A histogram counts observations into buckets and also tracks their sum and count. A summary also tracks sum and count, but works out quantiles itself in the client.
+  - Raw counter values are rarely useful on their own; you look at how fast they grow. Never take a rate of a gauge.
+commonTrap: Using a counter for something that can decrease, such as "number of running processes". A counter is only allowed to go up (or reset to zero on restart). If the value can ever go down, it must be a gauge.
+explainBack:
+  prompt: In your own words, what's the difference between a counter and a gauge? Give one example of each.
+  modelAnswer: A counter is a running total that only ever goes up, except that it resets to zero when the program restarts. The total number of HTTP requests served is a good example. A gauge is a snapshot of a value that can go up or down, like current memory use or the number of requests in progress right now. If a value can decrease, it's a gauge.
+introduces: [metric, time series, counter, gauge, histogram, summary, bucket, quantile]
+versionNotes:
+  - Prometheus 3.x also supports native histograms, a newer and more efficient histogram form. The classic histogram described here (with _bucket, _sum and _count series) is still common and is what most study material shows.
+sources:
+  - url: https://prometheus.io/docs/introduction/overview/#what-are-metrics
+    title: Overview › What are metrics?
+    readFrom: github.com/prometheus/docs@605cf81 docs/introduction/overview.md
+  - url: https://prometheus.io/docs/concepts/metric_types/
+    title: Concepts › Metric types
+    readFrom: github.com/prometheus/docs@605cf81 docs/concepts/metric_types.md
+  - url: https://prometheus.io/docs/practices/instrumentation/#counter-vs-gauge-summary-vs-histogram
+    title: Instrumentation › Counter vs. gauge, summary vs. histogram
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/instrumentation.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Metrics are numbers, measured over time
+
+A **metric** is a numeric measurement of something about your system: how many requests a web server has handled, how long they took, how much memory a process is using. On its own, one reading isn't very interesting. The value comes from taking the same measurement every few seconds and keeping the history. That history is called a **time series**: a list of values, each with the time it was recorded.
+
+The Prometheus docs give a good reason to care. Suppose your web app is slow. If you've been recording a request count, you can check whether the slowness lines up with a jump in traffic and add servers if it does. Without the metric you'd be guessing.
+
+## The four metric types
+
+Prometheus client libraries offer four core types.
+
+### Counter
+
+A **counter** is a running total that only increases. The one exception is that it goes back to zero when the process restarts. Use counters for things you *count*: requests served, errors, bytes sent, tasks completed.
+
+```text
+# TYPE http_requests_total counter
+http_requests_total{method="post",code="200"} 1027
+http_requests_total{method="post",code="400"}    3
+```
+
+The number 1027 by itself only says "1027 requests since this process started". What you usually want is *how fast it is growing*, and later topics cover how PromQL gets that from a counter.
+
+### Gauge
+
+A **gauge** is a single value that can go up *and* down. Use it for current state: memory in use, temperature, queue length, requests in progress right now. Prometheus exposes its own process memory as a gauge, for example `process_resident_memory_bytes`.
+
+The docs' rule of thumb is simple: **if the value can go down, it's a gauge.**
+
+### Histogram
+
+A **histogram** records observations, usually request durations or response sizes, by counting how many fall into each **bucket**. A classic histogram named `http_request_duration_seconds` shows up as several series:
+
+```text
+http_request_duration_seconds_bucket{le="0.1"} 33444
+http_request_duration_seconds_bucket{le="0.5"} 129389
+http_request_duration_seconds_bucket{le="+Inf"} 144320
+http_request_duration_seconds_sum 53423
+http_request_duration_seconds_count 144320
+```
+
+The buckets are cumulative. `le="0.5"` means "requests that took less than or equal to 0.5 s", and that count includes everything in the 0.1 bucket too. The `_count` series always equals the `+Inf` bucket. (Snippet adapted from the exposition format example in the docs.)
+
+### Summary
+
+A **summary** also tracks `_sum` and `_count`, but instead of buckets it reports pre-calculated **quantiles** such as the median (0.5) or the 99th percentile (0.99). These are calculated in the client over a sliding time window:
+
+```text
+rpc_duration_seconds{quantile="0.5"} 4773
+rpc_duration_seconds{quantile="0.99"} 76656
+rpc_duration_seconds_sum 1.7560473e+07
+rpc_duration_seconds_count 2693
+```
+
+A later topic covers when to choose a histogram over a summary. For now, remember the shape: histograms have `_bucket` series with an `le` label, and summaries have series with a `quantile` label.
+
+## One subtle point
+
+The Prometheus server mostly doesn't use the type information itself. Apart from native histograms, it stores everything as plain floating-point time series. The types matter mainly in the client library API and in how you query and interpret the data, which is why choosing correctly matters.

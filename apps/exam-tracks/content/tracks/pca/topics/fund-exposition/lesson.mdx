@@ -1,0 +1,98 @@
+---
+id: fund-exposition
+title: Reading a /metrics page
+summary: Targets publish their current metric values as plain text over HTTP, one sample per line, with optional HELP and TYPE lines. Learning to read this format makes everything else easier.
+analogy: "A /metrics page is like the nutrition label on a food packet. It follows a strict, standard layout so any reader can parse it. Each line is one fact (\"sugar: 12 g\"), and a few header lines explain what the facts mean (HELP) and what kind of fact each one is (TYPE)."
+keyPoints:
+  - The Prometheus text format is line-oriented. Each sample line is metric_name{labels} value [timestamp].
+  - "# HELP name text gives a description; # TYPE name type declares counter, gauge, histogram, summary or untyped."
+  - With no TYPE line, a metric is untyped. The TYPE line must come before the metric's first sample.
+  - All lines for one metric must be grouped together, and each name+label combination may appear only once.
+  - The optional timestamp is an int64 in milliseconds since the Unix epoch. Values are floats, and NaN, +Inf and -Inf are allowed.
+  - Histograms appear as name_bucket{le=...}, name_sum and name_count; summaries as name{quantile=...}, name_sum and name_count.
+  - "OpenMetrics is a standardised format built on the Prometheus text format: Content-Type application/openmetrics-text, and it must end with # EOF."
+  - The plain text format uses Content-Type text/plain; version=0.0.4.
+commonTrap: Forgetting that histogram buckets are cumulative and that a histogram must include an le="+Inf" bucket equal to _count. Another common slip is thinking the timestamp is in seconds. In the exposition format it's milliseconds.
+explainBack:
+  prompt: Walk through what each part of this line means — http_requests_total{method="post",code="200"} 1027 1395066363000 — and what the HELP and TYPE lines above it would tell you.
+  modelAnswer: http_requests_total is the metric name. method="post" and code="200" are labels, which together identify one series. 1027 is the current value, and 1395066363000 is an optional timestamp in milliseconds since the epoch. A HELP line above it gives a human-readable description, and a TYPE line declares it a counter. Without a TYPE line it would be untyped.
+introduces: [exposition format, help, type, untyped, openmetrics, /metrics, content-type]
+versionNotes:
+  - Since Prometheus 3.0 a target must return a valid Content-Type header, otherwise the scrape fails. (A scrape config option, fallback_scrape_protocol, can relax this.) Older material doesn't mention this.
+  - The protobuf exposition format was marked deprecated in 2.0, but that decision was reversed. It's maintained again and is used for native histograms.
+sources:
+  - url: https://prometheus.io/docs/instrumenting/exposition_formats/
+    title: Exposition formats
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/exposition_formats.md
+  - url: https://prometheus.io/docs/instrumenting/exposition_formats/#openmetrics-text-format
+    title: Exposition formats › OpenMetrics Text Format
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/exposition_formats.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## The shape of a /metrics page
+
+When Prometheus scrapes a target, it makes an HTTP request, usually to `/metrics`, and reads back plain text. Here's part of the official example from the docs:
+
+```text
+# HELP http_requests_total The total number of HTTP requests.
+# TYPE http_requests_total counter
+http_requests_total{method="post",code="200"} 1027 1395066363000
+http_requests_total{method="post",code="400"}    3 1395066363000
+
+# Minimalistic line:
+metric_without_timestamp_and_labels 12.47
+```
+
+### Sample lines
+
+Each sample line has up to three parts, separated by whitespace:
+
+```text
+metric_name{label="value",...}   value   [timestamp]
+```
+
+- **Name and labels**: the labels are optional, as the minimalistic line shows.
+- **Value**: a float. `NaN`, `+Inf` and `-Inf` are valid too.
+- **Timestamp**: optional, an int64 in **milliseconds** since 1970-01-01 UTC. Most targets leave it out and let Prometheus use the scrape time.
+
+### HELP and TYPE
+
+Lines starting with `#` are comments, with two exceptions:
+
+- `# HELP <name> <docstring>` describes the metric. Only one per metric.
+- `# TYPE <name> <type>` declares the type: `counter`, `gauge`, `histogram`, `summary` or `untyped`. Only one per metric, and it must come **before** that metric's first sample. With no TYPE line, the metric is **untyped**.
+
+### Grouping rules
+
+- All lines for one metric must appear together as one group, with HELP and TYPE first.
+- Each combination of metric name and labels may appear only once. Duplicates make ingestion behaviour undefined.
+- Backslash, double-quote and newline inside label values must be escaped as `\\`, `\"` and `\n`.
+
+## Histograms and summaries in text
+
+These types expand into several lines:
+
+```text
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{le="0.05"} 24054
+http_request_duration_seconds_bucket{le="0.1"} 33444
+http_request_duration_seconds_bucket{le="+Inf"} 144320
+http_request_duration_seconds_sum 53423
+http_request_duration_seconds_count 144320
+```
+
+- Histogram: one `_bucket` line per bucket, with the upper bound in `le`, in increasing order. There **must** be a `le="+Inf"` bucket, and its value **must** equal `_count`.
+- Summary: one line per quantile, with a `quantile` label, plus `_sum` and `_count`.
+
+## Formats and Content-Types
+
+| Format | Content-Type | Notes |
+|---|---|---|
+| Prometheus text | `text/plain; version=0.0.4` | Human-readable, the classic format |
+| OpenMetrics text | `application/openmetrics-text; version=1.0.0` | Standardised format built on the Prometheus text format. Must end with `# EOF`. Adds types such as Info, StateSet and GaugeHistogram, plus exemplars and unit metadata. |
+| Protobuf | `application/vnd.google.protobuf; proto=io.prometheus.client.MetricFamily; encoding=delimited` | Binary, not human-readable, needed for native histograms |
+
+**OpenMetrics** grew out of the Prometheus text format as an effort to standardise metric exposition. Prometheus can scrape it, and it supports **exemplars**, which can attach a trace ID to a sample. That turns out to be a useful bridge to tracing later on.

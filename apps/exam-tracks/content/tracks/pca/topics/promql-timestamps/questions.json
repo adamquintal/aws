@@ -1,0 +1,573 @@
+[
+  {
+    "id": "ts-time-def",
+    "type": "single",
+    "stem": "What does time() return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The evaluation time of the expression, in seconds since 1970-01-01 UTC",
+        "correct": true,
+        "note": "Right. In a range query that's each step's time, not necessarily the current wall-clock time."
+      },
+      {
+        "id": "b",
+        "text": "The current wall-clock time in milliseconds",
+        "correct": false,
+        "note": "It's seconds, and it's the evaluation time rather than strictly \"now\"."
+      },
+      {
+        "id": "c",
+        "text": "The timestamp of the most recent sample",
+        "correct": false,
+        "note": "That's what timestamp(v) gives for each sample."
+      },
+      {
+        "id": "d",
+        "text": "The server's uptime",
+        "correct": false,
+        "note": "Uptime would be time() - process_start_time_seconds."
+      }
+    ],
+    "explanation": "time() returns seconds since January 1, 1970 UTC. It doesn't return the current time, but the time at which the expression is evaluated.",
+    "hint": "Think about range queries evaluated at many steps.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "time()",
+      "unix timestamp"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#time",
+        "title": "Functions › time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-timestamp-fn",
+    "type": "single",
+    "stem": "What does timestamp(up) return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "For each up series, the timestamp of its sample in seconds since the epoch",
+        "correct": true,
+        "note": "Right. timestamp(v) returns each sample's timestamp."
+      },
+      {
+        "id": "b",
+        "text": "The current evaluation time",
+        "correct": false,
+        "note": "That's time()."
+      },
+      {
+        "id": "c",
+        "text": "The value of up multiplied by the time",
+        "correct": false,
+        "note": "It returns the sample's timestamp, not a product."
+      },
+      {
+        "id": "d",
+        "text": "The time the target was first discovered",
+        "correct": false,
+        "note": "It only knows the sample's own timestamp."
+      }
+    ],
+    "explanation": "timestamp(v instant-vector) returns the timestamp of each of the samples of the given vector as seconds since January 1, 1970 UTC.",
+    "hint": "The function name tells you which part of the sample it returns.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "timestamp()"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#timestamp",
+        "title": "Functions › timestamp()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-not-time-since",
+    "type": "single",
+    "stem": "You need to know how long ago a cache was last refreshed. What should the application export?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A gauge holding the Unix timestamp of the last refresh",
+        "correct": true,
+        "note": "Right. Then compute time() - metric in PromQL."
+      },
+      {
+        "id": "b",
+        "text": "A gauge of seconds since the last refresh, updated every second",
+        "correct": false,
+        "note": "The docs advise against this. It needs update logic that can get stuck."
+      },
+      {
+        "id": "c",
+        "text": "A counter that increments every second",
+        "correct": false,
+        "note": "That's a hand-rolled clock that resets on restart, and a fragile way to do it."
+      },
+      {
+        "id": "d",
+        "text": "A log line on every refresh",
+        "correct": false,
+        "note": "Logs don't give you a queryable metric."
+      }
+    ],
+    "explanation": "If you want to track the amount of time since something happened, export the Unix timestamp at which it happened, not the time since. Then use time() - my_timestamp_metric.",
+    "hint": "Let PromQL do the subtraction.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "timestamps",
+      "best-practice"
+    ],
+    "uses": [
+      "unix timestamp",
+      "gauge",
+      "time()"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#timestamps-not-time-since",
+        "title": "Instrumentation › Timestamps, not time since"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-why-timestamp",
+    "type": "multi",
+    "stem": "Why do the docs prefer exporting a timestamp over a \"seconds since\" value? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "It removes the need for update logic",
+        "correct": true,
+        "note": "Right. A timestamp only changes when the event happens."
+      },
+      {
+        "id": "b",
+        "text": "It protects you against the update logic getting stuck",
+        "correct": true,
+        "note": "Right. A stuck \"seconds since\" value silently freezes."
+      },
+      {
+        "id": "c",
+        "text": "It uses less disk space because timestamps compress to zero",
+        "correct": false,
+        "note": "Disk usage isn't the reason the docs give."
+      },
+      {
+        "id": "d",
+        "text": "Prometheus can't store values larger than 86400",
+        "correct": false,
+        "note": "There's no such limit. Values are float64."
+      }
+    ],
+    "explanation": "With the timestamp exported, time() - my_timestamp_metric gives the time since the event, removing the need for update logic and protecting against that logic getting stuck.",
+    "hint": "Two reasons in the docs are about update logic.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "unix timestamp",
+      "time()"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#timestamps-not-time-since",
+        "title": "Instrumentation › Timestamps, not time since"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-naming",
+    "type": "single",
+    "stem": "Which name follows the convention for a metric holding the time the last record was processed?",
+    "options": [
+      {
+        "id": "a",
+        "text": "data_pipeline_last_record_processed_timestamp_seconds",
+        "correct": true,
+        "note": "Right. That's the docs' own example: a _timestamp_seconds suffix in base units."
+      },
+      {
+        "id": "b",
+        "text": "data_pipeline_last_record_processed_ms",
+        "correct": false,
+        "note": "Use base units (seconds) and the timestamp_seconds suffix."
+      },
+      {
+        "id": "c",
+        "text": "data_pipeline_last_record_processed_total",
+        "correct": false,
+        "note": "_total is for accumulating counters, not timestamps."
+      },
+      {
+        "id": "d",
+        "text": "data_pipeline_seconds_since_last_record",
+        "correct": false,
+        "note": "That's a \"time since\" metric, which the docs advise against."
+      }
+    ],
+    "explanation": "The naming guide's example for a timestamp tracking the latest record processed is data_pipeline_last_record_processed_timestamp_seconds.",
+    "hint": "Base unit plus a word that says what kind of value it is.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "timestamps",
+      "naming"
+    ],
+    "uses": [
+      "_timestamp_seconds"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#metric-names",
+        "title": "Naming › Metric names"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-uptime",
+    "type": "single",
+    "stem": "Client libraries export process_start_time_seconds. Which expression gives each process's uptime in seconds?",
+    "options": [
+      {
+        "id": "a",
+        "text": "time() - process_start_time_seconds",
+        "correct": true,
+        "note": "Right. Evaluation time minus start time."
+      },
+      {
+        "id": "b",
+        "text": "process_start_time_seconds - time()",
+        "correct": false,
+        "note": "This gives a negative number. Subtract the start time from time()."
+      },
+      {
+        "id": "c",
+        "text": "rate(process_start_time_seconds[5m])",
+        "correct": false,
+        "note": "It's a gauge holding a timestamp, and it doesn't increase."
+      },
+      {
+        "id": "d",
+        "text": "timestamp(process_start_time_seconds)",
+        "correct": false,
+        "note": "That's when the sample was scraped, not when the process started."
+      }
+    ],
+    "explanation": "process_start_time_seconds is the start time of the process since the Unix epoch, in seconds. time() - metric gives the time elapsed since the event.",
+    "hint": "Elapsed = now − then.",
+    "difficulty": 1,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "process_start_time_seconds",
+      "time()"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#process-metrics",
+        "title": "Writing client libraries › Process metrics"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#timestamps-not-time-since",
+        "title": "Instrumentation › Timestamps, not time since"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-batch-key",
+    "type": "single",
+    "stem": "What do the docs name as the key metric of a batch job?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The last time it succeeded",
+        "correct": true,
+        "note": "Right. Usually exported as a timestamp gauge and pushed to the Pushgateway."
+      },
+      {
+        "id": "b",
+        "text": "Its total CPU seconds",
+        "correct": false,
+        "note": "That can be useful, but it isn't the key metric the docs name."
+      },
+      {
+        "id": "c",
+        "text": "The number of log lines it wrote",
+        "correct": false,
+        "note": "Not the key metric."
+      },
+      {
+        "id": "d",
+        "text": "Its average memory usage",
+        "correct": false,
+        "note": "Not the key metric."
+      }
+    ],
+    "explanation": "The key metric of a batch job is the last time it succeeded. It's also useful to track stage durations, overall runtime and the last completion time. These are gauges, pushed to a Pushgateway.",
+    "hint": "For a job that runs nightly, what do you most need to know?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "batch job",
+      "unix timestamp"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#batch-jobs",
+        "title": "Instrumentation › Batch jobs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-alert-stale-job",
+    "type": "single",
+    "stem": "A gauge job_last_success_timestamp_seconds is set when a job succeeds. Which expression is true when the last success was more than 1 day ago?",
+    "options": [
+      {
+        "id": "a",
+        "text": "time() - job_last_success_timestamp_seconds > 86400",
+        "correct": true,
+        "note": "Right. Elapsed seconds compared with one day (86,400 s)."
+      },
+      {
+        "id": "b",
+        "text": "job_last_success_timestamp_seconds > 86400",
+        "correct": false,
+        "note": "That compares an absolute timestamp with 86,400, which is always true for any recent date."
+      },
+      {
+        "id": "c",
+        "text": "rate(job_last_success_timestamp_seconds[1d]) == 0",
+        "correct": false,
+        "note": "rate is for counters, and this gauge isn't one."
+      },
+      {
+        "id": "d",
+        "text": "time() - job_last_success_timestamp_seconds > 1",
+        "correct": false,
+        "note": "Units are seconds, so 1 would mean one second."
+      }
+    ],
+    "explanation": "time() - my_timestamp_metric gives the time since the event in seconds. Compare it with 86400 for one day.",
+    "hint": "Convert one day to seconds.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "time()",
+      "comparison operator",
+      "_timestamp_seconds"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#timestamps-not-time-since",
+        "title": "Instrumentation › Timestamps, not time since"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#time",
+        "title": "Functions › time()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-day-of-week",
+    "type": "single",
+    "stem": "What does day_of_week() return when called with no argument?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The current evaluation time's weekday in UTC, from 0 (Sunday) to 6",
+        "correct": true,
+        "note": "Right. It defaults to vector(time()) and uses UTC."
+      },
+      {
+        "id": "b",
+        "text": "The weekday in the server's local timezone, from 1 (Monday) to 7",
+        "correct": false,
+        "note": "It's UTC, and 0 means Sunday."
+      },
+      {
+        "id": "c",
+        "text": "The number of days since the epoch",
+        "correct": false,
+        "note": "That isn't what it returns."
+      },
+      {
+        "id": "d",
+        "text": "An error, because an argument is required",
+        "correct": false,
+        "note": "The argument defaults to vector(time())."
+      }
+    ],
+    "explanation": "day_of_week(v=vector(time())) interprets values as Unix timestamps and returns the day of the week in UTC, from 0 to 6, where 0 means Sunday.",
+    "hint": "Weeks start on Sunday here, and the timezone is always UTC.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "day_of_week",
+      "time()"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#day_of_week",
+        "title": "Functions › day_of_week()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-hour-arg",
+    "type": "single",
+    "stem": "What does hour(process_start_time_seconds) return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The UTC hour (0 to 23) in which each process started",
+        "correct": true,
+        "note": "Right. The function reads the value as a Unix timestamp."
+      },
+      {
+        "id": "b",
+        "text": "The number of hours each process has been running",
+        "correct": false,
+        "note": "That would be (time() - process_start_time_seconds) / 3600."
+      },
+      {
+        "id": "c",
+        "text": "The current hour",
+        "correct": false,
+        "note": "With an argument, it uses the argument's values, not the current time."
+      },
+      {
+        "id": "d",
+        "text": "The hour when the sample was scraped",
+        "correct": false,
+        "note": "It uses the sample value, which here is the start time, not the scrape timestamp."
+      }
+    ],
+    "explanation": "hour(v) interprets float sample values as Unix timestamps and returns the hour of the day in UTC (0 to 23) for each.",
+    "hint": "Date functions read the sample value as a timestamp.",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "hour",
+      "process_start_time_seconds"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#hour",
+        "title": "Functions › hour()"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ts-exporter-no-timestamps",
+    "type": "single",
+    "stem": "Should an exporter normally attach its own timestamps to the samples it exposes?",
+    "options": [
+      {
+        "id": "a",
+        "text": "No. Let Prometheus assign the scrape time",
+        "correct": true,
+        "note": "Right. The exporter guide says not to set timestamps on exposed metrics."
+      },
+      {
+        "id": "b",
+        "text": "Yes, always, for accuracy",
+        "correct": false,
+        "note": "The guide says the opposite."
+      },
+      {
+        "id": "c",
+        "text": "Yes, but only in seconds",
+        "correct": false,
+        "note": "Exposition timestamps would be milliseconds anyway, and the guide advises against setting them."
+      },
+      {
+        "id": "d",
+        "text": "Only for counters",
+        "correct": false,
+        "note": "The advice applies to all metrics."
+      }
+    ],
+    "explanation": "Exporter scrapes should be synchronous, and you should not set timestamps on the metrics you expose. Let Prometheus take care of that.",
+    "hint": "Who knows best when a scrape happened?",
+    "difficulty": 2,
+    "tags": [
+      "promql",
+      "timestamps"
+    ],
+    "uses": [
+      "exporter",
+      "scrape"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#scheduling",
+        "title": "Writing exporters › Scheduling"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]
