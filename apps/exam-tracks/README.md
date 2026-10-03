@@ -85,3 +85,14 @@ Learners can **Report a problem** on any question. Reports and the most-missed q
 - Lessons were written in our own words from the official docs. In this build environment prometheus.io itself was blocked, so each page was read from the Markdown source it's built from (`prometheus/docs@605cf81`, `prometheus/prometheus@5ba0e86`, `prometheus/alertmanager@61ba43d`). Every source records `readFrom`. Section anchors were derived from headings and should be click-tested once.
 - Exam logistics (60 questions, 90 minutes, pass mark) are **unverified** and marked as such in `track.json`. Confirm them on the Linux Foundation exam page.
 - The research notes are in `/research/pca-sources.md` at the repo root.
+
+## Deploy for free (Vercel Hobby + Neon)
+
+1. **Neon** (neon.tech, free plan): create a project, then copy the **direct** (non-pooled) connection string.
+2. **GitHub OAuth app** (GitHub → Settings → Developer settings → OAuth Apps): set the callback URL to `https://<your-app>.vercel.app/api/auth/callback/github`.
+3. **Vercel** (vercel.com, Hobby plan): Import the `aws` repo, set **Root Directory** to `apps/exam-tracks`, and pick the deploy branch. Add these environment variables:
+   - `DATABASE_URL`: the Neon connection string
+   - `AUTH_SECRET`: output of `npx auth secret`
+   - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`: from the OAuth app
+   - `ADMIN_EMAILS`: your GitHub account's primary email
+4. Deploy. The `vercel-build` script runs migrations, snapshots content and builds the app. Every push to the branch redeploys.
