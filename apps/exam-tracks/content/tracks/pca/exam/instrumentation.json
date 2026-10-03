@@ -7,27 +7,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Defines metrics and serves them over HTTP",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Pushes metrics to Prometheus every few seconds",
         "correct": false,
         "note": "Client libraries expose metrics for pulling by default."
       },
       {
-        "id": "c",
-        "text": "Stores metrics in a local time series database",
-        "correct": false,
-        "note": "The Prometheus server stores data."
-      },
-      {
-        "id": "d",
+        "id": "b",
         "text": "Evaluates alerting rules inside the application",
         "correct": false,
         "note": "That's the server."
+      },
+      {
+        "id": "c",
+        "text": "Defines metrics and serves them over HTTP",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "d",
+        "text": "Stores metrics in a local time series database",
+        "correct": false,
+        "note": "The Prometheus server stores data."
       }
     ],
     "explanation": "Client libraries let you define and expose internal metrics via an HTTP endpoint on your application's instance, serving current state when scraped.",
@@ -50,34 +50,34 @@
     "id": "x-cl-official",
     "type": "single",
     "topic": "instr-client-libs",
-    "stem": "Which language has an official Prometheus client library listed in the docs?",
+    "stem": "Your team writes its services in Rust and wants an officially maintained Prometheus client library. What's the situation?",
     "options": [
       {
         "id": "a",
-        "text": "Go",
-        "correct": true,
-        "note": "Right. Go, Java/Scala, Node.js, Python, Ruby and Rust are listed as official."
+        "text": "Only OpenTelemetry supports Rust",
+        "correct": false,
+        "note": "Prometheus maintains its own Rust library."
       },
       {
         "id": "b",
-        "text": "COBOL",
+        "text": "Only the Go and Java libraries are official",
         "correct": false,
-        "note": "Not an official library."
+        "note": "Python, Ruby, Rust and Node.js are official too."
       },
       {
         "id": "c",
-        "text": "Fortran",
-        "correct": false,
-        "note": "Not an official library."
+        "text": "There's an official Rust client library",
+        "correct": true,
+        "note": "Right. client_rust is listed as official."
       },
       {
         "id": "d",
-        "text": "Perl",
+        "text": "Rust services need an exporter instead",
         "correct": false,
-        "note": "Not listed as official; third-party libraries exist for many languages."
+        "note": "Exporters are for code you can't instrument directly."
       }
     ],
-    "explanation": "Official client libraries are listed for Go, Java or Scala, Node.js, Python, Ruby and Rust; many others are third-party.",
+    "explanation": "Official client libraries are listed for Go, Java or Scala, Node.js, Python, Ruby and Rust; many other languages have third-party libraries.",
     "difficulty": 1,
     "tags": [
       "exam"
@@ -101,9 +101,9 @@
     "options": [
       {
         "id": "a",
-        "text": "The metric, with value 0",
-        "correct": true,
-        "note": "Right. That avoids missing series."
+        "text": "The metric, with value NaN",
+        "correct": false,
+        "note": "Counters start at 0, not NaN."
       },
       {
         "id": "b",
@@ -113,9 +113,9 @@
       },
       {
         "id": "c",
-        "text": "The metric, with value NaN",
-        "correct": false,
-        "note": "Counters start at 0, not NaN."
+        "text": "The metric, with value 0",
+        "correct": true,
+        "note": "Right. That avoids missing series."
       },
       {
         "id": "d",
@@ -148,9 +148,9 @@
     "options": [
       {
         "id": "a",
-        "text": "Initialise both label values to 0 at startup",
-        "correct": true,
-        "note": "Right. Missing series are hard to query."
+        "text": "Add a timestamp label to each failure series",
+        "correct": false,
+        "note": "That would explode cardinality."
       },
       {
         "id": "b",
@@ -166,9 +166,9 @@
       },
       {
         "id": "d",
-        "text": "Add a timestamp label to each failure series",
-        "correct": false,
-        "note": "That would explode cardinality."
+        "text": "Initialise both label values to 0 at startup",
+        "correct": true,
+        "note": "Right. Missing series are hard to query."
       }
     ],
     "explanation": "Avoid missing metrics: export a default value such as 0 for any time series you know may exist in advance.",
@@ -195,27 +195,27 @@
     "options": [
       {
         "id": "a",
+        "text": "`scrape_duration_seconds`",
+        "correct": false,
+        "note": "Also generated by Prometheus at scrape time."
+      },
+      {
+        "id": "b",
         "text": "`process_cpu_seconds_total`",
         "correct": true,
         "note": "Right. Standard process metrics."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "`http_requests_total` for every app",
         "correct": false,
         "note": "Request metrics depend on your instrumentation or framework."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "`up` for the application itself",
         "correct": false,
         "note": "up is generated by Prometheus at scrape time."
-      },
-      {
-        "id": "d",
-        "text": "`scrape_duration_seconds`",
-        "correct": false,
-        "note": "Also generated by Prometheus at scrape time."
       }
     ],
     "explanation": "Client libraries typically offer standard process metrics such as process_cpu_seconds_total and process_start_time_seconds.",
@@ -242,21 +242,21 @@
     "options": [
       {
         "id": "a",
+        "text": "Set the _sum gauge to the duration",
+        "correct": false,
+        "note": "_sum is managed for you."
+      },
+      {
+        "id": "b",
         "text": "Call observe() with the duration",
         "correct": true,
         "note": "This is the correct answer."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "Call inc() on the matching bucket",
         "correct": false,
         "note": "The library updates the cumulative buckets for you."
-      },
-      {
-        "id": "c",
-        "text": "Set the _sum gauge to the duration",
-        "correct": false,
-        "note": "_sum is managed for you."
       },
       {
         "id": "d",
@@ -336,27 +336,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Queries, errors and latency",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
-        "text": "CPU, memory and disk usage",
-        "correct": false,
-        "note": "Resource metrics alone miss what users experience."
-      },
-      {
-        "id": "c",
         "text": "Last success timestamp and duration",
         "correct": false,
         "note": "That's key for batch jobs."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "Open file descriptors and threads",
         "correct": false,
         "note": "Useful but not the key online-serving metrics."
+      },
+      {
+        "id": "c",
+        "text": "Queries, errors and latency",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "d",
+        "text": "CPU, memory and disk usage",
+        "correct": false,
+        "note": "Resource metrics alone miss what users experience."
       }
     ],
     "explanation": "The key metrics for online-serving systems are the number of performed queries, errors, and latency.",
@@ -379,35 +379,35 @@
     "id": "x-ip-batch",
     "type": "single",
     "topic": "instr-instrumentation",
-    "stem": "What is the key metric of a batch job?",
+    "stem": "A nightly report job sometimes silently stops running. Which metric lets you alert on that reliably?",
     "options": [
       {
         "id": "a",
-        "text": "The last time it succeeded",
+        "text": "A gauge with the Unix time of its last success",
         "correct": true,
-        "note": "This is the correct answer."
+        "note": "Right. Alert when time() minus it gets too large."
       },
       {
         "id": "b",
-        "text": "Its peak memory during a run",
+        "text": "A gauge of how long the last run took",
         "correct": false,
-        "note": "Useful, but not the key metric."
+        "note": "Useful, but it doesn't change when the job stops running."
       },
       {
         "id": "c",
-        "text": "The volume of logs it wrote",
+        "text": "A summary of rows processed in each run",
         "correct": false,
-        "note": "Not a metric the docs emphasise."
+        "note": "This also goes quiet rather than alerting when runs stop."
       },
       {
         "id": "d",
-        "text": "Requests served per second",
+        "text": "A counter of failed runs, alerting on increases",
         "correct": false,
-        "note": "Batch jobs don't serve requests."
+        "note": "If the job stops running, nothing fails, so this never fires."
       }
     ],
-    "explanation": "The key metric of a batch job is the last time it succeeded. Also track when it last completed, and how long each stage took.",
-    "difficulty": 1,
+    "explanation": "The key metric of a batch job is the last time it succeeded. Alert when it hasn't succeeded recently enough.",
+    "difficulty": 2,
     "tags": [
       "exam"
     ],
@@ -416,6 +416,10 @@
       {
         "url": "https://prometheus.io/docs/practices/instrumentation/",
         "title": "Instrumentation"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Alerting practices"
       }
     ],
     "status": "source-checked",
@@ -436,15 +440,15 @@
       },
       {
         "id": "b",
-        "text": "There's no practical limit",
-        "correct": false,
-        "note": "Every label combination is a series."
-      },
-      {
-        "id": "c",
         "text": "Exactly one label per metric",
         "correct": false,
         "note": "Labels are encouraged, just bounded."
+      },
+      {
+        "id": "c",
+        "text": "There's no practical limit",
+        "correct": false,
+        "note": "Every label combination is a series."
       },
       {
         "id": "d",
@@ -477,27 +481,27 @@
     "options": [
       {
         "id": "a",
-        "text": "The Unix timestamp of the event",
-        "correct": true,
-        "note": "Right. time() - metric gives the age."
-      },
-      {
-        "id": "b",
         "text": "Seconds since it happened, kept updated",
         "correct": false,
         "note": "That needs constant updating and breaks if the app stops."
       },
       {
-        "id": "c",
-        "text": "A counter that increments every second",
-        "correct": false,
-        "note": "Not a reliable approach."
+        "id": "b",
+        "text": "The Unix timestamp of the event",
+        "correct": true,
+        "note": "Right. time() - metric gives the age."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "A log line written when it happens",
         "correct": false,
         "note": "Not a metric."
+      },
+      {
+        "id": "d",
+        "text": "A counter that increments every second",
+        "correct": false,
+        "note": "Not a reliable approach."
       }
     ],
     "explanation": "Timestamps, not time since: export the Unix timestamp at which something happened, and calculate time since in PromQL.",
@@ -524,27 +528,27 @@
     "options": [
       {
         "id": "a",
-        "text": "A timestamped heartbeat through each stage",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "A summary per item with an item_id label",
         "correct": false,
         "note": "Per-item labels explode cardinality."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "Polling the database row count per stage",
         "correct": false,
         "note": "Doesn't show per-stage latency."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Graphing irate() of the queue size",
         "correct": false,
         "note": "That's not how the docs suggest it."
+      },
+      {
+        "id": "d",
+        "text": "A timestamped heartbeat through each stage",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "For offline processing, send a heartbeat through the system that includes the timestamp; each stage exports the most recent heartbeat timestamp it saw.",
@@ -571,15 +575,15 @@
     "options": [
       {
         "id": "a",
-        "text": "A failure counter plus a total counter",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Log the failures and skip metrics",
+        "correct": false,
+        "note": "Metrics are needed for alerting on rates."
       },
       {
         "id": "b",
-        "text": "A gauge that's set to 1 while failing",
-        "correct": false,
-        "note": "That loses counts."
+        "text": "A failure counter plus a total counter",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "c",
@@ -589,9 +593,9 @@
       },
       {
         "id": "d",
-        "text": "Log the failures and skip metrics",
+        "text": "A gauge that's set to 1 while failing",
         "correct": false,
-        "note": "Metrics are needed for alerting on rates."
+        "note": "That loses counts."
       }
     ],
     "explanation": "Every time there is a failure, increment a counter. When reporting failures you should generally also have a metric for the total number of attempts, so the failure ratio can be calculated.",
@@ -618,9 +622,9 @@
     "options": [
       {
         "id": "a",
-        "text": "A histogram with a bucket at 0.3 s",
-        "correct": true,
-        "note": "Right. Aggregatable, and accurate at the threshold."
+        "text": "A summary with a 0.3 s objective",
+        "correct": false,
+        "note": "Summaries' quantiles still can't be aggregated across instances."
       },
       {
         "id": "b",
@@ -630,15 +634,15 @@
       },
       {
         "id": "c",
-        "text": "A gauge of the last request's latency",
-        "correct": false,
-        "note": "Loses the distribution."
+        "text": "A histogram with a bucket at 0.3 s",
+        "correct": true,
+        "note": "Right. Aggregatable, and accurate at the threshold."
       },
       {
         "id": "d",
-        "text": "A summary with a 0.3 s objective",
+        "text": "A gauge of the last request's latency",
         "correct": false,
-        "note": "Summaries' quantiles still can't be aggregated across instances."
+        "note": "Loses the distribution."
       }
     ],
     "explanation": "Use histograms if you need to aggregate; place a bucket at a known threshold for an accurate fraction.",
@@ -665,27 +669,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`jobs_processed_total`",
-        "correct": true,
-        "note": "Right. Counters end in _total."
-      },
-      {
-        "id": "b",
         "text": "`jobsProcessed`",
         "correct": false,
         "note": "Use snake_case and the _total suffix."
       },
       {
-        "id": "c",
-        "text": "`jobs_processed_count`",
-        "correct": false,
-        "note": "_count is used by histograms and summaries."
+        "id": "b",
+        "text": "`jobs_processed_total`",
+        "correct": true,
+        "note": "Right. Counters end in _total."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "`jobs_processed_rate`",
         "correct": false,
         "note": "Rates are calculated in PromQL."
+      },
+      {
+        "id": "d",
+        "text": "`jobs_processed_count`",
+        "correct": false,
+        "note": "_count is used by histograms and summaries."
       }
     ],
     "explanation": "An accumulating count has total as a suffix, in addition to the unit if applicable.",
@@ -718,21 +722,21 @@
       },
       {
         "id": "b",
-        "text": "`..._duration_ms`, in milliseconds",
-        "correct": false,
-        "note": "Base units are preferred."
-      },
-      {
-        "id": "c",
         "text": "`..._duration`, in milliseconds",
         "correct": false,
         "note": "The unit should be in the name, and in seconds."
       },
       {
+        "id": "c",
+        "text": "`..._duration_ms`, in milliseconds",
+        "correct": false,
+        "note": "Base units are preferred."
+      },
+      {
         "id": "d",
         "text": "`..._duration_millis_total`",
         "correct": false,
-        "note": "Gauges and durations don't take _total, and use base units."
+        "note": "Not base units; _total is only for counters."
       }
     ],
     "explanation": "Metrics should use base units (seconds, bytes, meters) and include the unit in the name, e.g. http_request_duration_seconds.",
@@ -759,27 +763,27 @@
     "options": [
       {
         "id": "a",
+        "text": "0 to 100, e.g. `disk_usage_ratio`",
+        "correct": false,
+        "note": "ratio means 0–1; a 0–100 value under that name misleads."
+      },
+      {
+        "id": "b",
         "text": "0 to 1, e.g. `disk_usage_ratio`",
         "correct": true,
         "note": "Right. Not 0–100."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "0 to 100, e.g. `disk_usage_percent`",
         "correct": false,
         "note": "The docs prefer ratios from 0 to 1."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "A string label such as \"85%\"",
         "correct": false,
         "note": "Values are numbers."
-      },
-      {
-        "id": "d",
-        "text": "0 to 100, e.g. `disk_usage_ratio`",
-        "correct": false,
-        "note": "ratio means 0–1; a 0–100 value under that name misleads."
       }
     ],
     "explanation": "Percent is expressed as a ratio with values 0–1 rather than 0–100; ratio is used as a suffix, e.g. disk_usage_ratio.",
@@ -806,27 +810,27 @@
     "options": [
       {
         "id": "a",
-        "text": "A single-word application prefix",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "The version of the instrumenting library",
+        "correct": false,
+        "note": "Versions belong in an info metric's labels."
       },
       {
         "id": "b",
-        "text": "The hostname of the exporting machine",
-        "correct": false,
-        "note": "Hosts belong in labels."
-      },
-      {
-        "id": "c",
         "text": "The metric type, such as `counter_`",
         "correct": false,
         "note": "Not part of the convention."
       },
       {
+        "id": "c",
+        "text": "A single-word application prefix",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
         "id": "d",
-        "text": "The version of the instrumenting library",
+        "text": "The hostname of the exporting machine",
         "correct": false,
-        "note": "Versions belong in an info metric's labels."
+        "note": "Hosts belong in labels."
       }
     ],
     "explanation": "Metric names should have a single-word application prefix relevant to the domain, sometimes called the namespace.",
@@ -853,27 +857,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`api_http_requests_total{operation=\"create\"}`",
-        "correct": true,
-        "note": "Right. Differentiate with labels."
-      },
-      {
-        "id": "b",
         "text": "`api_create_requests_total` and so on",
         "correct": false,
         "note": "Separate names make aggregation hard."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "`api_http_requests_total_create`",
         "correct": false,
         "note": "Don't encode label values in names."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "`api_http_requests{type=\"total\"}`",
         "correct": false,
         "note": "_total is a suffix, not a label."
+      },
+      {
+        "id": "d",
+        "text": "`api_http_requests_total{operation=\"create\"}`",
+        "correct": true,
+        "note": "Right. Differentiate with labels."
       }
     ],
     "explanation": "Use labels to differentiate the characteristics of the thing being measured, e.g. api_http_requests_total with operation=\"create|update|delete\".",
@@ -906,9 +910,9 @@
       },
       {
         "id": "b",
-        "text": "Underscores aren't allowed",
+        "text": "It's missing a namespace prefix",
         "correct": false,
-        "note": "Underscores are standard."
+        "note": "The bigger problem is mixing two quantities."
       },
       {
         "id": "c",
@@ -918,9 +922,9 @@
       },
       {
         "id": "d",
-        "text": "It's missing a namespace prefix",
+        "text": "Underscores aren't allowed",
         "correct": false,
-        "note": "The bigger problem is mixing two quantities."
+        "note": "Underscores are standard."
       }
     ],
     "explanation": "A metric name must refer to a single unit and a single quantity; don't mix request size with request duration.",
@@ -947,15 +951,15 @@
     "options": [
       {
         "id": "a",
-        "text": "`foobar_build_info{version=\"1.2.3\"} 1`",
-        "correct": true,
-        "note": "Right. Constant value 1, data in labels."
+        "text": "`foobar_builds_total` incremented per build",
+        "correct": false,
+        "note": "Not meaningful."
       },
       {
         "id": "b",
-        "text": "`foobar_build_version 1.23` as a gauge",
-        "correct": false,
-        "note": "Version strings aren't numbers."
+        "text": "`foobar_build_info{version=\"1.2.3\"} 1`",
+        "correct": true,
+        "note": "Right. Constant value 1, data in labels."
       },
       {
         "id": "c",
@@ -965,9 +969,9 @@
       },
       {
         "id": "d",
-        "text": "`foobar_builds_total` incremented per build",
+        "text": "`foobar_build_version 1.23` as a gauge",
         "correct": false,
-        "note": "Not meaningful."
+        "note": "Version strings aren't numbers."
       }
     ],
     "explanation": "Pseudo-metrics with an _info suffix carry information in labels and have a constant value of 1, e.g. foobar_build_info.",
@@ -1000,15 +1004,15 @@
       },
       {
         "id": "b",
-        "text": "Always, instead of client libraries",
-        "correct": false,
-        "note": "Direct instrumentation is preferred when possible."
-      },
-      {
-        "id": "c",
         "text": "To forward alerts to receivers",
         "correct": false,
         "note": "That's Alertmanager."
+      },
+      {
+        "id": "c",
+        "text": "Always, instead of client libraries",
+        "correct": false,
+        "note": "Direct instrumentation is preferred when possible."
       },
       {
         "id": "d",
@@ -1037,34 +1041,34 @@
     "id": "x-ie-node",
     "type": "single",
     "topic": "instr-exporters",
-    "stem": "Which exporter exposes hardware and OS metrics of a Linux host?",
+    "stem": "You need disk, CPU and memory metrics for 200 Linux VMs. What's the usual approach?",
     "options": [
       {
         "id": "a",
-        "text": "Node exporter",
+        "text": "Run the Node exporter on each VM",
         "correct": true,
-        "note": "This is the correct answer."
+        "note": "Right. One per machine, scraped by Prometheus."
       },
       {
         "id": "b",
-        "text": "Blackbox exporter",
+        "text": "One Blackbox exporter probing all VMs",
         "correct": false,
-        "note": "That probes endpoints."
+        "note": "Blackbox probes endpoints; it can't see inside hosts."
       },
       {
         "id": "c",
-        "text": "Pushgateway",
+        "text": "Add a client library to each VM's kernel",
         "correct": false,
-        "note": "Not an exporter for host metrics."
+        "note": "Client libraries instrument your own code."
       },
       {
         "id": "d",
-        "text": "JMX exporter",
+        "text": "Push from each VM to a Pushgateway",
         "correct": false,
-        "note": "That's for Java applications."
+        "note": "Long-running hosts should be scraped."
       }
     ],
-    "explanation": "The node exporter exposes a wide variety of hardware- and kernel-related metrics.",
+    "explanation": "The node exporter exposes hardware- and kernel-related metrics; exporters run beside what they monitor.",
     "difficulty": 1,
     "tags": [
       "exam"
@@ -1074,6 +1078,10 @@
       {
         "url": "https://prometheus.io/docs/instrumenting/exporters/",
         "title": "Exporters and integrations"
+      },
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/",
+        "title": "Writing exporters"
       }
     ],
     "status": "source-checked",
@@ -1088,27 +1096,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Blackbox exporter",
-        "correct": true,
-        "note": "Right. It probes endpoints over HTTP, DNS, TCP and ICMP."
+        "text": "Textfile collector",
+        "correct": false,
+        "note": "That reads files on a host."
       },
       {
         "id": "b",
-        "text": "Node exporter",
-        "correct": false,
-        "note": "That reports host internals."
-      },
-      {
-        "id": "c",
         "text": "mysqld exporter",
         "correct": false,
         "note": "That's for MySQL."
       },
       {
-        "id": "d",
-        "text": "Textfile collector",
+        "id": "c",
+        "text": "Node exporter",
         "correct": false,
-        "note": "That reads files on a host."
+        "note": "That reports host internals."
+      },
+      {
+        "id": "d",
+        "text": "Blackbox exporter",
+        "correct": true,
+        "note": "Right. It probes endpoints over HTTP, DNS, TCP and ICMP."
       }
     ],
     "explanation": "The blackbox exporter probes endpoints such as HTTP, HTTPS, DNS, TCP and ICMP; Prometheus passes it the target to probe.",
@@ -1188,21 +1196,21 @@
       },
       {
         "id": "b",
+        "text": "Only in OpenMetrics",
+        "correct": false,
+        "note": "Not the guidance."
+      },
+      {
+        "id": "c",
         "text": "Yes, always",
         "correct": false,
         "note": "The docs advise against it."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "Only on counters",
         "correct": false,
         "note": "No such rule."
-      },
-      {
-        "id": "d",
-        "text": "Only in OpenMetrics",
-        "correct": false,
-        "note": "Not the guidance."
       }
     ],
     "explanation": "You should not set timestamps on the metrics you expose; let Prometheus take care of that.",
@@ -1235,9 +1243,9 @@
       },
       {
         "id": "b",
-        "text": "On its own timer every few seconds",
+        "text": "Only when an alert is firing",
         "correct": false,
-        "note": "The docs prefer fetching on scrape."
+        "note": "Unrelated."
       },
       {
         "id": "c",
@@ -1247,9 +1255,9 @@
       },
       {
         "id": "d",
-        "text": "Only when an alert is firing",
+        "text": "On its own timer every few seconds",
         "correct": false,
-        "note": "Unrelated."
+        "note": "The docs prefer fetching on scrape."
       }
     ],
     "explanation": "Metrics should be pulled from the application only when Prometheus scrapes, using custom collectors that build metrics fresh on each scrape.",
@@ -1276,15 +1284,15 @@
     "options": [
       {
         "id": "a",
-        "text": "Expose `mysql_up` set to 0",
-        "correct": true,
-        "note": "Right. Prometheus's up only shows the exporter was scraped."
+        "text": "Return all metrics as NaN",
+        "correct": false,
+        "note": "Not the convention."
       },
       {
         "id": "b",
-        "text": "Stop serving /metrics",
-        "correct": false,
-        "note": "Then you can't tell exporter failure from database failure."
+        "text": "Expose `mysql_up` set to 0",
+        "correct": true,
+        "note": "Right. Prometheus's up only shows the exporter was scraped."
       },
       {
         "id": "c",
@@ -1294,12 +1302,12 @@
       },
       {
         "id": "d",
-        "text": "Return all metrics as NaN",
+        "text": "Serve an empty page with HTTP 200",
         "correct": false,
-        "note": "Not the convention."
+        "note": "That hides the failure; the docs suggest a 5xx error or an _up metric."
       }
     ],
-    "explanation": "Prometheus's up only says the exporter answered the scrape. Many exporters also expose an exporter-prefixed metric such as mysql_up to report whether they could reach the application (common practice; the docs use haproxy_up as a naming example).",
+    "explanation": "When an exporter can't reach its application, the docs give two options: return a 5xx error, or expose a myexporter_up metric (e.g. haproxy_up) of 0 or 1. The latter is better when some useful metrics are still available.",
     "difficulty": 3,
     "tags": [
       "exam"

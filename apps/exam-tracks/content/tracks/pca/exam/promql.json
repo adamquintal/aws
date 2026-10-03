@@ -13,15 +13,15 @@
       },
       {
         "id": "b",
-        "text": "`http_requests_total{status=\"5..\"}`",
-        "correct": false,
-        "note": "= is an exact match, so it looks for the literal string 5.."
-      },
-      {
-        "id": "c",
         "text": "`http_requests_total{status=~\"5*\"}`",
         "correct": false,
         "note": "5* means zero or more 5s, which matches 5 or 55, not 500–599."
+      },
+      {
+        "id": "c",
+        "text": "`http_requests_total{status=\"5..\"}`",
+        "correct": false,
+        "note": "= is an exact match, so it looks for the literal string 5.."
       },
       {
         "id": "d",
@@ -66,15 +66,15 @@
       },
       {
         "id": "c",
-        "text": "Yes, but only in Prometheus 3.x",
-        "correct": false,
-        "note": "Anchoring isn't version-dependent."
-      },
-      {
-        "id": "d",
         "text": "No, because `=~` needs a `.*` prefix",
         "correct": false,
         "note": "It doesn't need a prefix; it needs a trailing .* here."
+      },
+      {
+        "id": "d",
+        "text": "Yes, but only in Prometheus 3.x",
+        "correct": false,
+        "note": "Anchoring isn't version-dependent."
       }
     ],
     "explanation": "Regex matches are fully anchored. A match of env=~\"foo\" is treated as env=~\"^foo$\".",
@@ -97,34 +97,34 @@
     "id": "x-ps-empty-matcher",
     "type": "single",
     "topic": "promql-selecting",
-    "stem": "Which selector is invalid on its own?",
+    "stem": "You want every series that has a `job` label, whatever its value. Which selector works?",
     "options": [
       {
         "id": "a",
         "text": "`{job=~\".*\"}`",
-        "correct": true,
-        "note": "Right. A selector must contain at least one matcher that doesn't match the empty string."
+        "correct": false,
+        "note": "It matches the empty string, so Prometheus rejects it."
       },
       {
         "id": "b",
-        "text": "`{job=~\".+\"}`",
+        "text": "`{job=\"\"}`",
         "correct": false,
-        "note": "This can't match an empty value, so it's valid."
+        "note": "That selects series without a job label, and is rejected alone."
       },
       {
         "id": "c",
-        "text": "`{__name__=\"up\"}`",
+        "text": "`{job=~\"*\"}`",
         "correct": false,
-        "note": "Selecting by name is valid."
+        "note": "* on its own isn't a valid regex."
       },
       {
         "id": "d",
-        "text": "`up{job=~\".*\"}`",
-        "correct": false,
-        "note": "The metric name makes it valid."
+        "text": "`{job=~\".+\"}`",
+        "correct": true,
+        "note": "Right. It can't match an empty value, so it's valid."
       }
     ],
-    "explanation": "Vector selectors must either specify a name or at least one label matcher that does not match the empty string.",
+    "explanation": "A selector needs a name or at least one matcher that doesn't match the empty string. An empty value is the same as the label being absent.",
     "difficulty": 3,
     "tags": [
       "exam"
@@ -134,6 +134,10 @@
       {
         "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
         "title": "Querying basics"
+      },
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
       }
     ],
     "status": "source-checked",
@@ -148,15 +152,15 @@
     "options": [
       {
         "id": "a",
-        "text": "Each series' samples from the last 5 minutes",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Each series' value averaged over 5 minutes",
         "correct": false,
         "note": "No averaging happens; you'd need a function."
+      },
+      {
+        "id": "b",
+        "text": "Each series' samples from the last 5 minutes",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "c",
@@ -201,21 +205,21 @@
       },
       {
         "id": "b",
+        "text": "The inner range must be longer than 1h",
+        "correct": false,
+        "note": "No such rule; the syntax itself is invalid."
+      },
+      {
+        "id": "c",
         "text": "rate() doesn't accept a 5m range",
         "correct": false,
         "note": "5m is a valid range."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "1h is longer than the retention allows",
         "correct": false,
         "note": "Duration isn't the problem."
-      },
-      {
-        "id": "d",
-        "text": "The inner range must be longer than 1h",
-        "correct": false,
-        "note": "No such rule; the syntax itself is invalid."
       }
     ],
     "explanation": "Range selectors only apply to vector selectors. To get a range over an expression's result, use a subquery: <instant_query>[<range>:<resolution>].",
@@ -242,27 +246,27 @@
     "options": [
       {
         "id": "a",
+        "text": "Only series created in the past week",
+        "correct": false,
+        "note": "Offset shifts time; it doesn't filter."
+      },
+      {
+        "id": "b",
         "text": "Each series' value from one week earlier",
         "correct": true,
         "note": "This is the correct answer."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "Each series' change over the past week",
         "correct": false,
         "note": "That would need increase()."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "Each series' value one week in the future",
         "correct": false,
         "note": "Positive offsets look back in time."
-      },
-      {
-        "id": "d",
-        "text": "Only series created in the past week",
-        "correct": false,
-        "note": "Offset shifts time; it doesn't filter."
       }
     ],
     "explanation": "The offset modifier changes the time offset for individual instant and range vectors in a query.",
@@ -289,27 +293,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Evaluates up at that fixed Unix time",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
-        "text": "Filters series whose value is 1700000000",
-        "correct": false,
-        "note": "That's a comparison, not @."
-      },
-      {
-        "id": "c",
         "text": "Shifts the query back by 1700000000 seconds",
         "correct": false,
         "note": "That would be offset."
       },
       {
-        "id": "d",
+        "id": "b",
+        "text": "Evaluates up at that fixed Unix time",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "c",
         "text": "Returns up only if scraped at that time",
         "correct": false,
         "note": "@ changes evaluation time; it doesn't filter by scrape time."
+      },
+      {
+        "id": "d",
+        "text": "Filters series whose value is 1700000000",
+        "correct": false,
+        "note": "That's a comparison, not @."
       }
     ],
     "explanation": "The @ modifier changes the evaluation time for individual instant and range vectors to a given Unix timestamp. start() and end() can also be used.",
@@ -336,27 +340,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Nothing for that series",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "NaN, with a warning annotation",
+        "correct": false,
+        "note": "The series simply isn't in the result."
       },
       {
         "id": "b",
-        "text": "Its last known value, however old",
-        "correct": false,
-        "note": "Values older than the lookback aren't used."
-      },
-      {
-        "id": "c",
         "text": "Zero, marked as a stale sample",
         "correct": false,
         "note": "Missing data isn't zero."
       },
       {
+        "id": "c",
+        "text": "Nothing for that series",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
         "id": "d",
-        "text": "NaN, with a warning annotation",
+        "text": "Its last known value, however old",
         "correct": false,
-        "note": "The series simply isn't in the result."
+        "note": "Values older than the lookback aren't used."
       }
     ],
     "explanation": "If no sample is found within the lookback period (5 minutes by default) before the evaluation time, no value is returned for that series.",
@@ -379,34 +383,34 @@
     "id": "x-pr-rate-def",
     "type": "single",
     "topic": "promql-rates",
-    "stem": "What does `rate(http_requests_total[5m])` return?",
+    "stem": "A counter rose steadily from 1,200 to 1,500 over 5 minutes, with no resets. What does `rate(x[5m])` return, roughly?",
     "options": [
       {
         "id": "a",
-        "text": "Per-second average increase over 5 minutes",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "About 60",
+        "correct": false,
+        "note": "That's per minute; rate() is per second."
       },
       {
         "id": "b",
-        "text": "Total increase over the last 5 minutes",
-        "correct": false,
-        "note": "That's increase()."
+        "text": "About 1",
+        "correct": true,
+        "note": "Right. 300 over 300 seconds."
       },
       {
         "id": "c",
-        "text": "Per-second rate from the last two samples",
+        "text": "About 1,500",
         "correct": false,
-        "note": "That's irate()."
+        "note": "That's the raw counter value."
       },
       {
         "id": "d",
-        "text": "The counter's value from 5 minutes ago",
+        "text": "About 300",
         "correct": false,
-        "note": "That's offset."
+        "note": "That's the increase, not the per-second rate."
       }
     ],
-    "explanation": "rate() calculates the per-second average rate of increase of the time series in the range vector, adjusting for counter resets.",
+    "explanation": "rate() calculates the per-second average rate of increase over the range.",
     "difficulty": 1,
     "tags": [
       "exam"
@@ -426,34 +430,34 @@
     "id": "x-pr-irate-use",
     "type": "single",
     "topic": "promql-rates",
-    "stem": "When is `irate()` preferable to `rate()`?",
+    "stem": "An alert uses `irate(errors_total[5m]) > 1` and keeps firing and clearing. What do the docs suggest?",
     "options": [
       {
         "id": "a",
-        "text": "Graphing volatile, fast-moving counters",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Use a longer range in irate()",
+        "correct": false,
+        "note": "irate only uses the last two samples, whatever the range."
       },
       {
         "id": "b",
-        "text": "Alerting rules on slow-moving counters",
+        "text": "Use increase() with bool",
         "correct": false,
-        "note": "The docs advise rate() for alerts and slow-moving counters."
+        "note": "bool only changes filtering into 0/1 output."
       },
       {
         "id": "c",
-        "text": "Calculating the slope of a gauge",
+        "text": "Lower the threshold to 0",
         "correct": false,
-        "note": "Neither is for gauges."
+        "note": "That makes it noisier, not stabler."
       },
       {
         "id": "d",
-        "text": "Always, since it's more accurate",
-        "correct": false,
-        "note": "It only uses two points, so it's noisier."
+        "text": "Use rate() for alerting",
+        "correct": true,
+        "note": "Right. irate is for graphing volatile counters."
       }
     ],
-    "explanation": "irate should only be used when graphing volatile, fast-moving counters. Use rate for alerts and slow-moving counters.",
+    "explanation": "Use rate for alerts and slow-moving counters; irate should only be used when graphing volatile, fast-moving counters.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -477,27 +481,27 @@
     "options": [
       {
         "id": "a",
-        "text": "increase() extrapolates to the full range",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
-        "text": "A counter reset corrupted the result",
-        "correct": false,
-        "note": "Resets are adjusted for."
-      },
-      {
-        "id": "c",
         "text": "Floating point rounding of large numbers",
         "correct": false,
         "note": "The extrapolation is the reason."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "increase() returns a per-second rate",
         "correct": false,
         "note": "It returns the total increase."
+      },
+      {
+        "id": "c",
+        "text": "A counter reset corrupted the result",
+        "correct": false,
+        "note": "Resets are adjusted for."
+      },
+      {
+        "id": "d",
+        "text": "increase() extrapolates to the full range",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "The increase is extrapolated to cover the full time range, so it's possible to get a non-integer result even if a counter increases only by integer increments.",
@@ -524,9 +528,9 @@
     "options": [
       {
         "id": "a",
-        "text": "`sum(rate(http_requests_total[5m]))`",
-        "correct": true,
-        "note": "Right. rate first, then aggregate."
+        "text": "`sum(http_requests_total) / 300`",
+        "correct": false,
+        "note": "That divides a cumulative total, not a rate."
       },
       {
         "id": "b",
@@ -536,9 +540,9 @@
       },
       {
         "id": "c",
-        "text": "`sum(http_requests_total) / 300`",
-        "correct": false,
-        "note": "That divides a cumulative total, not a rate."
+        "text": "`sum(rate(http_requests_total[5m]))`",
+        "correct": true,
+        "note": "Right. rate first, then aggregate."
       },
       {
         "id": "d",
@@ -567,34 +571,34 @@
     "id": "x-pr-deriv",
     "type": "single",
     "topic": "promql-rates",
-    "stem": "Which function gives the per-second rate of change of a gauge?",
+    "stem": "You want memory growth in bytes per second from the gauge `process_resident_memory_bytes`. Which expression?",
     "options": [
       {
         "id": "a",
-        "text": "`deriv()`",
-        "correct": true,
-        "note": "Right. It uses linear regression."
+        "text": "`rate(process_resident_memory_bytes[10m])`",
+        "correct": false,
+        "note": "rate() treats any drop as a counter reset."
       },
       {
         "id": "b",
-        "text": "`rate()`",
-        "correct": false,
-        "note": "rate is for counters and treats any decrease as a reset."
+        "text": "`deriv(process_resident_memory_bytes[10m])`",
+        "correct": true,
+        "note": "Right. deriv() is for gauges."
       },
       {
         "id": "c",
-        "text": "`increase()`",
+        "text": "`increase(process_resident_memory_bytes[10m])`",
         "correct": false,
-        "note": "Also counter-only."
+        "note": "increase() is also counter-only."
       },
       {
         "id": "d",
-        "text": "`changes()`",
+        "text": "`irate(process_resident_memory_bytes[10m])`",
         "correct": false,
-        "note": "That counts value changes."
+        "note": "irate() is counter-only too."
       }
     ],
-    "explanation": "deriv(v range-vector) calculates the per-second derivative of each float series using simple linear regression. Use it with gauges.",
+    "explanation": "deriv calculates the per-second derivative of a gauge using simple linear regression. rate, irate and increase are for counters.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -618,27 +622,27 @@
     "options": [
       {
         "id": "a",
+        "text": "`rate(node_filesystem_avail_bytes[1h]) * 4 * 3600 < 0`",
+        "correct": false,
+        "note": "rate is for counters, and this measures change, not the predicted level."
+      },
+      {
+        "id": "b",
         "text": "`predict_linear(node_filesystem_avail_bytes[1h], 4 * 3600) < 0`",
         "correct": true,
         "note": "Right. Predict 4 hours ahead and check for below zero."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "`deriv(node_filesystem_avail_bytes[1h]) * 4 * 3600 < 0`",
         "correct": false,
         "note": "This estimates the change in 4 hours, not the predicted value; it's < 0 whenever space is shrinking."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "`node_filesystem_avail_bytes offset -4h < 0`",
         "correct": false,
         "note": "A negative offset looks at later data, which doesn't exist yet. It doesn't predict."
-      },
-      {
-        "id": "d",
-        "text": "`rate(node_filesystem_avail_bytes[1h]) * 4 * 3600 < 0`",
-        "correct": false,
-        "note": "rate is for counters, and this measures change, not the predicted level."
       }
     ],
     "explanation": "predict_linear(v, t) predicts the value t seconds from now based on the range vector, using simple linear regression.",
@@ -665,27 +669,27 @@
     "options": [
       {
         "id": "a",
-        "text": "The number of counter resets in the hour",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
-        "text": "The CPU seconds since the last reset",
-        "correct": false,
-        "note": "It counts resets."
-      },
-      {
-        "id": "c",
         "text": "Whether the counter behaves like a gauge",
         "correct": false,
         "note": "No type detection."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "The per-second rate with resets removed",
         "correct": false,
         "note": "That's rate()."
+      },
+      {
+        "id": "c",
+        "text": "The number of counter resets in the hour",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "d",
+        "text": "The CPU seconds since the last reset",
+        "correct": false,
+        "note": "It counts resets."
       }
     ],
     "explanation": "resets() returns the number of counter resets within the provided time range.",
@@ -708,34 +712,34 @@
     "id": "x-pr-changes",
     "type": "single",
     "topic": "promql-rates",
-    "stem": "Which function counts how many times a gauge's value changed in a range?",
+    "stem": "A gauge `config_hash` changes value whenever a new config is deployed. How do you count deployments in the last day?",
     "options": [
       {
         "id": "a",
-        "text": "`changes()`",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`increase(config_hash[1d])`",
+        "correct": false,
+        "note": "That treats the hash as a counter."
       },
       {
         "id": "b",
-        "text": "`resets()`",
+        "text": "`count_over_time(config_hash[1d])`",
         "correct": false,
-        "note": "resets counts decreases in counters."
+        "note": "That counts samples, changed or not."
       },
       {
         "id": "c",
-        "text": "`delta()`",
+        "text": "`resets(config_hash[1d])`",
         "correct": false,
-        "note": "delta gives the difference between first and last values."
+        "note": "resets counts decreases, so it misses increases."
       },
       {
         "id": "d",
-        "text": "`count_over_time()`",
-        "correct": false,
-        "note": "That counts samples, changed or not."
+        "text": "`changes(config_hash[1d])`",
+        "correct": true,
+        "note": "Right. It counts value changes."
       }
     ],
-    "explanation": "changes() returns the number of times a series' value has changed within the time range.",
+    "explanation": "changes() returns the number of times a series' value has changed within the range.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -759,15 +763,15 @@
     "options": [
       {
         "id": "a",
-        "text": "`delta()`",
-        "correct": true,
-        "note": "Right. It should only be used with gauges."
-      },
-      {
-        "id": "b",
         "text": "`idelta()`",
         "correct": false,
         "note": "idelta uses only the last two samples."
+      },
+      {
+        "id": "b",
+        "text": "`deriv()`",
+        "correct": false,
+        "note": "deriv gives a per-second slope via regression."
       },
       {
         "id": "c",
@@ -777,9 +781,9 @@
       },
       {
         "id": "d",
-        "text": "`deriv()`",
-        "correct": false,
-        "note": "deriv gives a per-second slope via regression."
+        "text": "`delta()`",
+        "correct": true,
+        "note": "Right. It should only be used with gauges."
       }
     ],
     "explanation": "delta(v range-vector) calculates the difference between the first and last value of each series, extrapolated; it should only be used with gauges.",
@@ -849,34 +853,34 @@
     "id": "x-pat-max",
     "type": "single",
     "topic": "promql-agg-time",
-    "stem": "What's the difference between `max(x)` and `max_over_time(x[1h])`?",
+    "stem": "You want each node's single busiest moment of load over the past day. Which expression?",
     "options": [
       {
         "id": "a",
-        "text": "max is across series; max_over_time is across time",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`max by (instance) (node_load1)`",
+        "correct": false,
+        "note": "Still just the current value per node."
       },
       {
         "id": "b",
-        "text": "They're the same; max_over_time is just older syntax",
+        "text": "`topk(1, node_load1)`",
         "correct": false,
-        "note": "One is across series, the other across time."
+        "note": "The single busiest node right now."
       },
       {
         "id": "c",
-        "text": "max_over_time only works on counters",
+        "text": "`max(node_load1)`",
         "correct": false,
-        "note": "Works on any float series."
+        "note": "That's the highest node right now."
       },
       {
         "id": "d",
-        "text": "max returns a range vector; max_over_time doesn't",
-        "correct": false,
-        "note": "It returns an instant vector."
+        "text": "`max_over_time(node_load1[1d])`",
+        "correct": true,
+        "note": "Right. Each series' maximum across the day."
       }
     ],
-    "explanation": "Aggregation operators aggregate across series; _over_time functions aggregate each series across time.",
+    "explanation": "_over_time functions aggregate each series across time; aggregation operators like max aggregate across series at one instant.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -884,12 +888,12 @@
     "uses": [],
     "sources": [
       {
-        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
-        "title": "Query operators"
-      },
-      {
         "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
         "title": "Query functions"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
       }
     ],
     "status": "source-checked",
@@ -900,34 +904,34 @@
     "id": "x-pat-quantile",
     "type": "single",
     "topic": "promql-agg-time",
-    "stem": "Which expression gives the 95th percentile of each series' values over the past day?",
+    "stem": "For each queue, which shows the depth that 99% of the last day's samples stayed under?",
     "options": [
       {
         "id": "a",
-        "text": "`quantile_over_time(0.95, temperature_celsius[1d])`",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`max_over_time(queue_depth[1d]) * 0.99`",
+        "correct": false,
+        "note": "99% of the maximum isn't the 99th percentile."
       },
       {
         "id": "b",
-        "text": "`histogram_quantile(0.95, temperature_celsius[1d])`",
+        "text": "`quantile_over_time(0.99, queue_depth[1d])`",
+        "correct": true,
+        "note": "Right. A quantile of each series across time."
+      },
+      {
+        "id": "c",
+        "text": "`histogram_quantile(0.99, queue_depth[1d])`",
         "correct": false,
         "note": "That's for histogram buckets."
       },
       {
-        "id": "c",
-        "text": "`quantile(0.95, temperature_celsius)`",
-        "correct": false,
-        "note": "That's across series at one instant."
-      },
-      {
         "id": "d",
-        "text": "`topk(95, temperature_celsius[1d])`",
+        "text": "`quantile(0.99, queue_depth)`",
         "correct": false,
-        "note": "topk returns the largest k series."
+        "note": "That's across queues at one instant."
       }
     ],
-    "explanation": "quantile_over_time(scalar, range-vector) returns the φ-quantile of the values in the specified interval.",
+    "explanation": "quantile_over_time(φ, range-vector) returns the φ-quantile of each series' values in the interval.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -951,15 +955,15 @@
     "options": [
       {
         "id": "a",
-        "text": "About 240",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "1",
         "correct": false,
         "note": "It counts samples per series, not series."
+      },
+      {
+        "id": "b",
+        "text": "The number of targets in the job",
+        "correct": false,
+        "note": "That's count(up)."
       },
       {
         "id": "c",
@@ -969,9 +973,9 @@
       },
       {
         "id": "d",
-        "text": "The number of targets in the job",
-        "correct": false,
-        "note": "That's count(up)."
+        "text": "About 240",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "count_over_time returns the count of all values in the specified interval.",
@@ -1004,9 +1008,9 @@
       },
       {
         "id": "b",
-        "text": "The request rate from exactly one hour ago",
+        "text": "The total number of requests in the last hour",
         "correct": false,
-        "note": "That would use offset."
+        "note": "That would be increase over 1h."
       },
       {
         "id": "c",
@@ -1016,9 +1020,9 @@
       },
       {
         "id": "d",
-        "text": "The total number of requests in the last hour",
+        "text": "The request rate from exactly one hour ago",
         "correct": false,
-        "note": "That would be increase over 1h."
+        "note": "That would use offset."
       }
     ],
     "explanation": "A subquery runs an instant query over a range and resolution, producing a range vector that _over_time functions can consume.",
@@ -1045,27 +1049,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`last_over_time()`",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "`max_over_time()`",
         "correct": false,
         "note": "That returns the largest value."
       },
       {
-        "id": "c",
-        "text": "`timestamp()`",
-        "correct": false,
-        "note": "That returns sample timestamps."
-      },
-      {
-        "id": "d",
+        "id": "b",
         "text": "`present_over_time()`",
         "correct": false,
         "note": "present_over_time returns 1 for any series with samples in the range."
+      },
+      {
+        "id": "c",
+        "text": "`last_over_time()`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "d",
+        "text": "`timestamp()`",
+        "correct": false,
+        "note": "That returns sample timestamps."
       }
     ],
     "explanation": "last_over_time returns the most recent point value in the specified interval.",
@@ -1092,27 +1096,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`absent_over_time(heartbeat_total{job=\"cron\"}[1h])`",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`heartbeat_total{job=\"cron\"} == 0`",
+        "correct": false,
+        "note": "That checks the value, not presence."
       },
       {
         "id": "b",
-        "text": "`absent(heartbeat_total{job=\"cron\"})`",
-        "correct": false,
-        "note": "absent only looks at the current instant (with lookback)."
-      },
-      {
-        "id": "c",
         "text": "`count_over_time(heartbeat_total{job=\"cron\"}[1h]) == 0`",
         "correct": false,
         "note": "With no samples there's no series to compare, so nothing is returned."
       },
       {
+        "id": "c",
+        "text": "`absent_over_time(heartbeat_total{job=\"cron\"}[1h])`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
         "id": "d",
-        "text": "`heartbeat_total{job=\"cron\"} == 0`",
+        "text": "`absent(heartbeat_total{job=\"cron\"})`",
         "correct": false,
-        "note": "That checks the value, not presence."
+        "note": "absent only looks at the current instant (with lookback)."
       }
     ],
     "explanation": "absent_over_time returns a 1-element vector with value 1 if the range vector has no elements, useful for alerting on missing series over a period.",
@@ -1139,21 +1143,21 @@
     "options": [
       {
         "id": "a",
+        "text": "`rate(http_requests_total{job}[5m])`",
+        "correct": false,
+        "note": "Not valid label filtering."
+      },
+      {
+        "id": "b",
         "text": "`sum by (job) (rate(http_requests_total[5m]))`",
         "correct": true,
         "note": "This is the correct answer."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "`sum without (job) (rate(http_requests_total[5m]))`",
         "correct": false,
         "note": "without removes job and keeps the rest."
-      },
-      {
-        "id": "c",
-        "text": "`rate(http_requests_total{job}[5m])`",
-        "correct": false,
-        "note": "Not valid label filtering."
       },
       {
         "id": "d",
@@ -1186,27 +1190,27 @@
     "options": [
       {
         "id": "a",
-        "text": "It keeps all other labels, including new ones",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "It's always faster to evaluate",
         "correct": false,
         "note": "Not a performance feature."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "by can't list more than two labels",
         "correct": false,
         "note": "by can list many."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "without also keeps the metric name",
         "correct": false,
         "note": "Both drop the metric name; that's not the difference."
+      },
+      {
+        "id": "d",
+        "text": "It keeps all other labels, including new ones",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "without removes listed labels and preserves all others, while by preserves only those listed.",
@@ -1233,27 +1237,27 @@
     "options": [
       {
         "id": "a",
-        "text": "The 3 paths with the highest request rate",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "The top 3% of paths by request rate",
         "correct": false,
         "note": "k is a count, not a percentage."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "A single value summing the top 3 paths",
         "correct": false,
         "note": "topk returns series."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "The 3 paths with the most recent requests",
         "correct": false,
         "note": "Not about recency."
+      },
+      {
+        "id": "d",
+        "text": "The 3 paths with the highest request rate",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "topk returns the largest k elements by sample value, keeping their labels.",
@@ -1280,27 +1284,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`count(up{job=\"node\"} == 0)`",
-        "correct": true,
-        "note": "Right. The comparison filters, count counts what's left."
-      },
-      {
-        "id": "b",
-        "text": "`sum(up{job=\"node\"})`",
-        "correct": false,
-        "note": "That counts targets that are up."
-      },
-      {
-        "id": "c",
         "text": "`count(up{job=\"node\"})`",
         "correct": false,
         "note": "That counts all targets."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "`absent(up{job=\"node\"} == 1)`",
         "correct": false,
         "note": "That only tells you if none are up."
+      },
+      {
+        "id": "c",
+        "text": "`count(up{job=\"node\"} == 0)`",
+        "correct": true,
+        "note": "Right. The comparison filters, count counts what's left."
+      },
+      {
+        "id": "d",
+        "text": "`sum(up{job=\"node\"})`",
+        "correct": false,
+        "note": "That counts targets that are up."
       }
     ],
     "explanation": "Comparison operators filter by default; count() counts the remaining series.",
@@ -1323,34 +1327,34 @@
     "id": "x-pad-count-values",
     "type": "single",
     "topic": "promql-agg-dimensions",
-    "stem": "What does `count_values(\"version\", build_version)` do?",
+    "stem": "Each instance exposes a gauge `app_config_version` whose value is a number like 41 or 42. Which expression shows how many instances run each version?",
     "options": [
       {
         "id": "a",
-        "text": "Counts series per value, in a `version` label",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`topk(1, app_config_version)`",
+        "correct": false,
+        "note": "That returns the instance with the highest value."
       },
       {
         "id": "b",
-        "text": "Counts the series that have a version label",
-        "correct": false,
-        "note": "It groups by sample value."
+        "text": "`count_values(\"version\", app_config_version)`",
+        "correct": true,
+        "note": "Right. One series per distinct value."
       },
       {
         "id": "c",
-        "text": "Returns the highest build_version value",
+        "text": "`sum(app_config_version)`",
         "correct": false,
-        "note": "That would be max."
+        "note": "That adds the version numbers together."
       },
       {
         "id": "d",
-        "text": "Copies the version label into the value",
+        "text": "`count by (version) (app_config_version)`",
         "correct": false,
-        "note": "count_values goes the other way: values into labels."
+        "note": "There's no version label; the version is the value."
       }
     ],
-    "explanation": "count_values outputs one series per unique sample value, with the value as a label named by the parameter.",
+    "explanation": "count_values outputs one series per unique sample value, with the value in a label named by the parameter.",
     "difficulty": 3,
     "tags": [
       "exam"
@@ -1376,15 +1380,15 @@
     "options": [
       {
         "id": "a",
-        "text": "The series plus a label `host=\"web-1\"`",
-        "correct": true,
-        "note": "Right. $1 is the regex capture group."
-      },
-      {
-        "id": "b",
         "text": "The series with instance set to `web-1`",
         "correct": false,
         "note": "dst_label is host, so instance is unchanged."
+      },
+      {
+        "id": "b",
+        "text": "The series plus a label `host=\"web-1\"`",
+        "correct": true,
+        "note": "Right. $1 is the regex capture group."
       },
       {
         "id": "c",
@@ -1423,15 +1427,15 @@
     "options": [
       {
         "id": "a",
-        "text": "`label_join()`",
-        "correct": true,
-        "note": "Right. With a separator you choose."
+        "text": "`concat()`",
+        "correct": false,
+        "note": "Not a PromQL function."
       },
       {
         "id": "b",
-        "text": "`label_replace()`",
-        "correct": false,
-        "note": "That uses one source label and a regex."
+        "text": "`label_join()`",
+        "correct": true,
+        "note": "Right. With a separator you choose."
       },
       {
         "id": "c",
@@ -1441,9 +1445,9 @@
       },
       {
         "id": "d",
-        "text": "`concat()`",
+        "text": "`label_replace()`",
         "correct": false,
-        "note": "Not a PromQL function."
+        "note": "That uses one source label and a regex."
       }
     ],
     "explanation": "label_join(v, dst_label, separator, src_label_1, src_label_2, ...) joins the values of the source labels into dst_label.",
@@ -1470,27 +1474,27 @@
     "options": [
       {
         "id": "a",
-        "text": "sort only affects instant queries",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "sort_desc only works on counters",
         "correct": false,
         "note": "It works on any float vector."
       },
       {
-        "id": "c",
-        "text": "Grafana strips PromQL functions",
-        "correct": false,
-        "note": "It does."
-      },
-      {
-        "id": "d",
+        "id": "b",
         "text": "sort_desc needs a by clause",
         "correct": false,
         "note": "It takes no grouping."
+      },
+      {
+        "id": "c",
+        "text": "Grafana strips PromQL functions",
+        "correct": false,
+        "note": "Grafana sends PromQL to Prometheus unchanged."
+      },
+      {
+        "id": "d",
+        "text": "sort only affects instant queries",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "sort and sort_desc only affect the results of instant queries, as range query results always have a fixed output ordering.",
@@ -1517,9 +1521,9 @@
     "options": [
       {
         "id": "a",
-        "text": "`sum by (job) (rate(http_requests_total{status=~\"5..\"}[5m])) / sum by (job) (rate(http_requests_total[5m]))`",
-        "correct": true,
-        "note": "Right. Both sides have the same job label set, so they match."
+        "text": "`sum by (job) (rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m]))`",
+        "correct": false,
+        "note": "The right side has no job label, so nothing matches the per-job left side."
       },
       {
         "id": "b",
@@ -1529,9 +1533,9 @@
       },
       {
         "id": "c",
-        "text": "`sum by (job) (rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m]))`",
-        "correct": false,
-        "note": "The right side has no job label, so nothing matches the per-job left side."
+        "text": "`sum by (job) (rate(http_requests_total{status=~\"5..\"}[5m])) / sum by (job) (rate(http_requests_total[5m]))`",
+        "correct": true,
+        "note": "Right. Both sides have the same job label set, so they match."
       },
       {
         "id": "d",
@@ -1568,15 +1572,15 @@
     "options": [
       {
         "id": "a",
-        "text": "Only the series above 4, with their values",
-        "correct": true,
-        "note": "Right. Comparisons filter by default."
-      },
-      {
-        "id": "b",
         "text": "Every series, with 1 or 0 as the value",
         "correct": false,
         "note": "That needs the bool modifier."
+      },
+      {
+        "id": "b",
+        "text": "Only the series above 4, with their values",
+        "correct": true,
+        "note": "Right. Comparisons filter by default."
       },
       {
         "id": "c",
@@ -1615,9 +1619,9 @@
     "options": [
       {
         "id": "a",
-        "text": "Every series, with 1 or 0 as the value",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Every series, with values capped at 4",
+        "correct": false,
+        "note": "Comparisons don't cap values."
       },
       {
         "id": "b",
@@ -1633,9 +1637,9 @@
       },
       {
         "id": "d",
-        "text": "Every series, with values capped at 4",
-        "correct": false,
-        "note": "Comparisons don't cap values."
+        "text": "Every series, with 1 or 0 as the value",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "With the bool modifier, comparisons return 0 or 1 instead of filtering.",
@@ -1658,35 +1662,35 @@
     "id": "x-pbi-on",
     "type": "single",
     "topic": "promql-binary",
-    "stem": "Two vectors have labels {instance, job, mode} and {instance, job}. How do you divide them, matching only on instance?",
+    "stem": "Vector `a` has labels {instance, job, mode} with several modes per instance. Vector `b` has one series per instance, labelled {instance}. How do you divide `a` by `b`, matching on instance?",
     "options": [
       {
         "id": "a",
-        "text": "`a / on(instance) b`",
-        "correct": true,
-        "note": "Right, provided each side has one series per instance."
+        "text": "`a / ignoring(mode) b`",
+        "correct": false,
+        "note": "b has no job label, so the sets still differ."
       },
       {
         "id": "b",
-        "text": "`a / ignoring(instance) b`",
+        "text": "`a / on(instance) group_right b`",
         "correct": false,
-        "note": "That ignores the label you want to match on."
+        "note": "group_right marks the right side as the many."
       },
       {
         "id": "c",
-        "text": "`a / b`",
-        "correct": false,
-        "note": "Label sets differ, so nothing matches."
+        "text": "`a / on(instance) group_left b`",
+        "correct": true,
+        "note": "Right. Many a series match one b series."
       },
       {
         "id": "d",
-        "text": "`a / by(instance) b`",
+        "text": "`a / on(instance) b`",
         "correct": false,
-        "note": "by is for aggregation, not binary matching."
+        "note": "Without group_left, many-to-one matching fails."
       }
     ],
-    "explanation": "on(labels) restricts matching to the listed labels; ignoring(labels) excludes the listed labels from matching.",
-    "difficulty": 2,
+    "explanation": "on() restricts matching to the listed labels; group_left allows many-to-one matching where the left side has several series per match.",
+    "difficulty": 3,
     "tags": [
       "exam"
     ],
@@ -1709,9 +1713,9 @@
     "options": [
       {
         "id": "a",
-        "text": "For many-to-one matching",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "To aggregate by the listed labels",
+        "correct": false,
+        "note": "That's by or without."
       },
       {
         "id": "b",
@@ -1721,15 +1725,15 @@
       },
       {
         "id": "c",
-        "text": "To sort the result by labels",
-        "correct": false,
-        "note": "Unrelated."
+        "text": "For many-to-one matching",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "d",
-        "text": "To aggregate by the listed labels",
+        "text": "To sort the result by labels",
         "correct": false,
-        "note": "That's by or without."
+        "note": "Unrelated."
       }
     ],
     "explanation": "group_left/group_right enable many-to-one and one-to-many matching; the 'many' side is indicated by the modifier.",
@@ -1770,15 +1774,15 @@
       },
       {
         "id": "c",
-        "text": "Fails, because info metrics can't be joined",
-        "correct": false,
-        "note": "This is the usual join pattern."
-      },
-      {
-        "id": "d",
         "text": "Returns build info only for busy instances",
         "correct": false,
         "note": "The left side's request-rate series are what's returned."
+      },
+      {
+        "id": "d",
+        "text": "Fails, because info metrics can't be joined",
+        "correct": false,
+        "note": "This is the usual join pattern."
       }
     ],
     "explanation": "group_left(label) copies the listed labels from the 'one' side to the result. Multiplying by an info metric (value 1) keeps the left values.",
@@ -1805,27 +1809,27 @@
     "options": [
       {
         "id": "a",
-        "text": "api targets not in maintenance",
-        "correct": true,
-        "note": "Right. unless keeps left elements with no match on the right."
-      },
-      {
-        "id": "b",
         "text": "Only instances in maintenance",
         "correct": false,
         "note": "That's closer to 'and'."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "All targets plus the maintenance series",
         "correct": false,
         "note": "That's 'or'."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "A boolean for each api target",
         "correct": false,
         "note": "Set operators return series, not booleans."
+      },
+      {
+        "id": "d",
+        "text": "api targets not in maintenance",
+        "correct": true,
+        "note": "Right. unless keeps left elements with no match on the right."
       }
     ],
     "explanation": "vector1 unless vector2 results in elements of vector1 for which there are no elements in vector2 with matching label sets.",
@@ -1852,27 +1856,27 @@
     "options": [
       {
         "id": "a",
+        "text": "Left to right with no precedence",
+        "correct": false,
+        "note": "PromQL has defined precedence."
+      },
+      {
+        "id": "b",
         "text": "`((a + (b * c)) > d) and e`",
         "correct": true,
         "note": "Right. * then +, then comparison, then and."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "`(a + b) * (c > d) and e`",
         "correct": false,
         "note": "Multiplication binds tighter than addition."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "`a + (b * (c > (d and e)))`",
         "correct": false,
         "note": "and has the lowest precedence of these."
-      },
-      {
-        "id": "d",
-        "text": "Left to right with no precedence",
-        "correct": false,
-        "note": "PromQL has defined precedence."
       }
     ],
     "explanation": "Precedence from highest: ^; * / % atan2; + -; comparisons; and unless; or.",
@@ -1946,15 +1950,15 @@
     "options": [
       {
         "id": "a",
-        "text": "`histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))`",
-        "correct": true,
-        "note": "Right. rate the buckets, sum keeping le, then quantile."
-      },
-      {
-        "id": "b",
         "text": "`histogram_quantile(0.95, sum by (instance) (rate(http_request_duration_seconds_bucket[5m])))`",
         "correct": false,
         "note": "Summing away le leaves no buckets for histogram_quantile to use."
+      },
+      {
+        "id": "b",
+        "text": "`histogram_quantile(0.95, sum by (le) (http_request_duration_seconds_bucket))`",
+        "correct": false,
+        "note": "Without rate(), this uses counts since process start, not the last 5 minutes."
       },
       {
         "id": "c",
@@ -1964,9 +1968,9 @@
       },
       {
         "id": "d",
-        "text": "`histogram_quantile(0.95, sum by (le) (http_request_duration_seconds_bucket))`",
-        "correct": false,
-        "note": "Without rate(), this uses counts since process start, not the last 5 minutes."
+        "text": "`histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))`",
+        "correct": true,
+        "note": "Right. rate the buckets, sum keeping le, then quantile."
       }
     ],
     "explanation": "To aggregate a classic histogram, rate the buckets, sum them keeping the le label, then apply histogram_quantile.",
@@ -1993,34 +1997,34 @@
     "id": "x-ph-avg",
     "type": "single",
     "topic": "promql-histograms",
-    "stem": "A histogram is named `x` (in seconds). Which expression gives the average duration over the last 5 minutes?",
+    "stem": "For a request-duration histogram in seconds, `rate(x_sum[5m])` is 12 and `rate(x_count[5m])` is 40. What's the average request duration?",
     "options": [
       {
         "id": "a",
-        "text": "`rate(x_sum[5m]) / rate(x_count[5m])`",
+        "text": "0.3 seconds",
         "correct": true,
-        "note": "This is the correct answer."
+        "note": "Right. 12 ÷ 40."
       },
       {
         "id": "b",
-        "text": "`avg(rate(x_bucket[5m]))`",
+        "text": "40 seconds",
         "correct": false,
-        "note": "Averaging bucket rates is meaningless."
+        "note": "That's requests per second."
       },
       {
         "id": "c",
-        "text": "`rate(x_count[5m]) / rate(x_sum[5m])`",
+        "text": "3.3 seconds",
         "correct": false,
-        "note": "Inverted: that's observations per second of duration."
+        "note": "That's 40 ÷ 12, inverted."
       },
       {
         "id": "d",
-        "text": "`histogram_quantile(0.5, rate(x_bucket[5m]))`",
+        "text": "12 seconds",
         "correct": false,
-        "note": "That's the median, not the mean."
+        "note": "That's seconds of request time per second."
       }
     ],
-    "explanation": "Average from a histogram or summary: rate of _sum divided by rate of _count.",
+    "explanation": "Average from a histogram: rate of _sum divided by rate of _count.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -2056,15 +2060,15 @@
       },
       {
         "id": "c",
-        "text": "0.43 must be a configured bucket boundary",
-        "correct": false,
-        "note": "Results are interpolated between boundaries."
-      },
-      {
-        "id": "d",
         "text": "The histogram has an invalid bucket layout",
         "correct": false,
         "note": "Interpolation is normal."
+      },
+      {
+        "id": "d",
+        "text": "0.43 must be a configured bucket boundary",
+        "correct": false,
+        "note": "Results are interpolated between boundaries."
       }
     ],
     "explanation": "histogram_quantile linearly interpolates within the bucket containing the quantile, so the error depends on bucket widths.",
@@ -2095,27 +2099,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Averaged quantiles aren't the combined quantile",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Summaries don't expose quantile series",
         "correct": false,
         "note": "They do."
       },
       {
-        "id": "c",
-        "text": "avg can't be applied to labelled series",
-        "correct": false,
-        "note": "Syntax isn't the problem."
+        "id": "b",
+        "text": "Averaged quantiles aren't the combined quantile",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Quantiles are identical on every instance",
         "correct": false,
         "note": "They usually differ."
+      },
+      {
+        "id": "d",
+        "text": "avg can't be applied to labelled series",
+        "correct": false,
+        "note": "Syntax isn't the problem."
       }
     ],
     "explanation": "Quantiles calculated by summaries can't be meaningfully aggregated; averaging them is statistically nonsensical.",
@@ -2142,27 +2146,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`histogram_quantile(0.9, rate(http_request_duration_seconds[5m]))`",
-        "correct": true,
-        "note": "Right. No _bucket suffix or le label is needed."
-      },
-      {
-        "id": "b",
-        "text": "`histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[5m]))`",
-        "correct": false,
-        "note": "Native histograms don't have _bucket series."
-      },
-      {
-        "id": "c",
         "text": "`quantile(0.9, http_request_duration_seconds)`",
         "correct": false,
         "note": "quantile works across float series."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "You can't calculate quantiles from native histograms",
         "correct": false,
         "note": "You can, directly."
+      },
+      {
+        "id": "c",
+        "text": "`histogram_quantile(0.9, rate(http_request_duration_seconds[5m]))`",
+        "correct": true,
+        "note": "Right. No _bucket suffix or le label is needed."
+      },
+      {
+        "id": "d",
+        "text": "`histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[5m]))`",
+        "correct": false,
+        "note": "Native histograms don't have _bucket series."
       }
     ],
     "explanation": "Native histograms are single series with histogram samples; histogram_quantile operates on them directly.",
@@ -2193,21 +2197,21 @@
     "options": [
       {
         "id": "a",
+        "text": "`histogram_count()`",
+        "correct": false,
+        "note": "That returns the observation count."
+      },
+      {
+        "id": "b",
         "text": "`histogram_fraction()`",
         "correct": true,
         "note": "This is the correct answer."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "`histogram_quantile()`",
         "correct": false,
         "note": "That returns a value for a given quantile."
-      },
-      {
-        "id": "c",
-        "text": "`histogram_count()`",
-        "correct": false,
-        "note": "That returns the observation count."
       },
       {
         "id": "d",
@@ -2256,15 +2260,15 @@
       },
       {
         "id": "c",
-        "text": "The fraction under 1.2 s, with no target",
-        "correct": false,
-        "note": "That ignores the target."
-      },
-      {
-        "id": "d",
         "text": "Rate of _sum divided by rate of _count",
         "correct": false,
         "note": "That's average latency."
+      },
+      {
+        "id": "d",
+        "text": "The fraction under 1.2 s, with no target",
+        "correct": false,
+        "note": "That ignores the target."
       }
     ],
     "explanation": "The histograms page computes Apdex as histogram_fraction(0, 0.3, ...) + histogram_fraction(0.3, 1.2, ...) / 2, with the tolerated duration usually 4× the target.",
@@ -2297,15 +2301,15 @@
       },
       {
         "id": "b",
-        "text": "`rate(job_last_success_timestamp_seconds[1h])`",
-        "correct": false,
-        "note": "rate is for counters."
-      },
-      {
-        "id": "c",
         "text": "`timestamp(job_last_success_timestamp_seconds)`",
         "correct": false,
         "note": "That's when the sample was scraped, not when the job succeeded."
+      },
+      {
+        "id": "c",
+        "text": "`rate(job_last_success_timestamp_seconds[1h])`",
+        "correct": false,
+        "note": "rate is for counters."
       },
       {
         "id": "d",
@@ -2338,34 +2342,34 @@
     "id": "x-pt-time",
     "type": "single",
     "topic": "promql-timestamps",
-    "stem": "What exactly does `time()` return?",
+    "stem": "A graph over the last hour plots `time()`. What does it look like?",
     "options": [
       {
         "id": "a",
-        "text": "Seconds since the epoch at evaluation time",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Empty, since time() needs a series",
+        "correct": false,
+        "note": "time() returns a scalar on its own."
       },
       {
         "id": "b",
-        "text": "Milliseconds since the epoch, wall clock",
+        "text": "One line per target's scrape time",
         "correct": false,
-        "note": "Seconds, and evaluation time."
+        "note": "time() has no per-target series."
       },
       {
         "id": "c",
-        "text": "The timestamp of the most recent scrape",
-        "correct": false,
-        "note": "That's timestamp()."
+        "text": "A straight line rising with time",
+        "correct": true,
+        "note": "Right. It's the evaluation time at each step."
       },
       {
         "id": "d",
-        "text": "Seconds since the Prometheus server started",
+        "text": "A flat line at the current time",
         "correct": false,
-        "note": "That would need process_start_time_seconds."
+        "note": "Each step is evaluated at its own time."
       }
     ],
-    "explanation": "time() returns the number of seconds since January 1, 1970 UTC: the time at which the expression is evaluated.",
+    "explanation": "time() returns seconds since the epoch at the time the expression is evaluated, which in a range query is each step's time.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -2385,35 +2389,35 @@
     "id": "x-pt-timestamp",
     "type": "single",
     "topic": "promql-timestamps",
-    "stem": "What does `timestamp(up)` return?",
+    "stem": "`time() - timestamp(up)` returns about 10 for a target. What does that most likely mean?",
     "options": [
       {
         "id": "a",
-        "text": "Each sample's timestamp, in seconds",
+        "text": "Its last scrape was about 10 s ago",
         "correct": true,
-        "note": "This is the correct answer."
+        "note": "Right. timestamp() gives each sample's time."
       },
       {
         "id": "b",
-        "text": "Each series' value of up",
+        "text": "The target's clock runs 10 s fast",
         "correct": false,
-        "note": "It returns timestamps, not values."
+        "note": "Sample timestamps are assigned by Prometheus at scrape time."
       },
       {
         "id": "c",
-        "text": "When each target process started",
+        "text": "up was 0 for the last 10 seconds",
         "correct": false,
-        "note": "That would be a start-time metric."
+        "note": "This compares times, not values."
       },
       {
         "id": "d",
-        "text": "A range vector of scrape times",
+        "text": "The last scrape took 10 seconds",
         "correct": false,
-        "note": "It returns an instant vector."
+        "note": "Scrape duration is in scrape_duration_seconds."
       }
     ],
-    "explanation": "timestamp(v) returns the timestamp of each sample as seconds since January 1, 1970 UTC.",
-    "difficulty": 2,
+    "explanation": "timestamp(v) returns each sample's timestamp in seconds; time() is the evaluation time. Their difference is the sample's age.",
+    "difficulty": 3,
     "tags": [
       "exam"
     ],
@@ -2432,35 +2436,35 @@
     "id": "x-pt-uptime",
     "type": "single",
     "topic": "promql-timestamps",
-    "stem": "Which expression gives process uptime in seconds?",
+    "stem": "Which expression finds processes that started in the last 10 minutes?",
     "options": [
       {
         "id": "a",
-        "text": "`time() - process_start_time_seconds`",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`rate(process_start_time_seconds[10m]) > 0`",
+        "correct": false,
+        "note": "rate() is for counters; this is a timestamp gauge."
       },
       {
         "id": "b",
-        "text": "`process_start_time_seconds`",
+        "text": "`process_start_time_seconds offset 10m < 600`",
         "correct": false,
-        "note": "That's when it started, not how long ago."
+        "note": "Still compares an epoch timestamp with 600."
       },
       {
         "id": "c",
-        "text": "`rate(process_start_time_seconds[5m])`",
-        "correct": false,
-        "note": "Not a counter."
+        "text": "`time() - process_start_time_seconds < 600`",
+        "correct": true,
+        "note": "Right. Uptime under 600 seconds."
       },
       {
         "id": "d",
-        "text": "`changes(process_start_time_seconds[1d])`",
+        "text": "`process_start_time_seconds < 600`",
         "correct": false,
-        "note": "That counts restarts."
+        "note": "The start time is an epoch timestamp, far above 600."
       }
     ],
-    "explanation": "Client libraries' standard process_start_time_seconds metric holds the start time in Unix seconds; subtract it from time() for uptime.",
-    "difficulty": 1,
+    "explanation": "process_start_time_seconds holds the start time in Unix seconds; time() minus it gives uptime.",
+    "difficulty": 2,
     "tags": [
       "exam"
     ],
@@ -2482,32 +2486,32 @@
   {
     "id": "x-pt-absent",
     "type": "single",
-    "topic": "promql-timestamps",
+    "topic": "promql-agg-time",
     "stem": "Which expression is designed to alert when no series exist for `up{job=\"payments\"}`?",
     "options": [
       {
         "id": "a",
+        "text": "`sum(up{job=\"payments\"}) < 1`",
+        "correct": false,
+        "note": "sum of nothing returns nothing."
+      },
+      {
+        "id": "b",
         "text": "`absent(up{job=\"payments\"})`",
         "correct": true,
         "note": "Right. It returns 1 when the selector matches nothing."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "`up{job=\"payments\"} == 0`",
         "correct": false,
         "note": "That needs the series to exist with value 0."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "`count(up{job=\"payments\"}) == 0`",
         "correct": false,
         "note": "count of nothing returns nothing, not 0."
-      },
-      {
-        "id": "d",
-        "text": "`sum(up{job=\"payments\"}) < 1`",
-        "correct": false,
-        "note": "sum of nothing returns nothing."
       }
     ],
     "explanation": "absent(v) returns a 1-element vector with value 1 if the vector passed to it has no elements. Useful for alerting when series are missing.",
@@ -2529,20 +2533,20 @@
   {
     "id": "x-pt-vector",
     "type": "single",
-    "topic": "promql-timestamps",
+    "topic": "promql-binary",
     "stem": "Why might you write `sum(rate(errors_total[5m])) or vector(0)`?",
     "options": [
       {
         "id": "a",
-        "text": "To get 0 when no error series exist",
-        "correct": true,
-        "note": "Right. vector(0) is a single, label-free series."
+        "text": "Because or needs a vector on each side",
+        "correct": false,
+        "note": "or works without it; vector(0) just supplies a fallback series."
       },
       {
         "id": "b",
-        "text": "To convert the result into a scalar",
-        "correct": false,
-        "note": "vector() goes from scalar to vector."
+        "text": "To get 0 when no error series exist",
+        "correct": true,
+        "note": "Right. vector(0) is a single, label-free series."
       },
       {
         "id": "c",
@@ -2552,9 +2556,9 @@
       },
       {
         "id": "d",
-        "text": "Because or needs a vector on each side",
+        "text": "To convert the result into a scalar",
         "correct": false,
-        "note": "or works without it; vector(0) just supplies a fallback series."
+        "note": "vector() goes from scalar to vector."
       }
     ],
     "explanation": "vector(s) converts a scalar to a single-element instant vector with no labels; or fills in where the left side is empty.",
@@ -2580,7 +2584,7 @@
   {
     "id": "x-pt-clamp",
     "type": "single",
-    "topic": "promql-timestamps",
+    "topic": "promql-binary",
     "stem": "What does `clamp(x, 0, 100)` do?",
     "options": [
       {
@@ -2591,21 +2595,21 @@
       },
       {
         "id": "b",
-        "text": "Drops values outside 0 to 100",
-        "correct": false,
-        "note": "Values are limited, not dropped."
-      },
-      {
-        "id": "c",
         "text": "Rounds values to the nearest 100",
         "correct": false,
         "note": "That's round(x, 100)."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Rescales values into percentages",
         "correct": false,
         "note": "No scaling happens."
+      },
+      {
+        "id": "d",
+        "text": "Drops values outside 0 to 100",
+        "correct": false,
+        "note": "Values are limited, not dropped."
       }
     ],
     "explanation": "clamp(v, min, max) clamps sample values to have a lower limit of min and an upper limit of max.",

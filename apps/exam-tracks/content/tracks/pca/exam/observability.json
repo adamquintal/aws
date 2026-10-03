@@ -7,27 +7,27 @@
     "options": [
       {
         "id": "a",
-        "text": "The process exposing the counter restarted",
+        "text": "The process exposing the counter restarted recently",
         "correct": true,
         "note": "Right. Counters only go up, except for resets on restart."
       },
       {
         "id": "b",
+        "text": "Prometheus converted the metric to a gauge on ingest",
+        "correct": false,
+        "note": "A metric's type doesn't change between scrapes like that."
+      },
+      {
+        "id": "c",
         "text": "Prometheus dropped samples during a slow scrape",
         "correct": false,
         "note": "Missing samples don't lower a counter's value."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "The application decremented the counter after an error",
         "correct": false,
         "note": "Counters can't be decremented. That would make it a gauge."
-      },
-      {
-        "id": "d",
-        "text": "Prometheus converted the metric to a gauge on ingest",
-        "correct": false,
-        "note": "A metric's type doesn't change between scrapes like that."
       }
     ],
     "explanation": "A counter is a cumulative metric whose value can only increase or be reset to zero on restart.",
@@ -66,13 +66,13 @@
       },
       {
         "id": "c",
-        "text": "Total bytes sent since start",
+        "text": "Number of errors since process start",
         "correct": false,
         "note": "Cumulative, so a counter."
       },
       {
         "id": "d",
-        "text": "Number of errors since process start",
+        "text": "Total bytes sent since start",
         "correct": false,
         "note": "Cumulative, so a counter."
       }
@@ -101,15 +101,15 @@
     "options": [
       {
         "id": "a",
-        "text": "`rpc_duration_seconds_max`",
-        "correct": true,
-        "note": "Right. Classic histograms have no _max series."
-      },
-      {
-        "id": "b",
         "text": "`rpc_duration_seconds_bucket{le=\"0.5\"}`",
         "correct": false,
         "note": "Cumulative buckets are part of a classic histogram."
+      },
+      {
+        "id": "b",
+        "text": "`rpc_duration_seconds_max`",
+        "correct": true,
+        "note": "Right. Classic histograms have no _max series."
       },
       {
         "id": "c",
@@ -148,15 +148,15 @@
     "options": [
       {
         "id": "a",
-        "text": "A histogram, since buckets can be summed",
-        "correct": true,
-        "note": "Right. Histogram buckets aggregate cleanly."
+        "text": "A counter of slow requests, compared against the total",
+        "correct": false,
+        "note": "That loses the distribution you need for percentiles."
       },
       {
         "id": "b",
-        "text": "A summary, since quantiles are computed on the client",
-        "correct": false,
-        "note": "Client-side quantiles from different instances can't be meaningfully averaged."
+        "text": "A histogram, since its buckets can be summed across instances",
+        "correct": true,
+        "note": "Right. Histogram buckets aggregate cleanly."
       },
       {
         "id": "c",
@@ -166,9 +166,9 @@
       },
       {
         "id": "d",
-        "text": "A counter of slow requests, compared against the total",
+        "text": "A summary, since quantiles are computed on the client",
         "correct": false,
-        "note": "That loses the distribution you need for percentiles."
+        "note": "Client-side quantiles from different instances can't be meaningfully averaged."
       }
     ],
     "explanation": "Summaries' precomputed quantiles generally can't be aggregated. Histograms can be aggregated with sum by (le) before histogram_quantile().",
@@ -191,35 +191,35 @@
     "id": "x-om-sample",
     "type": "single",
     "topic": "obs-metrics",
-    "stem": "In Prometheus, what does a single sample consist of?",
+    "stem": "Which of these is never part of a sample?",
     "options": [
       {
         "id": "a",
-        "text": "A float64 value and a millisecond timestamp",
-        "correct": true,
-        "note": "Right. Samples belong to a series identified by its labels."
+        "text": "A float64 value",
+        "correct": false,
+        "note": "Float samples carry one."
       },
       {
         "id": "b",
-        "text": "A metric name, labels and a value, but no timestamp",
+        "text": "A native histogram value",
         "correct": false,
-        "note": "Samples always carry a timestamp."
+        "note": "Native histogram samples carry one instead of a float."
       },
       {
         "id": "c",
-        "text": "A log line with a severity and a message",
+        "text": "A millisecond timestamp",
         "correct": false,
-        "note": "That's a log record."
+        "note": "Every sample has one."
       },
       {
         "id": "d",
-        "text": "A pre-calculated percentile for the scrape interval",
-        "correct": false,
-        "note": "That's what a summary quantile is, not a sample in general."
+        "text": "The metric's HELP text",
+        "correct": true,
+        "note": "Right. HELP is metadata, not part of every sample."
       }
     ],
-    "explanation": "Samples form the actual time series data. Each sample consists of a float64 value or a native histogram, and a millisecond-precision timestamp.",
-    "difficulty": 1,
+    "explanation": "Each sample consists of a float64 or native histogram value and a millisecond-precision timestamp.",
+    "difficulty": 2,
     "tags": [
       "exam"
     ],
@@ -238,31 +238,33 @@
     "id": "x-om-untyped",
     "type": "single",
     "topic": "obs-metrics",
-    "stem": "A metric in the text exposition format has no `# TYPE` line. How is it treated?",
+    "stem": "A target's /metrics output contains only the line below, with no HELP or TYPE lines. What type does Prometheus treat it as?",
+    "code": "backup_size_bytes 1048576",
+    "codeLang": "text",
     "options": [
       {
         "id": "a",
-        "text": "As untyped",
+        "text": "Untyped, the default type",
         "correct": true,
-        "note": "Right. Untyped is the default when no TYPE is given."
+        "note": "Right. That's the default when TYPE is missing."
       },
       {
         "id": "b",
-        "text": "As a counter",
+        "text": "Invalid, so it's dropped",
         "correct": false,
-        "note": "Not unless declared or named and typed as one."
+        "note": "A line with no TYPE is allowed."
       },
       {
         "id": "c",
-        "text": "As a gauge",
+        "text": "Counter, the default type",
         "correct": false,
-        "note": "Gauge must be declared too."
+        "note": "Counter must be declared."
       },
       {
         "id": "d",
-        "text": "The scrape fails",
+        "text": "Gauge, because of the _bytes suffix",
         "correct": false,
-        "note": "A missing TYPE line is allowed."
+        "note": "Suffixes don't set the type."
       }
     ],
     "explanation": "The TYPE line is optional. If there is no TYPE line for a metric name, the metric is treated as untyped.",
@@ -289,27 +291,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Raw values only grow; rate shows how fast",
-        "correct": true,
-        "note": "Right. The per-second rate is what's usually interesting."
+        "text": "rate() turns counters into histograms for graphing",
+        "correct": false,
+        "note": "rate() returns per-second averages, not histograms."
       },
       {
         "id": "b",
-        "text": "Prometheus doesn't store raw counter values on disk",
-        "correct": false,
-        "note": "They are stored as normal samples."
-      },
-      {
-        "id": "c",
         "text": "Counters can only be used inside recording rules",
         "correct": false,
         "note": "There's no such restriction."
       },
       {
+        "id": "c",
+        "text": "Raw values only ever grow; rate shows how fast events happen",
+        "correct": true,
+        "note": "Right. The per-second rate is what's usually interesting."
+      },
+      {
         "id": "d",
-        "text": "rate() turns counters into histograms for graphing",
+        "text": "Prometheus doesn't store raw counter values on disk",
         "correct": false,
-        "note": "rate() returns per-second averages, not histograms."
+        "note": "They are stored as normal samples."
       }
     ],
     "explanation": "rate() calculates the per-second average rate of increase of a counter, automatically adjusting for resets.",
@@ -383,35 +385,35 @@
     "id": "x-pp-pgw-forget",
     "type": "single",
     "topic": "obs-push-pull",
-    "stem": "A batch job pushed metrics to the Pushgateway, then was decommissioned. What happens to its metrics?",
+    "stem": "A nightly job pushes `job_last_success_timestamp_seconds` to the Pushgateway. The job is then deleted from the scheduler. What happens with the alert `time() - job_last_success_timestamp_seconds > 2 * 86400`?",
     "options": [
       {
         "id": "a",
-        "text": "They're kept and scraped until deleted via its API",
+        "text": "It fires once two days have passed",
         "correct": true,
-        "note": "Right. The Pushgateway never forgets pushed series on its own."
+        "note": "Right. The last push stays in the gateway."
       },
       {
         "id": "b",
-        "text": "They expire after five minutes without a new push",
+        "text": "It never fires; the series vanishes",
         "correct": false,
-        "note": "The Pushgateway deliberately has no TTL."
+        "note": "The Pushgateway never forgets pushed series on its own."
       },
       {
         "id": "c",
-        "text": "They're removed once the job's up metric drops to 0",
+        "text": "It errors on pushed series",
         "correct": false,
-        "note": "There's no per-job up metric for pushed jobs."
+        "note": "Pushed series are queried like any others."
       },
       {
         "id": "d",
-        "text": "Prometheus marks them stale after the next scrape",
+        "text": "It fires once, then resolves",
         "correct": false,
-        "note": "The gateway keeps exposing them, so they aren't stale."
+        "note": "The stale value keeps getting older, so it keeps firing."
       }
     ],
-    "explanation": "The Pushgateway never forgets series pushed to it and exposes them to Prometheus forever unless deleted manually via its API.",
-    "difficulty": 2,
+    "explanation": "The Pushgateway exposes pushed series until they're deleted via its API, so a last-success timestamp keeps ageing after the job stops.",
+    "difficulty": 3,
     "tags": [
       "exam"
     ],
@@ -438,27 +440,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`{job=\"backup\", db=\"orders\"}`",
-        "correct": true,
-        "note": "Right. The URL path labels form the grouping key, starting with job."
-      },
-      {
-        "id": "b",
-        "text": "`{job=\"backup\"}` only",
-        "correct": false,
-        "note": "Extra label pairs in the path are part of the key."
-      },
-      {
-        "id": "c",
         "text": "`{instance=\"pgw:9091\"}`",
         "correct": false,
         "note": "The key comes from the path, not the gateway's address."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "There's no grouping key for this URL",
         "correct": false,
         "note": "Every push has one, made of job plus any further label pairs."
+      },
+      {
+        "id": "c",
+        "text": "`{job=\"backup\"}` only",
+        "correct": false,
+        "note": "Extra label pairs in the path are part of the key."
+      },
+      {
+        "id": "d",
+        "text": "`{job=\"backup\", db=\"orders\"}`",
+        "correct": true,
+        "note": "Right. The URL path labels form the grouping key, starting with job."
       }
     ],
     "explanation": "Pushed metrics are managed in groups identified by a grouping key made of the labels in the URL path, of which the first must be job.",
@@ -485,27 +487,27 @@
     "options": [
       {
         "id": "a",
-        "text": "PUT replaces the whole group; POST only same-named metrics",
-        "correct": true,
-        "note": "Right. POST is the gentler update."
-      },
-      {
-        "id": "b",
-        "text": "PUT adds to existing values; POST overwrites them completely",
-        "correct": false,
-        "note": "Neither adds values together."
-      },
-      {
-        "id": "c",
         "text": "POST deletes the group first, then stores the new metrics",
         "correct": false,
         "note": "DELETE deletes a group."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "They behave identically; POST is only kept for compatibility",
         "correct": false,
         "note": "They differ in how much of the group is replaced."
+      },
+      {
+        "id": "c",
+        "text": "PUT replaces the whole group; POST only same-named metrics",
+        "correct": true,
+        "note": "Right. POST is the gentler update."
+      },
+      {
+        "id": "d",
+        "text": "PUT adds to existing values; POST overwrites them completely",
+        "correct": false,
+        "note": "Neither adds values together."
       }
     ],
     "explanation": "PUT replaces all metrics with the grouping key. POST works like PUT but only replaces metrics with the same name as the newly pushed metrics.",
@@ -532,27 +534,27 @@
     "options": [
       {
         "id": "a",
-        "text": "To keep the pushed job and instance labels",
-        "correct": true,
-        "note": "Right. Pushed labels win."
-      },
-      {
-        "id": "b",
         "text": "So the Pushgateway can authenticate each push",
         "correct": false,
         "note": "honor_labels is about label conflicts, not auth."
       },
       {
-        "id": "c",
-        "text": "To make scrapes of the gateway faster",
-        "correct": false,
-        "note": "No performance effect."
+        "id": "b",
+        "text": "To keep the pushed job and instance labels",
+        "correct": true,
+        "note": "Right. Pushed labels win."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "To enable the gateway's admin API for deletes",
         "correct": false,
         "note": "That's a gateway command-line flag."
+      },
+      {
+        "id": "d",
+        "text": "To make scrapes of the gateway faster",
+        "correct": false,
+        "note": "No performance effect."
       }
     ],
     "explanation": "Without honor_labels, the scraped job and instance labels would replace the ones that were pushed. With honor_labels: true, the pushed labels are retained.",
@@ -583,27 +585,27 @@
     "options": [
       {
         "id": "a",
-        "text": "A failed scrape shows the target is down",
-        "correct": true,
-        "note": "Right. Failed scrapes set up to 0."
-      },
-      {
-        "id": "b",
-        "text": "It needs no network access to the targets at all",
-        "correct": false,
-        "note": "Pull needs Prometheus to reach the targets."
-      },
-      {
-        "id": "c",
         "text": "It removes the need for any service discovery",
         "correct": false,
         "note": "Pull usually relies on service discovery."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "It's required for event logging to work properly",
         "correct": false,
         "note": "Unrelated."
+      },
+      {
+        "id": "c",
+        "text": "A failed scrape shows straight away that the target is down",
+        "correct": true,
+        "note": "Right. Failed scrapes set up to 0."
+      },
+      {
+        "id": "d",
+        "text": "It needs no network access to the targets at all",
+        "correct": false,
+        "note": "Pull needs Prometheus to reach the targets."
       }
     ],
     "explanation": "Pulling lets you run monitoring on your laptop, more easily tell if a target is down, and inspect a target's health by visiting it in a browser.",
@@ -630,15 +632,15 @@
     "options": [
       {
         "id": "a",
-        "text": "The Node Exporter textfile collector",
-        "correct": true,
-        "note": "Right. Machine-level batch jobs fit it well."
-      },
-      {
-        "id": "b",
         "text": "A summary metric inside the cron job itself",
         "correct": false,
         "note": "The job exits, so nothing would be scraped."
+      },
+      {
+        "id": "b",
+        "text": "A recording rule that tracks the job's runs",
+        "correct": false,
+        "note": "Recording rules need data to already be in Prometheus."
       },
       {
         "id": "c",
@@ -648,9 +650,9 @@
       },
       {
         "id": "d",
-        "text": "A recording rule that tracks the job's runs",
-        "correct": false,
-        "note": "Recording rules need data to already be in Prometheus."
+        "text": "The Node Exporter textfile collector on that host",
+        "correct": true,
+        "note": "Right. Machine-level batch jobs fit it well."
       }
     ],
     "explanation": "For batch jobs tied to a machine (such as a cron job), use the node exporter's textfile collector instead of the Pushgateway.",
@@ -677,7 +679,7 @@
     "options": [
       {
         "id": "a",
-        "text": "Targets change, and SD keeps the list current",
+        "text": "Targets come and go, and SD keeps the target list current",
         "correct": true,
         "note": "This is the correct answer."
       },
@@ -689,15 +691,15 @@
       },
       {
         "id": "c",
-        "text": "It stores metrics long term outside the cluster",
-        "correct": false,
-        "note": "That's storage."
-      },
-      {
-        "id": "d",
         "text": "It deduplicates alerts sent from replicated pods",
         "correct": false,
         "note": "That's Alertmanager."
+      },
+      {
+        "id": "d",
+        "text": "It stores metrics long term outside the cluster",
+        "correct": false,
+        "note": "That's storage."
       }
     ],
     "explanation": "Prometheus discovers targets via service discovery or static configuration. In dynamic environments, SD keeps the target list current.",
@@ -734,9 +736,9 @@
       },
       {
         "id": "b",
-        "text": "They're stored on every series from that target",
+        "text": "They're forwarded to Alertmanager with alerts",
         "correct": false,
-        "note": "Double-underscore labels are removed after target relabeling."
+        "note": "Not directly."
       },
       {
         "id": "c",
@@ -746,9 +748,9 @@
       },
       {
         "id": "d",
-        "text": "They're forwarded to Alertmanager with alerts",
+        "text": "They're stored on every series from that target",
         "correct": false,
-        "note": "Not directly."
+        "note": "Double-underscore labels are removed after target relabeling."
       }
     ],
     "explanation": "Labels starting with __ are removed from the label set after target relabeling is completed. __meta_* labels are available during relabeling.",
@@ -787,15 +789,15 @@
       },
       {
         "id": "c",
-        "text": "Federation from a Prometheus that reads the files",
-        "correct": false,
-        "note": "Federation scrapes other Prometheus servers."
-      },
-      {
-        "id": "d",
         "text": "`remote_read` pointed at the CMDB export",
         "correct": false,
         "note": "That reads stored data from elsewhere."
+      },
+      {
+        "id": "d",
+        "text": "Federation from a Prometheus that reads the files",
+        "correct": false,
+        "note": "Federation scrapes other Prometheus servers."
       }
     ],
     "explanation": "File-based SD reads YAML or JSON files of targets and watches them, applying changes immediately. It's a generic way to plug in custom discovery.",
@@ -822,15 +824,15 @@
     "options": [
       {
         "id": "a",
-        "text": "A JSON list of target groups and labels",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "A Prometheus /metrics page for each target",
         "correct": false,
         "note": "That's what targets serve, not SD endpoints."
+      },
+      {
+        "id": "b",
+        "text": "A PromQL expression that selects targets",
+        "correct": false,
+        "note": "Not a query."
       },
       {
         "id": "c",
@@ -840,9 +842,9 @@
       },
       {
         "id": "d",
-        "text": "A PromQL expression that selects targets",
-        "correct": false,
-        "note": "Not a query."
+        "text": "A JSON list of target groups and labels",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "HTTP SD fetches targets from an HTTP endpoint returning a JSON list of target groups (targets plus labels), refreshing periodically.",
@@ -869,27 +871,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`keep`",
-        "correct": true,
-        "note": "Right. Non-matching targets are dropped."
+        "text": "`replace`",
+        "correct": false,
+        "note": "replace writes a new label value."
       },
       {
         "id": "b",
-        "text": "`labelmap`",
-        "correct": false,
-        "note": "labelmap copies label names matching a regex."
-      },
-      {
-        "id": "c",
         "text": "`hashmod`",
         "correct": false,
         "note": "hashmod is for sharding."
       },
       {
-        "id": "d",
-        "text": "`replace`",
+        "id": "c",
+        "text": "`labelmap`",
         "correct": false,
-        "note": "replace writes a new label value."
+        "note": "labelmap copies label names matching a regex."
+      },
+      {
+        "id": "d",
+        "text": "`keep`",
+        "correct": true,
+        "note": "Right. Non-matching targets are dropped."
       }
     ],
     "explanation": "keep drops targets for which regex does not match the concatenated source_labels; drop does the opposite.",
@@ -916,27 +918,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`__address__`",
-        "correct": true,
-        "note": "Right. It's set by discovery and can be rewritten by relabeling."
-      },
-      {
-        "id": "b",
-        "text": "`instance`",
-        "correct": false,
-        "note": "instance defaults to __address__ but isn't what's scraped."
-      },
-      {
-        "id": "c",
         "text": "`__scheme__`",
         "correct": false,
         "note": "That's http or https."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "`__metrics_path__`",
         "correct": false,
         "note": "That's the path."
+      },
+      {
+        "id": "c",
+        "text": "`instance`",
+        "correct": false,
+        "note": "instance defaults to __address__ but isn't what's scraped."
+      },
+      {
+        "id": "d",
+        "text": "`__address__`",
+        "correct": true,
+        "note": "Right. It's set by discovery and can be rewritten by relabeling."
       }
     ],
     "explanation": "__address__ is the target's host:port. If instance isn't set during relabeling, it defaults to the value of __address__.",
@@ -967,27 +969,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Logs or events with per-event detail",
-        "correct": true,
-        "note": "Right. Prometheus metrics don't keep per-event detail."
-      },
-      {
-        "id": "b",
         "text": "A Prometheus counter with a user_id label",
         "correct": false,
         "note": "Unbounded label values like user IDs explode cardinality."
       },
       {
-        "id": "c",
-        "text": "A gauge of active users, broken down by error",
-        "correct": false,
-        "note": "That doesn't tell you who hit the error."
+        "id": "b",
+        "text": "Logs or events with per-event detail",
+        "correct": true,
+        "note": "Right. Prometheus metrics don't keep per-event detail."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "An exemplar attached to every error series",
         "correct": false,
         "note": "Exemplars are samples, not a complete record."
+      },
+      {
+        "id": "d",
+        "text": "A gauge of active users, broken down by error",
+        "correct": false,
+        "note": "That doesn't tell you who hit the error."
       }
     ],
     "explanation": "Prometheus is for numeric time series. The docs advise against high-cardinality labels such as user IDs; per-event detail belongs in logs.",
@@ -1024,21 +1026,21 @@
       },
       {
         "id": "b",
-        "text": "Label values can't contain the @ character",
-        "correct": false,
-        "note": "Label values can contain any Unicode."
-      },
-      {
-        "id": "c",
         "text": "Labels are limited to five per metric",
         "correct": false,
         "note": "There's no such fixed limit."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "They break regex matching in PromQL queries",
         "correct": false,
         "note": "Matching works; the problem is cardinality."
+      },
+      {
+        "id": "d",
+        "text": "Label values can't contain the @ character",
+        "correct": false,
+        "note": "Label values can contain any Unicode."
       }
     ],
     "explanation": "Every unique combination of key-value label pairs represents a new time series, which can dramatically increase the amount of data stored.",
@@ -1065,27 +1067,27 @@
     "options": [
       {
         "id": "a",
-        "text": "A consistent, machine-parseable format",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "It's written to a database instead of a file",
         "correct": false,
         "note": "Storage location doesn't define structure."
       },
       {
-        "id": "c",
-        "text": "Each record is smaller than one kilobyte",
-        "correct": false,
-        "note": "Size is irrelevant."
-      },
-      {
-        "id": "d",
+        "id": "b",
         "text": "It always includes a full stack trace",
         "correct": false,
         "note": "Not a defining feature."
+      },
+      {
+        "id": "c",
+        "text": "A consistent, machine-parseable format",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "d",
+        "text": "Each record is smaller than one kilobyte",
+        "correct": false,
+        "note": "Size is irrelevant."
       }
     ],
     "explanation": "Structured logs use a well-defined format, often JSON, which makes them easier to parse, search and analyse than unstructured text.",
@@ -1112,9 +1114,9 @@
     "options": [
       {
         "id": "a",
-        "text": "One operation within a request",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "A log file written by one service",
+        "correct": false,
+        "note": "Spans are tracing data."
       },
       {
         "id": "b",
@@ -1124,9 +1126,9 @@
       },
       {
         "id": "c",
-        "text": "A log file written by one service",
-        "correct": false,
-        "note": "Spans are tracing data."
+        "text": "One operation within a request",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "d",
@@ -1159,27 +1161,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Context propagation of the trace ID",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "All services writing to the same log file",
         "correct": false,
         "note": "Logs alone don't link spans."
       },
       {
-        "id": "c",
-        "text": "Matching span names across the services",
-        "correct": false,
-        "note": "Names differ across services."
+        "id": "b",
+        "text": "Context propagation of the trace ID between the services",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Prometheus federation of span metrics",
         "correct": false,
         "note": "Federation is for metrics."
+      },
+      {
+        "id": "d",
+        "text": "Matching span names across the services",
+        "correct": false,
+        "note": "Names differ across services."
       }
     ],
     "explanation": "Context propagation is the core concept that enables distributed tracing, letting spans be correlated into a trace regardless of where they're generated.",
@@ -1206,9 +1208,9 @@
     "options": [
       {
         "id": "a",
-        "text": "Exemplars that carry a trace ID",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Alertmanager inhibition linking the two",
+        "correct": false,
+        "note": "Unrelated."
       },
       {
         "id": "b",
@@ -1224,9 +1226,9 @@
       },
       {
         "id": "d",
-        "text": "Alertmanager inhibition linking the two",
-        "correct": false,
-        "note": "Unrelated."
+        "text": "Exemplars that carry a trace ID alongside a sample",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "OpenMetrics exemplars carry references such as a trace ID alongside a metric sample, so you can jump from a metric to a trace.",
@@ -1249,35 +1251,35 @@
     "id": "x-tr-status",
     "type": "single",
     "topic": "obs-tracing",
-    "stem": "A span finished normally and no one set its status. What is its status?",
+    "stem": "A span's operation threw an unhandled exception. What should its status be set to?",
     "options": [
       {
         "id": "a",
         "text": "Unset",
-        "correct": true,
-        "note": "Right. Unset means it completed without an error."
+        "correct": false,
+        "note": "Unset means it completed without error."
       },
       {
         "id": "b",
         "text": "Ok",
         "correct": false,
-        "note": "Ok must be set explicitly."
+        "note": "Ok marks explicit success."
       },
       {
         "id": "c",
-        "text": "Error",
+        "text": "Aborted",
         "correct": false,
-        "note": "No error occurred."
+        "note": "Not one of the span statuses."
       },
       {
         "id": "d",
-        "text": "Pending",
-        "correct": false,
-        "note": "Not a span status."
+        "text": "Error",
+        "correct": true,
+        "note": "Right. Error marks a failed operation."
       }
     ],
-    "explanation": "Span status is Unset by default, meaning the operation completed without error. Ok is set explicitly; Error marks a failure.",
-    "difficulty": 2,
+    "explanation": "Span status is one of Unset (default, completed without error), Error (the operation contains an error) or Ok (explicitly marked successful).",
+    "difficulty": 1,
     "tags": [
       "exam"
     ],
@@ -1300,15 +1302,15 @@
     "options": [
       {
         "id": "a",
-        "text": "The first span, with no parent",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Any span whose status is Error",
+        "correct": false,
+        "note": "Status doesn't make a span the root."
       },
       {
         "id": "b",
-        "text": "The slowest span in the trace",
-        "correct": false,
-        "note": "Root is about hierarchy, not duration."
+        "text": "The first span, with no parent",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "c",
@@ -1318,9 +1320,9 @@
       },
       {
         "id": "d",
-        "text": "Any span whose status is Error",
+        "text": "The slowest span in the trace",
         "correct": false,
-        "note": "Status doesn't make a span the root."
+        "note": "Root is about hierarchy, not duration."
       }
     ],
     "explanation": "A trace's first span is the root span. It represents the request from start to finish; child spans give detail.",
@@ -1353,21 +1355,21 @@
       },
       {
         "id": "b",
-        "text": "CPU usage averaged across the API servers",
-        "correct": false,
-        "note": "CPU is an internal cause signal, not a user-facing measure."
-      },
-      {
-        "id": "c",
         "text": "A 99.9% availability target for the month",
         "correct": false,
         "note": "A target is an SLO."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "A contract with refunds for missed targets",
         "correct": false,
         "note": "That's an SLA."
+      },
+      {
+        "id": "d",
+        "text": "CPU usage averaged across the API servers",
+        "correct": false,
+        "note": "CPU is an internal cause signal, not a user-facing measure."
       }
     ],
     "explanation": "An SLI is a measurement of a service's behaviour, ideally from the user's perspective, such as how fast a page loads.",
@@ -1390,34 +1392,34 @@
     "id": "x-sl-slo",
     "type": "single",
     "topic": "obs-slos",
-    "stem": "What is an SLO?",
+    "stem": "\"99% of checkout requests should complete within 400 ms, measured over 30 days.\" What is this statement?",
     "options": [
       {
         "id": "a",
-        "text": "A target for one or more SLIs",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "An SLA",
+        "correct": false,
+        "note": "An SLA is an agreement with consequences, such as credits."
       },
       {
         "id": "b",
-        "text": "A raw measurement of service behaviour",
+        "text": "An error budget",
         "correct": false,
-        "note": "That's the SLI."
+        "note": "The error budget would be the 1% allowed to be slow."
       },
       {
         "id": "c",
-        "text": "An alerting rule with a for clause",
-        "correct": false,
-        "note": "Alerts can be based on SLOs but aren't SLOs."
+        "text": "An SLO",
+        "correct": true,
+        "note": "Right. It sets a target for an SLI."
       },
       {
         "id": "d",
-        "text": "A Grafana dashboard of user-facing metrics",
+        "text": "An SLI",
         "correct": false,
-        "note": "Unrelated."
+        "note": "The SLI is the measured share of fast requests; this sets a target for it."
       }
     ],
-    "explanation": "An SLO attaches one or more SLIs to business value, communicating reliability targets to the organisation.",
+    "explanation": "An SLO attaches a target to one or more SLIs. The SLI is the measurement; an SLA adds external consequences.",
     "difficulty": 1,
     "tags": [
       "exam"
@@ -1441,9 +1443,9 @@
     "options": [
       {
         "id": "a",
-        "text": "`sum(rate(x_bucket{le=\"0.3\"}[5m])) / sum(rate(x_count[5m]))`",
-        "correct": true,
-        "note": "Right. Good events divided by all events."
+        "text": "`sum(rate(x_sum[5m])) / sum(rate(x_count[5m]))`",
+        "correct": false,
+        "note": "That's average latency."
       },
       {
         "id": "b",
@@ -1453,15 +1455,15 @@
       },
       {
         "id": "c",
-        "text": "`sum(rate(x_sum[5m])) / sum(rate(x_count[5m]))`",
-        "correct": false,
-        "note": "That's average latency."
-      },
-      {
-        "id": "d",
         "text": "`sum(rate(x_bucket{le=\"+Inf\"}[5m])) / sum(rate(x_count[5m]))`",
         "correct": false,
         "note": "The +Inf bucket counts every request, so this ratio is always 1."
+      },
+      {
+        "id": "d",
+        "text": "`sum(rate(x_bucket{le=\"0.3\"}[5m])) / sum(rate(x_count[5m]))`",
+        "correct": true,
+        "note": "Right. Good events divided by all events."
       }
     ],
     "explanation": "The histograms page shows the fraction of requests within 300 ms as the rate of the le=\"0.3\" bucket divided by the rate of _count.",
@@ -1488,21 +1490,21 @@
     "options": [
       {
         "id": "a",
+        "text": "Disk usage at 60% on one of the database hosts",
+        "correct": false,
+        "note": "Not urgent or user-facing."
+      },
+      {
+        "id": "b",
         "text": "User-facing error ratio over the SLO for 10 minutes",
         "correct": true,
         "note": "Right. A user-facing symptom, with slack for blips."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "One of twenty replicas restarted in the last hour",
         "correct": false,
         "note": "Often invisible to users."
-      },
-      {
-        "id": "c",
-        "text": "Disk usage at 60% on one of the database hosts",
-        "correct": false,
-        "note": "Not urgent or user-facing."
       },
       {
         "id": "d",
@@ -1535,27 +1537,27 @@
     "options": [
       {
         "id": "a",
-        "text": "0.5%",
-        "correct": true,
-        "note": "Right. That's the error budget."
+        "text": "None",
+        "correct": false,
+        "note": "Only a 100% target allows no failures."
       },
       {
         "id": "b",
-        "text": "5%",
-        "correct": false,
-        "note": "That would be a 95% SLO."
-      },
-      {
-        "id": "c",
         "text": "99.5%",
         "correct": false,
         "note": "That's the success target."
       },
       {
-        "id": "d",
-        "text": "None",
+        "id": "c",
+        "text": "5%",
         "correct": false,
-        "note": "Only a 100% target allows no failures."
+        "note": "That would be a 95% SLO."
+      },
+      {
+        "id": "d",
+        "text": "0.5%",
+        "correct": true,
+        "note": "Right. That's the error budget."
       }
     ],
     "explanation": "The error budget is the allowed unreliability: 100% minus the SLO target. (General industry usage.)",

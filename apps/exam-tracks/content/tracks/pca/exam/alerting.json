@@ -7,27 +7,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Symptoms that users feel, like errors",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Every cause, such as each component's CPU",
         "correct": false,
         "note": "That creates noisy, unactionable pages."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "Any log line that contains ERROR",
         "correct": false,
         "note": "Not the guidance, and not a metric."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Every restart of any scrape target",
         "correct": false,
         "note": "Usually invisible to users."
+      },
+      {
+        "id": "d",
+        "text": "Symptoms that users feel, like errors",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "Aim to have as few alerts as possible, by alerting on symptoms associated with end-user pain rather than every possible cause.",
@@ -54,15 +54,15 @@
     "options": [
       {
         "id": "a",
-        "text": "A 3am page nobody can act on",
-        "correct": true,
-        "note": "Right. Avoid pages where there's nothing to do."
+        "text": "A ticket, not a page, for a slowly filling disk",
+        "correct": false,
+        "note": "Sensible."
       },
       {
         "id": "b",
-        "text": "A page for a high user-visible error rate",
-        "correct": false,
-        "note": "That's a good page."
+        "text": "A 3am page nobody can act on",
+        "correct": true,
+        "note": "Right. Avoid pages where there's nothing to do."
       },
       {
         "id": "c",
@@ -72,9 +72,9 @@
       },
       {
         "id": "d",
-        "text": "A ticket, not a page, for a slowly filling disk",
+        "text": "A page for a high user-visible error rate",
         "correct": false,
-        "note": "Sensible."
+        "note": "That's a good page."
       }
     ],
     "explanation": "Keep alerting simple, alert on symptoms, have good consoles to pinpoint causes, and avoid pages where there is nothing to do.",
@@ -101,27 +101,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Once, as high in the stack as possible",
-        "correct": true,
-        "note": "Right. Lower components being slow doesn't matter if users are fine."
-      },
-      {
-        "id": "b",
         "text": "At every layer, each with its own alert",
         "correct": false,
         "note": "That multiplies pages for one problem."
       },
       {
-        "id": "c",
-        "text": "Only at the database, where it starts",
-        "correct": false,
-        "note": "Users experience the top of the stack."
+        "id": "b",
+        "text": "Once, as high in the stack as possible",
+        "correct": true,
+        "note": "Right. Lower components being slow doesn't matter if users are fine."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Never; latency is too noisy to alert on",
         "correct": false,
         "note": "It's a key symptom."
+      },
+      {
+        "id": "d",
+        "text": "Only at the database, where it starts",
+        "correct": false,
+        "note": "Users experience the top of the stack."
       }
     ],
     "explanation": "Only page on latency at one point in a stack. If a lower-level component is slow but overall user latency is fine, there's no need to page.",
@@ -148,15 +148,15 @@
     "options": [
       {
         "id": "a",
-        "text": "To avoid paging on small, brief blips",
-        "correct": true,
-        "note": "Right. Usually done with a for duration."
+        "text": "To give on-call staff time to respond",
+        "correct": false,
+        "note": "Slack here means tolerance for blips, not response time."
       },
       {
         "id": "b",
-        "text": "To post alerts to Slack",
+        "text": "Because Alertmanager drops fast alerts",
         "correct": false,
-        "note": "Different kind of slack."
+        "note": "Not true."
       },
       {
         "id": "c",
@@ -166,9 +166,9 @@
       },
       {
         "id": "d",
-        "text": "Because Alertmanager drops fast alerts",
-        "correct": false,
-        "note": "Not true."
+        "text": "To avoid paging on small, brief blips",
+        "correct": true,
+        "note": "Right. Usually done with a for duration."
       }
     ],
     "explanation": "Allow for slack in alerting to accommodate small blips.",
@@ -195,27 +195,27 @@
     "options": [
       {
         "id": "a",
-        "text": "When it hasn't succeeded recently enough",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "On every failed run, immediately",
         "correct": false,
         "note": "A single failure often doesn't need a human."
       },
       {
-        "id": "c",
-        "text": "When its CPU usage is unusually high",
-        "correct": false,
-        "note": "Not the key signal."
+        "id": "b",
+        "text": "When it hasn't succeeded recently enough",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Never; batch jobs are best-effort",
         "correct": false,
         "note": "They should, on staleness of success."
+      },
+      {
+        "id": "d",
+        "text": "When its CPU usage is unusually high",
+        "correct": false,
+        "note": "Not the key signal."
       }
     ],
     "explanation": "For batch jobs, page if the job has not succeeded recently enough, and this will cause user-visible problems.",
@@ -238,34 +238,34 @@
     "id": "x-ab-metamon",
     "type": "single",
     "topic": "alert-basics",
-    "stem": "What is meta-monitoring?",
+    "stem": "Your only Prometheus server crashed overnight. No alerts arrived, so nobody noticed for hours. Which practice would have caught this?",
     "options": [
       {
         "id": "a",
-        "text": "Monitoring the monitoring system itself",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "More recording rules",
+        "correct": false,
+        "note": "Rules don't run on a crashed server."
       },
       {
         "id": "b",
-        "text": "Monitoring the metadata labels on series",
+        "text": "Longer for durations",
         "correct": false,
-        "note": "Not what it means."
+        "note": "Nothing evaluates alerts while the server is down."
       },
       {
         "id": "c",
-        "text": "Monitoring exporters but not applications",
-        "correct": false,
-        "note": "Broader than that."
+        "text": "Meta-monitoring",
+        "correct": true,
+        "note": "Right. Alert on the monitoring system itself."
       },
       {
         "id": "d",
-        "text": "Alerting when dashboards fail to load",
+        "text": "Longer scrape intervals",
         "correct": false,
-        "note": "Unrelated."
+        "note": "Doesn't help when the server is down."
       }
     ],
-    "explanation": "Have alerts to ensure that Prometheus servers, Alertmanagers, Pushgateways and other monitoring infrastructure are available and running correctly.",
+    "explanation": "Have alerts to ensure that Prometheus servers, Alertmanagers and other monitoring infrastructure are available and working.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -289,27 +289,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Disk predicted to fill in 3 days",
-        "correct": true,
-        "note": "Right. Important but not urgent."
+        "text": "Payment service down",
+        "correct": false,
+        "note": "Urgent and user-facing, so page."
       },
       {
         "id": "b",
-        "text": "Users getting 50% errors right now",
-        "correct": false,
-        "note": "That's urgent."
-      },
-      {
-        "id": "c",
         "text": "Checkout latency far above SLO",
         "correct": false,
         "note": "Urgent and user-facing."
       },
       {
+        "id": "c",
+        "text": "Disk predicted to fill in 3 days",
+        "correct": true,
+        "note": "Right. Important but not urgent."
+      },
+      {
         "id": "d",
-        "text": "Payment service down",
+        "text": "Users getting 50% errors right now",
         "correct": false,
-        "note": "Urgent and user-facing, so page."
+        "note": "That's urgent."
       }
     ],
     "explanation": "Pages should be urgent, important, actionable and real; capacity issues that aren't imminent are better handled as tickets.",
@@ -340,27 +340,27 @@
     "options": [
       {
         "id": "a",
-        "text": "The condition must hold 10m before firing",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "The alert fires for exactly 10 minutes",
         "correct": false,
         "note": "It controls when firing starts."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "The rule is evaluated every 10 minutes",
         "correct": false,
         "note": "That's the group interval."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Notifications repeat every 10 minutes",
         "correct": false,
         "note": "That's Alertmanager's repeat_interval."
+      },
+      {
+        "id": "d",
+        "text": "The condition must hold 10m before firing",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "The for clause makes Prometheus wait for an alert's condition to be active for a duration before firing; meanwhile the alert is pending.",
@@ -387,15 +387,15 @@
     "options": [
       {
         "id": "a",
-        "text": "Pending",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Firing",
         "correct": false,
         "note": "Only after the for duration."
+      },
+      {
+        "id": "b",
+        "text": "Pending",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "c",
@@ -430,34 +430,34 @@
     "id": "x-ar-keep-firing",
     "type": "single",
     "topic": "alert-rules",
-    "stem": "What does `keep_firing_for: 5m` do?",
+    "stem": "An alert resolves and re-fires whenever a scrape is missed, spamming the team. Which rule field addresses this?",
     "options": [
       {
         "id": "a",
-        "text": "Keeps firing 5m after the condition clears",
-        "correct": true,
-        "note": "Right. Helps with flapping or gaps in data."
+        "text": "`for`",
+        "correct": false,
+        "note": "for delays the first firing; it doesn't stop a gap from resolving it."
       },
       {
         "id": "b",
-        "text": "Delays firing until 5m after it's true",
+        "text": "`annotations`",
         "correct": false,
-        "note": "That's for."
+        "note": "Annotations are descriptive text."
       },
       {
         "id": "c",
-        "text": "Repeats the notification every 5 minutes",
-        "correct": false,
-        "note": "That's Alertmanager."
+        "text": "`keep_firing_for`",
+        "correct": true,
+        "note": "Right. It keeps the alert firing through short gaps."
       },
       {
         "id": "d",
-        "text": "Silences the alert for its first 5 minutes",
+        "text": "`labels`",
         "correct": false,
-        "note": "Silences live in Alertmanager."
+        "note": "Labels change routing, not when it resolves."
       }
     ],
-    "explanation": "keep_firing_for tells Prometheus to keep the alert firing for the given duration after the firing condition was last met.",
+    "explanation": "keep_firing_for keeps an alert firing for a duration after its condition was last met, which helps with flapping or gaps in data.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -481,21 +481,21 @@
     "options": [
       {
         "id": "a",
+        "text": "`{{ $instance }} is at {{ $value }}`",
+        "correct": false,
+        "note": "Labels are accessed via $labels.<name>."
+      },
+      {
+        "id": "b",
         "text": "`{{ $labels.instance }} is at {{ $value }}`",
         "correct": true,
         "note": "This is the correct answer."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "`{{ .instance }} is at {{ .value }}`",
         "correct": false,
         "note": "Prometheus alert templates use $labels and $value."
-      },
-      {
-        "id": "c",
-        "text": "`{{ $instance }} is at {{ $value }}`",
-        "correct": false,
-        "note": "Labels are accessed via $labels.<name>."
       },
       {
         "id": "d",
@@ -534,21 +534,21 @@
       },
       {
         "id": "b",
+        "text": "They're interchangeable",
+        "correct": false,
+        "note": "They serve different purposes."
+      },
+      {
+        "id": "c",
         "text": "Annotations route; labels describe",
         "correct": false,
         "note": "Reversed: routing uses labels."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "Only labels can be templated",
         "correct": false,
         "note": "Both can be templated."
-      },
-      {
-        "id": "d",
-        "text": "They're interchangeable",
-        "correct": false,
-        "note": "They serve different purposes."
       }
     ],
     "explanation": "Labels add or overwrite labels attached to the alert; annotations specify informational labels such as descriptions or runbook links.",
@@ -575,15 +575,15 @@
     "options": [
       {
         "id": "a",
-        "text": "`job:http_requests:rate5m`",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "`http_requests_rate_5m_by_job`",
         "correct": false,
         "note": "Doesn't use the colon convention."
+      },
+      {
+        "id": "b",
+        "text": "`HttpRequestsRate`",
+        "correct": false,
+        "note": "That's alert-style CamelCase."
       },
       {
         "id": "c",
@@ -593,9 +593,9 @@
       },
       {
         "id": "d",
-        "text": "`HttpRequestsRate`",
-        "correct": false,
-        "note": "That's alert-style CamelCase."
+        "text": "`job:http_requests:rate5m`",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "Recording rules should be of the general form level:metric:operations, e.g. job:http_requests:rate5m.",
@@ -628,21 +628,21 @@
       },
       {
         "id": "b",
-        "text": "To reduce how often targets are scraped",
+        "text": "To store logs next to the metrics",
         "correct": false,
         "note": "Unrelated."
       },
       {
         "id": "c",
-        "text": "To send alerts to Alertmanager",
+        "text": "To reduce how often targets are scraped",
         "correct": false,
-        "note": "That's alerting rules."
+        "note": "Unrelated."
       },
       {
         "id": "d",
-        "text": "To store logs next to the metrics",
+        "text": "To send alerts to Alertmanager",
         "correct": false,
-        "note": "Unrelated."
+        "note": "That's alerting rules."
       }
     ],
     "explanation": "Recording rules precompute frequently needed or computationally expensive expressions and save the result as a new set of time series.",
@@ -665,31 +665,31 @@
     "id": "x-ar-group-seq",
     "type": "single",
     "topic": "alert-rules",
-    "stem": "How are rules within one rule group evaluated?",
+    "stem": "In one rule group, a recording rule `job:errors:rate5m` comes before an alert that uses it. Why does the alert see the value from the same evaluation?",
     "options": [
       {
         "id": "a",
-        "text": "Sequentially, at the same time",
-        "correct": true,
-        "note": "Right. So a rule can use an earlier rule's result."
+        "text": "The alert reads raw data, not the rule",
+        "correct": false,
+        "note": "It queries the recorded series."
       },
       {
         "id": "b",
-        "text": "In parallel, in random order",
+        "text": "Recording rules run twice as often",
         "correct": false,
-        "note": "Within a group they run sequentially."
+        "note": "Rules in a group share the group's interval."
       },
       {
         "id": "c",
-        "text": "Only when they're queried",
-        "correct": false,
-        "note": "They're evaluated on a schedule."
+        "text": "Rules in a group run in order",
+        "correct": true,
+        "note": "Right. They share one evaluation time."
       },
       {
         "id": "d",
-        "text": "Once, when the file is loaded",
+        "text": "Alerts wait until every group finishes",
         "correct": false,
-        "note": "They run repeatedly at the group interval."
+        "note": "Different groups run independently."
       }
     ],
     "explanation": "Rules within a group are run sequentially at a regular interval, with the same evaluation time.",
@@ -712,34 +712,34 @@
     "id": "x-ar-promtool",
     "type": "single",
     "topic": "alert-rules",
-    "stem": "How can you check a rule file's syntax before loading it?",
+    "stem": "A CI pipeline should reject pull requests that break Prometheus rule files. Which command fits?",
     "options": [
       {
         "id": "a",
-        "text": "`promtool check rules file.yml`",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`amtool check-config`",
+        "correct": false,
+        "note": "That validates Alertmanager config, not rule files."
       },
       {
         "id": "b",
-        "text": "`prometheus --check-rules file.yml`",
+        "text": "`prometheus --version`",
         "correct": false,
-        "note": "Not a real flag."
+        "note": "That only prints the version."
       },
       {
         "id": "c",
-        "text": "`amtool check-config file.yml`",
-        "correct": false,
-        "note": "amtool checks Alertmanager config, not rule files."
+        "text": "`promtool check rules`",
+        "correct": true,
+        "note": "Right. It validates rule files without a server."
       },
       {
         "id": "d",
-        "text": "`promtool test metrics file.yml`",
+        "text": "`promtool query instant`",
         "correct": false,
-        "note": "That's for checking metrics, not rules."
+        "note": "That runs a query against a running server."
       }
     ],
-    "explanation": "To quickly check whether a rule file is syntactically correct without starting a server, use promtool check rules.",
+    "explanation": "promtool check rules checks whether a rule file is syntactically correct without starting a Prometheus server.",
     "difficulty": 1,
     "tags": [
       "exam"
@@ -765,9 +765,9 @@
     "options": [
       {
         "id": "a",
-        "text": "After up has been 0 for 5 minutes",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "After a target has been up for 5m",
+        "correct": false,
+        "note": "The expression is up == 0."
       },
       {
         "id": "b",
@@ -777,9 +777,9 @@
       },
       {
         "id": "c",
-        "text": "After a target has been up for 5m",
-        "correct": false,
-        "note": "The expression is up == 0."
+        "text": "After up has been 0 for 5 minutes",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "d",
@@ -812,27 +812,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Grouping",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
-        "text": "Inhibition",
-        "correct": false,
-        "note": "Inhibition suppresses alerts when another alert fires."
-      },
-      {
-        "id": "c",
         "text": "Silencing",
         "correct": false,
         "note": "Silences are manual mutes."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "Throttling",
         "correct": false,
         "note": "Not an Alertmanager feature name."
+      },
+      {
+        "id": "c",
+        "text": "Grouping",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "d",
+        "text": "Inhibition",
+        "correct": false,
+        "note": "Inhibition suppresses alerts when another alert fires."
       }
     ],
     "explanation": "Grouping categorises alerts of similar nature (sharing the group_by labels) into a single notification, useful during larger outages.",
@@ -859,9 +859,9 @@
     "options": [
       {
         "id": "a",
-        "text": "An inhibition rule",
-        "correct": true,
-        "note": "Right. A source alert mutes matching target alerts."
+        "text": "A recording rule",
+        "correct": false,
+        "note": "Unrelated."
       },
       {
         "id": "b",
@@ -877,9 +877,9 @@
       },
       {
         "id": "d",
-        "text": "A recording rule",
-        "correct": false,
-        "note": "Unrelated."
+        "text": "An inhibition rule",
+        "correct": true,
+        "note": "Right. A source alert mutes matching target alerts."
       }
     ],
     "explanation": "Inhibition suppresses notifications for certain alerts if certain other alerts are already firing.",
@@ -906,27 +906,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Create a 2-hour silence for those hosts",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Delete the alerting rules for two hours",
         "correct": false,
         "note": "Heavy-handed and easy to forget to restore."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "Add an inhibition rule for those hosts",
         "correct": false,
         "note": "Inhibition depends on another alert firing."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Stop Prometheus during the maintenance",
         "correct": false,
         "note": "You'd lose all monitoring."
+      },
+      {
+        "id": "d",
+        "text": "Create a 2-hour silence for those hosts",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "Silences are a straightforward way to mute alerts for a given time, configured with matchers in the web UI or via amtool.",
@@ -953,27 +953,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Delay before a new group's first notification",
-        "correct": true,
-        "note": "Right. Default 30s."
-      },
-      {
-        "id": "b",
         "text": "How often a still-firing alert is resent",
         "correct": false,
         "note": "That's repeat_interval."
       },
       {
-        "id": "c",
-        "text": "Delay before new alerts in a group are sent",
-        "correct": false,
-        "note": "That's group_interval."
+        "id": "b",
+        "text": "Delay before a new group's first notification",
+        "correct": true,
+        "note": "Right. Default 30s."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "How long an alert must be pending first",
         "correct": false,
         "note": "That's for, in Prometheus."
+      },
+      {
+        "id": "d",
+        "text": "Delay before new alerts in a group are sent",
+        "correct": false,
+        "note": "That's group_interval."
       }
     ],
     "explanation": "group_wait: how long to initially wait to send a notification for a group, allowing time for more alerts to arrive (default 30s).",
@@ -1012,15 +1012,15 @@
       },
       {
         "id": "c",
-        "text": "After 30 seconds",
-        "correct": false,
-        "note": "30s is the default group_wait."
-      },
-      {
-        "id": "d",
         "text": "Never",
         "correct": false,
         "note": "repeat_interval resends."
+      },
+      {
+        "id": "d",
+        "text": "After 30 seconds",
+        "correct": false,
+        "note": "30s is the default group_wait."
       }
     ],
     "explanation": "repeat_interval: how long to wait before re-sending a notification for an alert that has already been sent (default 4h). group_wait defaults to 30s and group_interval to 5m.",
@@ -1047,27 +1047,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Wait before notifying of new alerts in a group",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
-        "text": "How often Prometheus evaluates alert rules",
-        "correct": false,
-        "note": "That's Prometheus."
-      },
-      {
-        "id": "c",
         "text": "How long a new silence lasts by default",
         "correct": false,
         "note": "Silences have their own times."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "How often Alertmanager resends unchanged alerts",
         "correct": false,
         "note": "That's repeat_interval."
+      },
+      {
+        "id": "c",
+        "text": "How often Prometheus evaluates alert rules",
+        "correct": false,
+        "note": "That's Prometheus."
+      },
+      {
+        "id": "d",
+        "text": "Wait before notifying of new alerts in a group",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "group_interval: how long to wait before sending a notification about new alerts added to a group for which an initial notification was already sent.",
@@ -1100,21 +1100,21 @@
       },
       {
         "id": "b",
-        "text": "It's also sent to matching siblings",
-        "correct": false,
-        "note": "Only with continue: true."
-      },
-      {
-        "id": "c",
         "text": "It goes back to the root receiver",
         "correct": false,
         "note": "The matched child handles it."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "It's sent to the default receiver too",
         "correct": false,
         "note": "Only the matched child's receiver is used."
+      },
+      {
+        "id": "d",
+        "text": "It's also sent to matching siblings",
+        "correct": false,
+        "note": "Only with continue: true."
       }
     ],
     "explanation": "If continue is false (the default), routing stops after the first matching child; if true, the alert continues to match subsequent siblings.",
@@ -1141,27 +1141,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Its parent route's group_wait",
-        "correct": true,
-        "note": "Right. Routing settings are inherited."
-      },
-      {
-        "id": "b",
-        "text": "Zero",
-        "correct": false,
-        "note": "Not zero."
-      },
-      {
-        "id": "c",
         "text": "It must be set, or the config is invalid",
         "correct": false,
         "note": "It's optional."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "The global resolve_timeout",
         "correct": false,
         "note": "Different setting."
+      },
+      {
+        "id": "c",
+        "text": "Its parent route's group_wait",
+        "correct": true,
+        "note": "Right. Routing settings are inherited."
+      },
+      {
+        "id": "d",
+        "text": "Zero",
+        "correct": false,
+        "note": "Not zero."
       }
     ],
     "explanation": "receiver, group_by, group_wait, group_interval and repeat_interval are inherited from the parent node if not set.",
@@ -1188,15 +1188,15 @@
     "options": [
       {
         "id": "a",
-        "text": "Send to all three instances directly",
-        "correct": true,
-        "note": "Right. The cluster deduplicates."
-      },
-      {
-        "id": "b",
         "text": "Send to one, which forwards to the rest",
         "correct": false,
         "note": "Send to all of them."
+      },
+      {
+        "id": "b",
+        "text": "Send to whichever one is the leader",
+        "correct": false,
+        "note": "There's no leader; every instance should receive alerts."
       },
       {
         "id": "c",
@@ -1206,9 +1206,9 @@
       },
       {
         "id": "d",
-        "text": "Send to whichever one is the leader",
-        "correct": false,
-        "note": "There's no leader; every instance should receive alerts."
+        "text": "Send to all three instances directly",
+        "correct": true,
+        "note": "Right. The cluster deduplicates."
       }
     ],
     "explanation": "Configure Prometheus to send alerts to all Alertmanager instances, not via a load balancer. Silences and notification state are replicated between peers.",
@@ -1239,15 +1239,15 @@
     "options": [
       {
         "id": "a",
-        "text": "A CLI for the Alertmanager API",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "An exporter for Alertmanager metrics",
         "correct": false,
         "note": "Alertmanager exposes its own metrics."
+      },
+      {
+        "id": "b",
+        "text": "A CLI for the Alertmanager API",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "c",
@@ -1333,15 +1333,15 @@
     "options": [
       {
         "id": "a",
-        "text": "Legend format `{{method}} - {{status}}`",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Legend format `$method - $status`",
         "correct": false,
         "note": "Grafana's legend format uses {{label}}."
+      },
+      {
+        "id": "b",
+        "text": "Legend format `%method - %status`",
+        "correct": false,
+        "note": "Not the legend syntax."
       },
       {
         "id": "c",
@@ -1351,9 +1351,9 @@
       },
       {
         "id": "d",
-        "text": "Legend format `%method - %status`",
-        "correct": false,
-        "note": "Not the legend syntax."
+        "text": "Legend format `{{method}} - {{status}}`",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "To format the legend names of time series, use the Legend format input, e.g. {{method}} - {{status}}.",
@@ -1376,31 +1376,31 @@
     "id": "x-db-browser",
     "type": "single",
     "topic": "alert-dashboarding",
-    "stem": "What is Prometheus's built-in expression browser best suited for?",
+    "stem": "While debugging, you want to see what `up == 0` returns right now, without building a dashboard. Where do you go?",
     "options": [
       {
         "id": "a",
-        "text": "Ad-hoc queries and debugging",
-        "correct": true,
-        "note": "Right. Use Grafana for dashboards."
+        "text": "The Pushgateway web page",
+        "correct": false,
+        "note": "It lists pushed groups only."
       },
       {
         "id": "b",
-        "text": "Long-term dashboards for the whole team",
+        "text": "The /federate endpoint",
         "correct": false,
-        "note": "Use Grafana for that."
+        "note": "That serves series to other servers, not ad-hoc results."
       },
       {
         "id": "c",
-        "text": "Silencing alerts",
+        "text": "The Alertmanager web UI",
         "correct": false,
-        "note": "That's Alertmanager."
+        "note": "It shows alerts and silences, not PromQL results."
       },
       {
         "id": "d",
-        "text": "Editing prometheus.yml",
-        "correct": false,
-        "note": "It's read-only for config."
+        "text": "Prometheus's own query page",
+        "correct": true,
+        "note": "Right. /query (or /graph in 2.x) is made for ad-hoc queries."
       }
     ],
     "explanation": "The expression browser at /query (/graph in 2.x) shows results as a table or graph. It's mainly useful for ad-hoc queries and debugging.",
@@ -1433,15 +1433,15 @@
       },
       {
         "id": "b",
-        "text": "Table: raw samples; Graph: rates",
-        "correct": false,
-        "note": "Both show the expression's result."
-      },
-      {
-        "id": "c",
         "text": "Table: any type; Graph: counters",
         "correct": false,
         "note": "Any numeric expression can be graphed."
+      },
+      {
+        "id": "c",
+        "text": "Table: raw samples; Graph: rates",
+        "correct": false,
+        "note": "Both show the expression's result."
       },
       {
         "id": "d",
@@ -1474,35 +1474,35 @@
     "id": "x-db-rate-graph",
     "type": "single",
     "topic": "alert-dashboarding",
-    "stem": "A dashboard panel graphs `http_requests_total` directly and shows an ever-rising line. What's a better query?",
+    "stem": "A panel shows `rate(http_requests_total[5m])` with hundreds of lines, one per instance and path. The team wants one line per service. What's the fix?",
     "options": [
       {
         "id": "a",
         "text": "`sum by (job) (rate(http_requests_total[5m]))`",
         "correct": true,
-        "note": "Right. Show the rate, not the raw counter."
+        "note": "Right. rate first, then aggregate."
       },
       {
         "id": "b",
-        "text": "`sum by (job) (http_requests_total)`",
+        "text": "`count by (job) (rate(http_requests_total[5m]))`",
         "correct": false,
-        "note": "Still a cumulative counter, just summed."
+        "note": "That counts series instead of adding rates."
       },
       {
         "id": "c",
-        "text": "`sum by (job) (http_requests_total offset 5m)`",
+        "text": "`avg by (job) (http_requests_total)`",
         "correct": false,
-        "note": "Still raw, just older."
+        "note": "That's a raw counter, not a rate."
       },
       {
         "id": "d",
-        "text": "`sum by (job) (delta(http_requests_total[5m]))`",
+        "text": "`rate(sum by (job) (http_requests_total)[5m])`",
         "correct": false,
-        "note": "delta is for gauges; use rate for counters."
+        "note": "Summing before rate hides counter resets, and isn't valid as written."
       }
     ],
-    "explanation": "Counters are best graphed with rate() to show per-second throughput.",
-    "difficulty": 1,
+    "explanation": "Always take rate() first, then aggregate. sum by (job) gives one line per job.",
+    "difficulty": 2,
     "tags": [
       "exam"
     ],
@@ -1529,27 +1529,27 @@
     "options": [
       {
         "id": "a",
-        "text": "A recording rule for the aggregation",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
-        "text": "A shorter scrape interval on targets",
-        "correct": false,
-        "note": "That increases load."
-      },
-      {
-        "id": "c",
         "text": "Removing the for clause from alerts",
         "correct": false,
         "note": "That's for alerts."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "Replacing rate() with irate()",
         "correct": false,
         "note": "Doesn't address cost."
+      },
+      {
+        "id": "c",
+        "text": "A recording rule for the aggregation",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "d",
+        "text": "A shorter scrape interval on targets",
+        "correct": false,
+        "note": "That increases load."
       }
     ],
     "explanation": "Recording rules precompute frequently needed or expensive expressions; querying the precomputed result is much faster, e.g. for dashboards.",
@@ -1582,21 +1582,21 @@
       },
       {
         "id": "b",
-        "text": "Reads, Evictions, Disk",
+        "text": "Reliability, Efficiency, Durability",
         "correct": false,
         "note": "Not the RED method."
       },
       {
         "id": "c",
-        "text": "Restarts, Exceptions, Deploys",
+        "text": "Requests, Exceptions, Dependencies",
         "correct": false,
-        "note": "Not RED."
+        "note": "Not the RED method."
       },
       {
         "id": "d",
-        "text": "Retention, Exemplars, Dashboards",
+        "text": "Resources, Errors, Delays",
         "correct": false,
-        "note": "Not RED."
+        "note": "Not the RED method."
       }
     ],
     "explanation": "The Zen of Prometheus mentions RED (Rate, Errors, Duration), USE and the Four Golden Signals as ways to choose what to measure.",

@@ -7,27 +7,27 @@
     "options": [
       {
         "id": "a",
+        "text": "A dedicated exporter",
+        "correct": false,
+        "note": "Exporters expose metrics for the server to scrape."
+      },
+      {
+        "id": "b",
         "text": "The Prometheus server",
         "correct": true,
         "note": "Right. Scraping, TSDB and rule evaluation all live in the server."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "The Alertmanager cluster",
         "correct": false,
         "note": "Alertmanager handles alerts sent to it; it doesn't scrape."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "The Pushgateway service",
         "correct": false,
         "note": "It holds pushed metrics for scraping."
-      },
-      {
-        "id": "d",
-        "text": "A dedicated exporter",
-        "correct": false,
-        "note": "Exporters expose metrics for the server to scrape."
       }
     ],
     "explanation": "The Prometheus server scrapes and stores time series data and runs rules to aggregate data or generate alerts.",
@@ -54,27 +54,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Groups, deduplicates and routes alerts to receivers",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Evaluates alerting rule expressions on a schedule",
         "correct": false,
         "note": "Prometheus evaluates rules and sends firing alerts."
       },
       {
-        "id": "c",
-        "text": "Stores metrics long term for alert history",
-        "correct": false,
-        "note": "It stores no metrics."
+        "id": "b",
+        "text": "Groups, deduplicates and routes alerts to receivers",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Discovers scrape targets for alerting rules",
         "correct": false,
         "note": "That's service discovery in the server."
+      },
+      {
+        "id": "d",
+        "text": "Stores metrics long term for alert history",
+        "correct": false,
+        "note": "It stores no metrics."
       }
     ],
     "explanation": "Alerting rules in Prometheus servers send alerts to an Alertmanager, which manages them, including silencing, inhibition, aggregation and sending notifications.",
@@ -105,27 +105,27 @@
     "options": [
       {
         "id": "a",
+        "text": "Remote write to central storage",
+        "correct": false,
+        "note": "Remote write is its whole point."
+      },
+      {
+        "id": "b",
         "text": "Local querying, alerting and rules",
         "correct": true,
         "note": "Right. It's optimised for forwarding data."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "Service discovery and relabeling",
         "correct": false,
         "note": "Discovery is kept."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "Scraping of targets over HTTP",
         "correct": false,
         "note": "Scraping is the main thing it still does."
-      },
-      {
-        "id": "d",
-        "text": "Remote write to central storage",
-        "correct": false,
-        "note": "Remote write is its whole point."
       }
     ],
     "explanation": "Agent mode optimises Prometheus for remote write. It disables querying, alerting and local storage (using a customised WAL), keeping scraping and discovery.",
@@ -152,21 +152,21 @@
     "options": [
       {
         "id": "a",
-        "text": "`/federate` with `match[]` selectors",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "`/api/v1/write` with a remote-write client",
         "correct": false,
         "note": "That's the remote-write receiver."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "`/metrics` with honor_labels set",
         "correct": false,
         "note": "That's the server's own metrics."
+      },
+      {
+        "id": "c",
+        "text": "`/federate` with `match[]` selectors",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "d",
@@ -199,15 +199,15 @@
     "options": [
       {
         "id": "a",
-        "text": "Aggregated series from recording rules",
-        "correct": true,
-        "note": "Right. Detail stays local."
-      },
-      {
-        "id": "b",
         "text": "Every raw series from every instance",
         "correct": false,
         "note": "That defeats the purpose and doesn't scale."
+      },
+      {
+        "id": "b",
+        "text": "Log streams from the local exporters",
+        "correct": false,
+        "note": "Prometheus doesn't handle logs."
       },
       {
         "id": "c",
@@ -217,9 +217,9 @@
       },
       {
         "id": "d",
-        "text": "Log streams from the local exporters",
-        "correct": false,
-        "note": "Prometheus doesn't handle logs."
+        "text": "Aggregated series from recording rules",
+        "correct": true,
+        "note": "Right. Detail stays local."
       }
     ],
     "explanation": "Hierarchical federation: local servers collect detailed data; global servers collect and store only aggregated time series from them.",
@@ -246,27 +246,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`/api/v1`",
-        "correct": true,
-        "note": "Right. For example /api/v1/query and /api/v1/query_range."
-      },
-      {
-        "id": "b",
-        "text": "`/v2/api`",
-        "correct": false,
-        "note": "That's not the Prometheus path."
-      },
-      {
-        "id": "c",
         "text": "`/graphql`",
         "correct": false,
         "note": "Prometheus has no GraphQL API."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "`/federate/api`",
         "correct": false,
         "note": "Not a real path."
+      },
+      {
+        "id": "c",
+        "text": "`/v2/api`",
+        "correct": false,
+        "note": "That's not the Prometheus path."
+      },
+      {
+        "id": "d",
+        "text": "`/api/v1`",
+        "correct": true,
+        "note": "Right. For example /api/v1/query and /api/v1/query_range."
       }
     ],
     "explanation": "The current stable HTTP API is reachable under /api/v1 on a Prometheus server.",
@@ -293,27 +293,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`/api/v1/query_range`",
-        "correct": true,
-        "note": "Right. A range query evaluates the expression at each step."
-      },
-      {
-        "id": "b",
-        "text": "`/api/v1/query` with a lookback",
-        "correct": false,
-        "note": "That's a single instant query."
-      },
-      {
-        "id": "c",
         "text": "`/api/v1/series` with match[]",
         "correct": false,
         "note": "That finds series, not values."
       },
       {
-        "id": "d",
+        "id": "b",
+        "text": "`/api/v1/query_range`",
+        "correct": true,
+        "note": "Right. A range query evaluates the expression at each step."
+      },
+      {
+        "id": "c",
         "text": "`/federate` with match[]",
         "correct": false,
         "note": "That exposes current values for federation, not a range over time."
+      },
+      {
+        "id": "d",
+        "text": "`/api/v1/query` with a lookback",
+        "correct": false,
+        "note": "That's a single instant query."
       }
     ],
     "explanation": "Range queries evaluate an expression over a range of time with start, end and step parameters, via /api/v1/query_range.",
@@ -340,9 +340,9 @@
     "options": [
       {
         "id": "a",
-        "text": "Sending samples to remote storage",
-        "correct": true,
-        "note": "Right. Commonly for long-term or global storage."
+        "text": "Sending firing alerts to Alertmanager",
+        "correct": false,
+        "note": "That uses the alerting configuration."
       },
       {
         "id": "b",
@@ -352,15 +352,15 @@
       },
       {
         "id": "c",
-        "text": "Sending firing alerts to Alertmanager",
-        "correct": false,
-        "note": "That uses the alerting configuration."
-      },
-      {
-        "id": "d",
         "text": "Writing new rules into prometheus.yml",
         "correct": false,
         "note": "Unrelated."
+      },
+      {
+        "id": "d",
+        "text": "Sending samples to remote storage",
+        "correct": true,
+        "note": "Right. Commonly for long-term or global storage."
       }
     ],
     "explanation": "Prometheus can write samples it ingests to a remote URL in a standardised format, integrating with remote storage systems.",
@@ -383,35 +383,37 @@
     "id": "x-dm-identity",
     "type": "single",
     "topic": "fund-data-model",
-    "stem": "What uniquely identifies a time series?",
+    "stem": "How many distinct time series do these two lines describe?",
+    "code": "http_requests_total{method=\"GET\", code=\"200\"}\nhttp_requests_total{code=\"200\", method=\"GET\"}",
+    "codeLang": "text",
     "options": [
       {
         "id": "a",
-        "text": "Its metric name plus all its labels",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Two, because the label order differs",
+        "correct": false,
+        "note": "Labels form a set, so order is irrelevant."
       },
       {
         "id": "b",
-        "text": "Its metric name on its own",
-        "correct": false,
-        "note": "Different label sets are different series."
+        "text": "One; label order doesn't matter",
+        "correct": true,
+        "note": "Right. Identity is the name plus the set of labels."
       },
       {
         "id": "c",
-        "text": "The job and instance it was scraped from",
+        "text": "None until the series is queried",
         "correct": false,
-        "note": "instance is just one label."
+        "note": "Series exist once samples are ingested."
       },
       {
         "id": "d",
-        "text": "The timestamp of its first sample",
+        "text": "Two, one for each scrape",
         "correct": false,
-        "note": "Timestamps belong to samples."
+        "note": "Scrapes add samples to a series, not new series."
       }
     ],
-    "explanation": "Every time series is uniquely identified by its metric name and optional key-value pairs called labels.",
-    "difficulty": 1,
+    "explanation": "Every time series is uniquely identified by its metric name and its set of key-value label pairs.",
+    "difficulty": 2,
     "tags": [
       "exam"
     ],
@@ -440,9 +442,9 @@
       },
       {
         "id": "b",
-        "text": "As the first label value",
+        "text": "As a separate index file per name",
         "correct": false,
-        "note": "It has its own reserved label."
+        "note": "Not how the data model defines it."
       },
       {
         "id": "c",
@@ -452,9 +454,9 @@
       },
       {
         "id": "d",
-        "text": "As a separate index file per name",
+        "text": "As the first label value",
         "correct": false,
-        "note": "Not how the data model defines it."
+        "note": "It has its own reserved label."
       }
     ],
     "explanation": "The metric name is internally represented as a label pair with the special label name __name__.",
@@ -477,34 +479,34 @@
     "id": "x-dm-empty",
     "type": "single",
     "topic": "fund-data-model",
-    "stem": "What does a label with an empty value mean?",
+    "stem": "Which selector returns `up` series that have no `env` label?",
     "options": [
       {
         "id": "a",
-        "text": "It's the same as the label being absent",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`up{env!=\"\"}`",
+        "correct": false,
+        "note": "That returns series that do have env."
       },
       {
         "id": "b",
-        "text": "It matches every value in a selector",
+        "text": "`up{env=~\".+\"}`",
         "correct": false,
-        "note": "Empty means absent."
+        "note": "Also returns series that have env."
       },
       {
         "id": "c",
-        "text": "It's invalid, so the scrape fails",
+        "text": "`up{!env}`",
         "correct": false,
-        "note": "It's allowed."
+        "note": "Not valid PromQL syntax."
       },
       {
         "id": "d",
-        "text": "It's stored as the string \"null\"",
-        "correct": false,
-        "note": "No such conversion."
+        "text": "`up{env=\"\"}`",
+        "correct": true,
+        "note": "Right. An empty value matches an absent label."
       }
     ],
-    "explanation": "Labels with an empty label value are considered equivalent to labels that do not exist.",
+    "explanation": "Labels with an empty value are considered equivalent to labels that do not exist, so env=\"\" matches series without env.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -514,6 +516,10 @@
       {
         "url": "https://prometheus.io/docs/concepts/data_model/",
         "title": "Data model"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
       }
     ],
     "status": "source-checked",
@@ -528,27 +534,27 @@
     "options": [
       {
         "id": "a",
+        "text": "Names shorter than three characters",
+        "correct": false,
+        "note": "No such rule."
+      },
+      {
+        "id": "b",
         "text": "Names starting with `__`",
         "correct": true,
         "note": "This is the correct answer."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "Names ending in `_total`",
         "correct": false,
         "note": "That's a counter naming convention."
       },
       {
-        "id": "c",
+        "id": "d",
         "text": "Names containing a colon",
         "correct": false,
         "note": "Colons are reserved in metric names for recording rules."
-      },
-      {
-        "id": "d",
-        "text": "Names shorter than three characters",
-        "correct": false,
-        "note": "No such rule."
       }
     ],
     "explanation": "Label names beginning with __ (two underscores) must be reserved for internal Prometheus use.",
@@ -575,27 +581,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Colons are reserved for recording rules",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Names over 20 characters are rejected",
+        "correct": false,
+        "note": "No such limit."
       },
       {
         "id": "b",
-        "text": "Metric names must not be lowercase",
-        "correct": false,
-        "note": "Lowercase is normal."
-      },
-      {
-        "id": "c",
         "text": "Exporters must not expose computed rates",
         "correct": false,
         "note": "Exporters expose raw counters."
       },
       {
+        "id": "c",
+        "text": "Colons are reserved for recording rules",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
         "id": "d",
-        "text": "Names over 20 characters are rejected",
+        "text": "Metric names must not be lowercase",
         "correct": false,
-        "note": "No such limit."
+        "note": "Lowercase is normal."
       }
     ],
     "explanation": "Colons are reserved for user-defined recording rules and should not be used by exporters or direct instrumentation.",
@@ -626,27 +632,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`{__name__=\"api_http_requests_total\", method=\"POST\"}`",
-        "correct": true,
-        "note": "Right. The name is the __name__ label."
-      },
-      {
-        "id": "b",
         "text": "`{__metric__=\"api_http_requests_total\", method=\"POST\"}`",
         "correct": false,
         "note": "The internal label is __name__, not __metric__."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "`api_http_requests_total{__name__=\"POST\"}`",
         "correct": false,
         "note": "This sets the name to POST, which is wrong."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "`{name=\"api_http_requests_total\", method=\"POST\"}`",
         "correct": false,
         "note": "The label is __name__, with two underscores each side."
+      },
+      {
+        "id": "d",
+        "text": "`{__name__=\"api_http_requests_total\", method=\"POST\"}`",
+        "correct": true,
+        "note": "Right. The name is the __name__ label."
       }
     ],
     "explanation": "Since the metric name is the __name__ label, `{__name__=\"name\", ...}` is equivalent notation.",
@@ -724,27 +730,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`{\"http.server.duration\"}`",
-        "correct": true,
-        "note": "Right. UTF-8 names outside the classic set must be quoted."
-      },
-      {
-        "id": "b",
-        "text": "`http.server.duration` unquoted",
-        "correct": false,
-        "note": "Dots aren't valid in an unquoted name."
-      },
-      {
-        "id": "c",
         "text": "`http_server_duration` only",
         "correct": false,
         "note": "That's a different metric name."
       },
       {
-        "id": "d",
+        "id": "b",
+        "text": "`{\"http.server.duration\"}`",
+        "correct": true,
+        "note": "Right. UTF-8 names outside the classic set must be quoted."
+      },
+      {
+        "id": "c",
         "text": "`{__name__=http.server.duration}`",
         "correct": false,
         "note": "Label values must be quoted strings."
+      },
+      {
+        "id": "d",
+        "text": "`http.server.duration` unquoted",
+        "correct": false,
+        "note": "Dots aren't valid in an unquoted name."
       }
     ],
     "explanation": "Since v3.0, metric names may use UTF-8; names outside [a-zA-Z_:][a-zA-Z0-9_:]* must be quoted, e.g. {\"<metric name>\", ...}.",
@@ -818,15 +824,15 @@
     "options": [
       {
         "id": "a",
-        "text": "`le=\"+Inf\"`",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "`le=\"0\"`",
         "correct": false,
         "note": "Not required."
+      },
+      {
+        "id": "b",
+        "text": "`le=\"+Inf\"`",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "c",
@@ -865,27 +871,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Milliseconds since the epoch",
-        "correct": true,
-        "note": "Right. It's an int64."
+        "text": "An RFC 3339 date string",
+        "correct": false,
+        "note": "It's an integer."
       },
       {
         "id": "b",
-        "text": "Seconds since the epoch",
-        "correct": false,
-        "note": "Seconds are used in PromQL's time(), not the exposition timestamp."
-      },
-      {
-        "id": "c",
         "text": "Nanoseconds since the epoch",
         "correct": false,
         "note": "Too fine-grained for this format."
       },
       {
+        "id": "c",
+        "text": "Milliseconds since the epoch",
+        "correct": true,
+        "note": "Right. It's an int64."
+      },
+      {
         "id": "d",
-        "text": "An RFC 3339 date string",
+        "text": "Seconds since the epoch",
         "correct": false,
-        "note": "It's an integer."
+        "note": "Seconds are used in PromQL's time(), not the exposition timestamp."
       }
     ],
     "explanation": "The optional timestamp is an int64 (milliseconds since epoch).",
@@ -955,34 +961,34 @@
     "id": "x-ef-om-eof",
     "type": "single",
     "topic": "fund-exposition",
-    "stem": "What must an OpenMetrics text exposition end with?",
+    "stem": "A target serves OpenMetrics, and a proxy cuts its response off halfway. How can Prometheus tell it's incomplete?",
     "options": [
       {
         "id": "a",
-        "text": "`# EOF`",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "The last line isn't a `# TYPE` line",
+        "correct": false,
+        "note": "TYPE lines can come anywhere before their samples."
       },
       {
         "id": "b",
-        "text": "`# END`",
+        "text": "It can't tell",
         "correct": false,
-        "note": "The marker is EOF."
+        "note": "The # EOF marker lets it tell."
       },
       {
         "id": "c",
-        "text": "An empty line",
-        "correct": false,
-        "note": "Not sufficient in OpenMetrics."
+        "text": "The final `# EOF` line is missing",
+        "correct": true,
+        "note": "Right. OpenMetrics output must end with it."
       },
       {
         "id": "d",
-        "text": "A checksum",
+        "text": "The response checksum doesn't match",
         "correct": false,
-        "note": "No checksum is used."
+        "note": "The format has no checksum."
       }
     ],
-    "explanation": "OpenMetrics text exposition must end with the # EOF marker.",
+    "explanation": "OpenMetrics text exposition must end with the # EOF marker, so truncation is detectable.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -1006,9 +1012,9 @@
     "options": [
       {
         "id": "a",
-        "text": "The scrape fails",
-        "correct": true,
-        "note": "Right. This was a breaking change in 3.0."
+        "text": "It tries OpenMetrics, then text",
+        "correct": false,
+        "note": "No automatic fallback without fallback_scrape_protocol."
       },
       {
         "id": "b",
@@ -1018,15 +1024,15 @@
       },
       {
         "id": "c",
-        "text": "It tries OpenMetrics, then text",
-        "correct": false,
-        "note": "No automatic fallback without fallback_scrape_protocol."
-      },
-      {
-        "id": "d",
         "text": "It uses the format of the last scrape",
         "correct": false,
         "note": "No such behaviour."
+      },
+      {
+        "id": "d",
+        "text": "The scrape fails",
+        "correct": true,
+        "note": "Right. This was a breaking change in 3.0."
       }
     ],
     "explanation": "Since 3.0, scrapes fail if the target doesn't provide a correct Content-Type, unless a fallback protocol is configured with fallback_scrape_protocol. This is a breaking change from 2.x.",
@@ -1059,27 +1065,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Gauge",
-        "correct": true,
-        "note": "Right. The TYPE line declares it."
-      },
-      {
-        "id": "b",
-        "text": "Counter",
-        "correct": false,
-        "note": "The TYPE line says gauge."
-      },
-      {
-        "id": "c",
         "text": "Untyped",
         "correct": false,
         "note": "A TYPE line is present."
       },
       {
-        "id": "d",
+        "id": "b",
+        "text": "Gauge",
+        "correct": true,
+        "note": "Right. The TYPE line declares it."
+      },
+      {
+        "id": "c",
         "text": "Summary",
         "correct": false,
         "note": "No quantile lines and TYPE says gauge."
+      },
+      {
+        "id": "d",
+        "text": "Counter",
+        "correct": false,
+        "note": "The TYPE line says gauge."
       }
     ],
     "explanation": "The # TYPE line names the metric and its type: counter, gauge, histogram, summary or untyped.",
@@ -1102,34 +1108,36 @@
     "id": "x-cf-defaults",
     "type": "single",
     "topic": "fund-config-scraping",
-    "stem": "If `scrape_interval` isn't set anywhere, how often does Prometheus scrape?",
+    "stem": "With the config below, how often is job `db` scraped?",
+    "code": "global:\n  evaluation_interval: 30s\nscrape_configs:\n  - job_name: api\n    scrape_interval: 15s\n    static_configs: [{targets: ['api:8080']}]\n  - job_name: db\n    static_configs: [{targets: ['db:9187']}]",
+    "codeLang": "yaml",
     "options": [
       {
         "id": "a",
-        "text": "Every 1 minute",
+        "text": "Every 1 minute, the default",
         "correct": true,
-        "note": "Right. The global default is 1m."
+        "note": "Right. No scrape_interval is set globally or on db, so the 1m default applies."
       },
       {
         "id": "b",
-        "text": "Every 15 seconds",
+        "text": "Only when the config is reloaded",
         "correct": false,
-        "note": "15s is common in example configs, but not the default."
+        "note": "Scraping runs continuously on an interval."
       },
       {
         "id": "c",
-        "text": "Every 10 seconds",
+        "text": "Every 30 seconds, from evaluation_interval",
         "correct": false,
-        "note": "10s is the default scrape_timeout."
+        "note": "evaluation_interval is for rules, not scraping."
       },
       {
         "id": "d",
-        "text": "Every 5 minutes",
+        "text": "Every 15 seconds, like job api",
         "correct": false,
-        "note": "Not the default."
+        "note": "A job's scrape_interval doesn't carry over to other jobs."
       }
     ],
-    "explanation": "The global default scrape_interval is 1m and the default scrape_timeout is 10s.",
+    "explanation": "scrape_interval falls back to the global value, whose default is 1m. A per-job setting only applies to that job.",
     "difficulty": 2,
     "tags": [
       "exam"
@@ -1200,27 +1208,27 @@
     "options": [
       {
         "id": "a",
-        "text": "It's renamed to `exported_job`",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "The target's job label is kept",
         "correct": false,
         "note": "That's honor_labels: true."
       },
       {
-        "id": "c",
-        "text": "The scrape fails with an error",
-        "correct": false,
-        "note": "Conflicts are resolved, not rejected."
-      },
-      {
-        "id": "d",
+        "id": "b",
         "text": "The two values are joined with a comma",
         "correct": false,
         "note": "No merging happens."
+      },
+      {
+        "id": "c",
+        "text": "It's renamed to `exported_job`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "d",
+        "text": "The scrape fails with an error",
+        "correct": false,
+        "note": "Conflicts are resolved, not rejected."
       }
     ],
     "explanation": "With honor_labels false, conflicting labels in scraped data are renamed to exported_<label> and server-side labels are attached.",
@@ -1247,27 +1255,27 @@
     "options": [
       {
         "id": "a",
-        "text": "`metric_relabel_configs`",
-        "correct": true,
-        "note": "Right. It applies to scraped samples before ingestion."
-      },
-      {
-        "id": "b",
-        "text": "`relabel_configs`",
-        "correct": false,
-        "note": "That acts on targets before scraping."
-      },
-      {
-        "id": "c",
         "text": "`alert_relabel_configs`",
         "correct": false,
         "note": "That acts on alerts sent to Alertmanager."
       },
       {
-        "id": "d",
+        "id": "b",
         "text": "`write_relabel_configs`",
         "correct": false,
         "note": "That acts on samples sent to remote write."
+      },
+      {
+        "id": "c",
+        "text": "`relabel_configs`",
+        "correct": false,
+        "note": "That acts on targets before scraping."
+      },
+      {
+        "id": "d",
+        "text": "`metric_relabel_configs`",
+        "correct": true,
+        "note": "Right. It applies to scraped samples before ingestion."
       }
     ],
     "explanation": "Metric relabeling is applied to samples as the last step before ingestion, using the same format as target relabeling.",
@@ -1298,21 +1306,21 @@
     "options": [
       {
         "id": "a",
-        "text": "`labelmap`",
-        "correct": true,
-        "note": "Right. It maps label names matching the regex to new names."
-      },
-      {
-        "id": "b",
         "text": "`keep`",
         "correct": false,
         "note": "keep filters targets."
       },
       {
-        "id": "c",
+        "id": "b",
         "text": "`labeldrop`",
         "correct": false,
         "note": "That removes labels."
+      },
+      {
+        "id": "c",
+        "text": "`labelmap`",
+        "correct": true,
+        "note": "Right. It maps label names matching the regex to new names."
       },
       {
         "id": "d",
@@ -1345,9 +1353,9 @@
     "options": [
       {
         "id": "a",
-        "text": "Send it SIGHUP",
-        "correct": true,
-        "note": "Right. POST /-/reload also works if --web.enable-lifecycle is set."
+        "text": "Touch the file; it's watched by default",
+        "correct": false,
+        "note": "Not by default. 3.x has an opt-in auto-reload flag."
       },
       {
         "id": "b",
@@ -1357,9 +1365,9 @@
       },
       {
         "id": "c",
-        "text": "Touch the file; it's watched by default",
-        "correct": false,
-        "note": "Not by default. 3.x has an opt-in auto-reload flag."
+        "text": "Send it SIGHUP",
+        "correct": true,
+        "note": "Right. POST /-/reload also works if --web.enable-lifecycle is set."
       },
       {
         "id": "d",
@@ -1392,9 +1400,9 @@
     "options": [
       {
         "id": "a",
-        "text": "`scrape_timeout`",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "`metrics_path`",
+        "correct": false,
+        "note": "That's a path."
       },
       {
         "id": "b",
@@ -1410,9 +1418,9 @@
       },
       {
         "id": "d",
-        "text": "`metrics_path`",
-        "correct": false,
-        "note": "That's a path."
+        "text": "`scrape_timeout`",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "scrape_timeout is per-scrape timeout and cannot be greater than the scrape interval.",
@@ -1441,27 +1449,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Scrapes both hosts every 15 s, adding env=\"prod\"",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "Scrapes only host1, using host2 as a fallback",
         "correct": false,
         "note": "Both targets are scraped."
       },
       {
-        "id": "c",
-        "text": "Pushes metrics to both hosts every 15 seconds",
-        "correct": false,
-        "note": "Prometheus pulls; it doesn't push."
+        "id": "b",
+        "text": "Scrapes both hosts every 15 s, adding env=\"prod\"",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
-        "id": "d",
+        "id": "c",
         "text": "Federates series from both hosts via /federate",
         "correct": false,
         "note": "There's no /federate path or match[]."
+      },
+      {
+        "id": "d",
+        "text": "Pushes metrics to both hosts every 15 seconds",
+        "correct": false,
+        "note": "Prometheus pulls; it doesn't push."
       }
     ],
     "explanation": "static_configs list targets directly; labels in a static config are attached to all of its targets.",
@@ -1484,34 +1492,34 @@
     "id": "x-li-billing",
     "type": "single",
     "topic": "fund-limitations",
-    "stem": "Why isn't Prometheus a good fit for per-request billing?",
+    "stem": "Finance wants to bill customers per API call from Prometheus counters. What's the main concern?",
     "options": [
       {
         "id": "a",
-        "text": "It values reliability over complete accuracy",
+        "text": "Data may not be 100% complete",
         "correct": true,
-        "note": "Right. The FAQ suggests another system for billing."
+        "note": "Right. Prometheus values reliability over accuracy."
       },
       {
         "id": "b",
-        "text": "It can't store values larger than 1,000",
+        "text": "Data is kept for one hour",
         "correct": false,
-        "note": "Values are float64."
+        "note": "Default retention is 15 days."
       },
       {
         "id": "c",
-        "text": "It has no way to sum values across series",
+        "text": "PromQL can't divide values",
         "correct": false,
-        "note": "PromQL has sum() and many aggregations."
+        "note": "PromQL has arithmetic operators."
       },
       {
         "id": "d",
-        "text": "It only keeps data for about an hour",
+        "text": "Counters stop at 10,000",
         "correct": false,
-        "note": "Default retention is 15 days."
+        "note": "Values are float64."
       }
     ],
-    "explanation": "If you need 100% accuracy, such as for per-request billing, Prometheus is not a good choice, as collected data will likely not be detailed and complete enough.",
+    "explanation": "If you need 100% accuracy, such as for per-request billing, Prometheus is not a good choice. Use a different system for billing.",
     "difficulty": 1,
     "tags": [
       "exam"
@@ -1541,9 +1549,9 @@
       },
       {
         "id": "b",
-        "text": "24 hours",
+        "text": "Forever",
         "correct": false,
-        "note": "Much longer by default."
+        "note": "Old blocks are deleted."
       },
       {
         "id": "c",
@@ -1553,9 +1561,9 @@
       },
       {
         "id": "d",
-        "text": "Forever",
+        "text": "24 hours",
         "correct": false,
-        "note": "Old blocks are deleted."
+        "note": "Much longer by default."
       }
     ],
     "explanation": "If neither a time nor a size retention is set, the retention time defaults to 15d.",
@@ -1582,15 +1590,15 @@
     "options": [
       {
         "id": "a",
-        "text": "It isn't clustered or replicated",
-        "correct": true,
-        "note": "This is the correct answer."
-      },
-      {
-        "id": "b",
         "text": "It can only hold one target's data",
         "correct": false,
         "note": "It handles many targets."
+      },
+      {
+        "id": "b",
+        "text": "It isn't clustered or replicated",
+        "correct": true,
+        "note": "This is the correct answer."
       },
       {
         "id": "c",
@@ -1629,21 +1637,21 @@
     "options": [
       {
         "id": "a",
+        "text": "A Pushgateway in front of both servers",
+        "correct": false,
+        "note": "That adds a single point of failure."
+      },
+      {
+        "id": "b",
         "text": "Two identical servers and an Alertmanager cluster",
         "correct": true,
         "note": "This is the correct answer."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "Prometheus's built-in clustering mode",
         "correct": false,
         "note": "Prometheus servers don't cluster."
-      },
-      {
-        "id": "c",
-        "text": "A Pushgateway in front of both servers",
-        "correct": false,
-        "note": "That adds a single point of failure."
       },
       {
         "id": "d",
@@ -1680,27 +1688,27 @@
     "options": [
       {
         "id": "a",
-        "text": "Values are float64, exact only up to 2^53",
-        "correct": true,
-        "note": "This is the correct answer."
+        "text": "Counters reset automatically every day",
+        "correct": false,
+        "note": "Only on process restart."
       },
       {
         "id": "b",
-        "text": "Counters wrap around at 2^32",
-        "correct": false,
-        "note": "Values are float64, not 32-bit ints."
-      },
-      {
-        "id": "c",
         "text": "Prometheus rounds values to two decimals",
         "correct": false,
         "note": "No such rounding."
       },
       {
-        "id": "d",
-        "text": "Counters reset automatically every day",
+        "id": "c",
+        "text": "Counters wrap around at 2^32",
         "correct": false,
-        "note": "Only on process restart."
+        "note": "Values are float64, not 32-bit ints."
+      },
+      {
+        "id": "d",
+        "text": "Values are float64, exact only up to 2^53",
+        "correct": true,
+        "note": "This is the correct answer."
       }
     ],
     "explanation": "All sample values are float64. Very large integer counters lose precision above 2^53.",
@@ -1731,21 +1739,21 @@
     "options": [
       {
         "id": "a",
+        "text": "Graphing CPU usage over time",
+        "correct": false,
+        "note": "A core use."
+      },
+      {
+        "id": "b",
         "text": "Recording each login with its username",
         "correct": true,
         "note": "Right. That's an event or log store's job."
       },
       {
-        "id": "b",
+        "id": "c",
         "text": "Alerting when error rates rise",
         "correct": false,
         "note": "That's a core use."
-      },
-      {
-        "id": "c",
-        "text": "Graphing CPU usage over time",
-        "correct": false,
-        "note": "A core use."
       },
       {
         "id": "d",
