@@ -5,6 +5,7 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Nodemailer from "next-auth/providers/nodemailer";
 import Credentials from "next-auth/providers/credentials";
+import crypto from "node:crypto";
 import type { Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
@@ -18,6 +19,25 @@ const adminEmails = (process.env.ADMIN_EMAILS ?? "")
   .split(",")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
+
+// Passcode login: email + a shared secret passcode set in ACCESS_PASSCODE (min 12 chars).
+// A simple option for personal deployments without an OAuth app or email provider.
+const accessPasscode = process.env.ACCESS_PASSCODE ?? "";
+export const passcodeLoginEnabled = accessPasscode.length >= 12;
+
+function passcodeMatches(input: string): boolean {
+  const a = crypto.createHash("sha256").update(input).digest();
+  const b = crypto.createHash("sha256").update(accessPasscode).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+async function upsertUser(email: string) {
+  return prisma.user.upsert({
+    where: { email },
+    update: {},
+    create: { email, name: email.split("@")[0], role: adminEmails.includes(email) ? "ADMIN" : "LEARNER" },
+  });
+}
 
 export const devLoginEnabled = process.env.NODE_ENV !== "production" && process.env.DEV_LOGIN === "true";
 
@@ -35,11 +55,24 @@ if (devLoginEnabled)
       async authorize(creds) {
         const email = String(creds?.email ?? "").trim().toLowerCase();
         if (!email.includes("@")) return null;
-        return prisma.user.upsert({
-          where: { email },
-          update: {},
-          create: { email, name: email.split("@")[0], role: adminEmails.includes(email) ? "ADMIN" : "LEARNER" },
-        });
+        return upsertUser(email);
+      },
+    }),
+  );
+if (passcodeLoginEnabled)
+  providers.push(
+    Credentials({
+      id: "passcode",
+      name: "Passcode",
+      credentials: { email: { label: "Email", type: "email" }, passcode: { label: "Passcode", type: "password" } },
+      async authorize(creds) {
+        const email = String(creds?.email ?? "").trim().toLowerCase();
+        const passcode = String(creds?.passcode ?? "");
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !passcodeMatches(passcode)) {
+          await new Promise((r) => setTimeout(r, 800)); // slow down guessing
+          return null;
+        }
+        return upsertUser(email);
       },
     }),
   );
@@ -51,7 +84,8 @@ export const enabledProviders = providers.map((p) => {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  // JWT sessions so the dev Credentials provider works alongside OAuth/email.
+  trustHost: true,
+  // JWT sessions so the Credentials providers work alongside OAuth/email.
   session: { strategy: "jwt" },
   providers,
   pages: { signIn: "/signin", verifyRequest: "/signin?check=email" },

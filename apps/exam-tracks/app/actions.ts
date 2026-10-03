@@ -7,9 +7,18 @@ import { getTrack } from "@/lib/content/load";
 import { requireEnrollment, requireReviewer, requireUser } from "@/lib/session";
 import { buildDailySession, recordAnswer, submitExplainBack } from "@/lib/services/learning";
 import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
 
 export async function devSignIn(formData: FormData) {
   await signIn("dev", { email: formData.get("email"), redirectTo: "/today" });
+}
+export async function passcodeSignIn(formData: FormData) {
+  try {
+    await signIn("passcode", { email: formData.get("email"), passcode: formData.get("passcode"), redirectTo: "/today" });
+  } catch (e) {
+    if (e instanceof AuthError) redirect("/signin?error=passcode");
+    throw e;
+  }
 }
 export async function emailSignIn(formData: FormData) {
   await signIn("nodemailer", { email: formData.get("email"), redirectTo: "/today" });

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { auth, devLoginEnabled, enabledProviders } from "@/auth";
-import { devSignIn, emailSignIn, oauthSignIn } from "@/app/actions";
+import { auth, devLoginEnabled, enabledProviders, passcodeLoginEnabled } from "@/auth";
+import { devSignIn, emailSignIn, oauthSignIn, passcodeSignIn } from "@/app/actions";
 
 export const metadata = { title: "Sign in" };
 
@@ -13,7 +13,16 @@ export default async function SignIn({ searchParams }: { searchParams: Promise<{
     <div className="mx-auto max-w-sm space-y-6">
       <h1 className="text-2xl font-semibold">Sign in</h1>
       {check && <p role="status" className="card">Check your email for a sign-in link.</p>}
-      {error && <p role="alert" className="card text-gentle">That didn't work. Please try again.</p>}
+      {error && <p role="alert" className="card text-gentle">{error === "passcode" ? "That email and passcode didn't match. Please try again." : "That didn't work. Please try again."}</p>}
+      {passcodeLoginEnabled && (
+        <form action={passcodeSignIn} className="space-y-2">
+          <label htmlFor="pc-email" className="label">Email</label>
+          <input id="pc-email" name="email" type="email" required autoComplete="email" className="input" />
+          <label htmlFor="passcode" className="label">Passcode</label>
+          <input id="passcode" name="passcode" type="password" required autoComplete="current-password" className="input" />
+          <button className="btn-primary w-full">Sign in</button>
+        </form>
+      )}
       {email && (
         <form action={emailSignIn} className="space-y-2">
           <label htmlFor="email" className="label">Email (we'll send you a magic link)</label>
@@ -33,7 +42,7 @@ export default async function SignIn({ searchParams }: { searchParams: Promise<{
           <button className="btn-ghost w-full">Sign in without a password</button>
         </form>
       )}
-      {!email && !oauth.length && !devLoginEnabled && (
+      {!email && !oauth.length && !devLoginEnabled && !passcodeLoginEnabled && (
         <p className="text-muted">No sign-in methods are configured. See the README.</p>
       )}
     </div>
