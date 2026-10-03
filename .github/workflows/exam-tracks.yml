@@ -25,6 +25,7 @@ jobs:
           --health-cmd "pg_isready -U exam" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       DATABASE_URL: postgresql://exam:exam@localhost:5432/exam_tracks
+      DATABASE_URL_UNPOOLED: postgresql://exam:exam@localhost:5432/exam_tracks
       AUTH_SECRET: ci-only-secret
     steps:
       - uses: actions/checkout@v4

@@ -88,10 +88,9 @@ Learners can **Report a problem** on any question. Reports and the most-missed q
 
 ## Deploy for free (Vercel Hobby + Neon)
 
-1. **Neon** (neon.tech, free plan): create a project, then copy the **direct** (non-pooled) connection string.
+1. **Neon**: add it from the project's **Storage** tab in Vercel (free plan). It sets `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED` (used for migrations).
 2. **GitHub OAuth app** (GitHub → Settings → Developer settings → OAuth Apps): set the callback URL to `https://<your-app>.vercel.app/api/auth/callback/github`.
 3. **Vercel** (vercel.com, Hobby plan): Import the `aws` repo, set **Root Directory** to `apps/exam-tracks`, and pick the deploy branch. Add these environment variables:
-   - `DATABASE_URL`: the Neon connection string
    - `AUTH_SECRET`: output of `npx auth secret`
    - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`: from the OAuth app
    - `ADMIN_EMAILS`: your GitHub account's primary email
