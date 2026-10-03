@@ -22,7 +22,10 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "2.11.3",
+    "@lezer/common": "^1.5.3",
+    "@lezer/lr": "^1.4.10",
     "@prisma/client": "6.19.3",
+    "@prometheus-io/lezer-promql": "^0.313.4",
     "diff": "^8.0.2",
     "gray-matter": "^4.0.3",
     "next": "15.5.27",

@@ -53,6 +53,7 @@ model User {
   flags           Flag[]
   reviewDecisions ReviewDecision[]
   examAttempts    ExamAttempt[]
+  playgroundSolves PlaygroundSolve[]
 }
 
 model Account {
@@ -213,6 +214,17 @@ model ExamAttempt {
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, trackId, startedAt])
+}
+
+// A solved PromQL playground task.
+model PlaygroundSolve {
+  userId      String
+  challengeId String
+  query       String
+  solvedAt    DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, challengeId])
 }
 
 // ---------- Content quality & review ----------

@@ -130,6 +130,24 @@ export async function submitExam(id: string, answers: unknown) {
   return { ok: true as const };
 }
 
+export async function recordPlaygroundSolve(challengeId: string, query: string) {
+  const user = await requireUser();
+  const { CHALLENGES } = await import("@/lib/promql/challenges");
+  const c = CHALLENGES.find((x) => x.id === challengeId);
+  if (!c) return { ok: false as const };
+  // Re-check on the server so solves can't be recorded for wrong answers.
+  const { checkChallenge } = await import("@/lib/promql/challenges");
+  const { getEngine } = await import("@/lib/promql/shared");
+  const q = String(query).slice(0, 2000);
+  if (!checkChallenge(getEngine(), c, q).solved) return { ok: false as const };
+  await prisma.playgroundSolve.upsert({
+    where: { userId_challengeId: { userId: user.id, challengeId } },
+    create: { userId: user.id, challengeId, query: q },
+    update: {},
+  });
+  return { ok: true as const };
+}
+
 const flagSchema = z.object({
   questionId: z.string(),
   questionVersion: z.number().int(),

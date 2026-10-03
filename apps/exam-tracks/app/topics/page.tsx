@@ -2,6 +2,9 @@ import Link from "next/link";
 import { requireEnrollment } from "@/lib/session";
 import { loadGates, statusesFor } from "@/lib/services/learning";
 import { latestDiagnostic } from "@/lib/services/exams";
+import { CHALLENGES } from "@/lib/promql/challenges";
+
+const CHALLENGE_COUNT = CHALLENGES.length;
 import { TabBar } from "@/components/TabBar";
 import { IconCheck } from "@/components/Icons";
 
@@ -25,6 +28,14 @@ export default async function Path() {
       <h1 className="display text-[40px]">Your path</h1>
       <p className="mt-1.5 text-[15px] text-muted">{mastered} of {track.topics.length} mastered · each topic opens the next</p>
       {watch.size > 0 && <p className="mt-2 text-[13px] text-muted">Topics marked <span className="font-medium text-gentle">take it slowly</span> came up as gaps in your <Link className="link" href={`/exams/${diag!.id}/results`}>pre-course check</Link>.</p>}
+
+      <Link href="/playground" className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-4 hover:border-muted">
+        <span>
+          <span className="block text-[15px] font-semibold">PromQL playground</span>
+          <span className="mt-0.5 block text-[14px] text-muted">Run real queries on sample data, or try {CHALLENGE_COUNT} short tasks.</span>
+        </span>
+        <span aria-hidden className="text-muted">→</span>
+      </Link>
 
       <ol className="mt-6 list-none p-0">
         {track.topics.map((t, idx) => {

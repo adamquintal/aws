@@ -7,6 +7,8 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Stepper } from "@/components/Stepper";
 import { FocusHeader } from "@/components/FocusHeader";
 import { InlineCode } from "@/components/InlineCode";
+import { LessonPre } from "@/components/LessonPre";
+import { CHALLENGES } from "@/lib/promql/challenges";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +71,17 @@ export default async function TopicPage({ params, searchParams }: { params: Prom
           <blockquote className="m-0 font-serif text-[22px] italic leading-[1.4] text-fg">“{l.analogy}”</blockquote>
         </figure>
 
-        <div className="prose-lesson"><MDXRemote source={l.body} /></div>
+        <div className="prose-lesson"><MDXRemote source={l.body} components={{ pre: LessonPre }} /></div>
+
+        {CHALLENGES.some((c) => c.topic === topic.id) && (
+          <Link href={`/playground?task=${CHALLENGES.find((c) => c.topic === topic.id)!.id}`} className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-4 hover:border-muted">
+            <span>
+              <span className="block text-[15px] font-semibold">Practise this on real data</span>
+              <span className="mt-0.5 block text-[14px] text-muted">{CHALLENGES.filter((c) => c.topic === topic.id).length} short tasks in the PromQL playground.</span>
+            </span>
+            <span aria-hidden className="text-muted">→</span>
+          </Link>
+        )}
 
         <section aria-labelledby="remember">
           <h2 id="remember" className="eyebrow mb-2">Remember</h2>

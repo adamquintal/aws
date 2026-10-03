@@ -18,6 +18,9 @@
   --on-ink: 247 247 244;
   --series-1: #0F6E5A;
   --chart-surface: #F7F7F4;
+  /* Categorical chart slots (validated: dataviz palette, light surface #FFFFFF). Fixed order, never cycled. */
+  --cat-1: #2a78d6; --cat-2: #eb6834; --cat-3: #1baf7a; --cat-4: #eda100;
+  --cat-5: #e87ba4; --cat-6: #008300; --cat-7: #4a3aa7; --cat-8: #e34948;
   color-scheme: light;
 }
 .dark {
@@ -35,6 +38,9 @@
   --on-ink: 18 19 21;
   --series-1: #4FB39A;
   --chart-surface: #121315;
+  /* Same hues stepped for the dark surface (validated against #1B1C1F). */
+  --cat-1: #3987e5; --cat-2: #d95926; --cat-3: #199e70; --cat-4: #c98500;
+  --cat-5: #d55181; --cat-6: #008300; --cat-7: #9085e9; --cat-8: #e66767;
   color-scheme: dark;
 }
 
