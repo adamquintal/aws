@@ -4,7 +4,7 @@ title: Push vs pull, and the Pushgateway
 summary: Prometheus pulls metrics from targets over HTTP. Pushing is possible through the Pushgateway, but only for a narrow set of cases, mainly service-level batch jobs.
 analogy: "Pull is a teacher taking the register: they call each name and immediately notice who's missing. Push is students dropping notes in a box when they feel like it. You can't easily tell if a quiet student is absent or just has nothing to say, and the box keeps old notes forever unless someone clears it out."
 keyPoints:
-  - Prometheus collects metrics with a pull model over HTTP. Pushing is supported only through an intermediary, the Pushgateway.
+  - Prometheus collects metrics with a pull model over HTTP. Pushing is classically supported through an intermediary, the Pushgateway. Prometheus 3.x also has opt-in OTLP and remote-write receivers, which are off by default.
   - "Benefits of pull from the FAQ: you can easily run extra Prometheus instances (even on a laptop), tell more reliably when a target is down, and inspect a target in a browser."
   - The docs call pull only "slightly better" than push. It shouldn't be a major factor in choosing a monitoring system.
   - Every scrape generates an up metric (1 if the scrape succeeded, 0 if it failed), which gives you free health monitoring.
@@ -17,6 +17,8 @@ explainBack:
   prompt: Why does Prometheus prefer pulling metrics, and when is the Pushgateway the right tool?
   modelAnswer: With pull, Prometheus decides when to collect. It can tell immediately when a target is down, because the scrape fails and up becomes 0. You can run extra Prometheus servers or check a target in a browser. The Pushgateway is for jobs that can't be scraped, mainly short-lived service-level batch jobs that finish before a scrape would happen. Using it for regular services is a mistake, because it's a single point of failure, loses the up health signal, and keeps pushed metrics forever until you delete them.
 introduces: [pull, push, up, batch job, service-level batch job, pushprox, textfile collector]
+versionNotes:
+  - "Prometheus 3.x can receive pushed data directly via --web.enable-otlp-receiver and --web.enable-remote-write-receiver (both off by default)."
 sources:
   - url: https://prometheus.io/docs/introduction/faq/#why-do-you-pull-rather-than-push
     title: FAQ › Why do you pull rather than push?
@@ -32,7 +34,7 @@ sources:
     readFrom: github.com/prometheus/docs@605cf81 docs/concepts/jobs_instances.md
 status: source-checked
 reviewer: null
-version: 1
+version: 2
 ---
 
 ## Pull is the default

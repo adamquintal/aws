@@ -17,7 +17,7 @@ explainBack:
   modelAnswer: The SLI is the fraction of checkout requests that finish within 300 ms, measured from the user's side. The SLO is the target that this fraction stays at or above 95%. With a classic histogram that has a bucket boundary at 0.3 seconds, divide the per-second rate of the le="0.3" bucket by the rate of the _count series, summing both by job, for example over 5m. If the result drops below 0.95 we're missing the SLO, which is a symptom worth alerting on.
 introduces: [sli, slo, sla, error budget]
 sources:
-  - url: https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics
+  - url: https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics
     title: OpenTelemetry › Observability primer › Reliability and metrics
     readFrom: github.com/open-telemetry/opentelemetry.io@49a4a61 content/en/docs/concepts/observability-primer.md
   - url: https://prometheus.io/docs/practices/histograms/

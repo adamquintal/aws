@@ -4,7 +4,7 @@ title: Dashboards with Grafana and the expression browser
 summary: Prometheus's built-in expression browser is for ad-hoc queries and debugging. Real dashboards are usually built in Grafana, which queries Prometheus with PromQL as a data source. Good dashboards use rates, keep series counts sane, and lean on recording rules for expensive panels.
 analogy: "The expression browser is a mechanic's diagnostic plug: perfect for poking at one problem right now. A Grafana dashboard is the car's dashboard: the same few gauges you glance at every day, laid out so problems jump out without anyone typing a query."
 keyPoints:
-  - The expression browser (/graph, the Prometheus UI) shows any expression as a table (an instant query) or a graph (a range query). It's mainly for ad-hoc queries and debugging.
+  - The expression browser (/query in Prometheus 3.x, /graph in older versions) shows any expression as a table (an instant query) or a graph (a range query). It's mainly for ad-hoc queries and debugging.
   - Grafana is the usual dashboarding tool. It has included a Prometheus data source since Grafana 2.5.0 (2015).
   - Set up a Prometheus data source in Grafana with the server URL, such as http://localhost:9090. Grafana listens on port 3000 by default (default login admin/admin).
   - A panel is a PromQL query. The legend format uses label templates, for example {{method}} - {{status}}.
@@ -35,12 +35,12 @@ sources:
     readFrom: github.com/prometheus/docs@605cf81 docs/visualization/consoles.md
 status: source-checked
 reviewer: null
-version: 1
+version: 2
 ---
 
 ## The expression browser
 
-Every Prometheus server has a built-in UI at `/graph` (the **expression browser**). Type any PromQL expression and see:
+Every Prometheus server has a built-in UI, the **expression browser**, at `/query` (`/graph` in 2.x). Type any PromQL expression and see:
 
 - **Table**: an **instant query**, one value per series right now.
 - **Graph**: a **range query**, values over time.

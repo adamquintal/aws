@@ -29,7 +29,7 @@ sources:
     readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/exposition_formats.md
 status: source-checked
 reviewer: null
-version: 1
+version: 2
 ---
 
 ## The shape of a /metrics page
@@ -93,6 +93,6 @@ http_request_duration_seconds_count 144320
 |---|---|---|
 | Prometheus text | `text/plain; version=0.0.4` | Human-readable, the classic format |
 | OpenMetrics text | `application/openmetrics-text; version=1.0.0` | Standardised format built on the Prometheus text format. Must end with `# EOF`. Adds types such as Info, StateSet and GaugeHistogram, plus exemplars and unit metadata. |
-| Protobuf | `application/vnd.google.protobuf; proto=io.prometheus.client.MetricFamily; encoding=delimited` | Binary, not human-readable, needed for native histograms |
+| Protobuf | `application/vnd.google.protobuf; proto=io.prometheus.client.MetricFamily; encoding=delimited` | Binary, not human-readable, the classic way to scrape native histograms |
 
 **OpenMetrics** grew out of the Prometheus text format as an effort to standardise metric exposition. Prometheus can scrape it, and it supports **exemplars**, which can attach a trace ID to a sample. That turns out to be a useful bridge to tracing later on.

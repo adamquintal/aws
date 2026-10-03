@@ -4,11 +4,11 @@ title: prometheus.yml, scraping and relabeling
 summary: Flags set fixed system options such as storage. The YAML config file defines what to scrape, how often, and which rule files to load. Relabeling lets you rewrite target labels before a scrape, and metric relabeling lets you filter samples before they're stored.
 analogy: "The config file is a delivery driver's route sheet. global sets the defaults (\"visit every stop once a minute, give up after 10 seconds\"). Each scrape_config is a named route (the job) with a list of stops (targets). Relabeling is the driver editing the address labels before setting off: fixing a name, skipping some stops, adding a note."
 keyPoints:
-  - Command-line flags set immutable system parameters such as the storage path and retention. The YAML config file (--config.file) defines scrape jobs and rule files.
+  - Command-line flags set immutable system parameters such as the storage path and listen address. The YAML config file (--config.file) defines scrape jobs and rule files.
   - Global defaults are scrape_interval 1m, scrape_timeout 10s and evaluation_interval 1m. The timeout can't exceed the interval.
   - Each scrape_config defines one job (job_name). Targets come from static_configs or service discovery.
   - Per-job defaults are metrics_path /metrics, scheme http, honor_labels false and honor_timestamps true.
-  - Reload the config at runtime with SIGHUP, or with an HTTP POST to /-/reload when --web.enable-lifecycle is set. An invalid config isn't applied.
+  - Reload the config at runtime with SIGHUP, or with an HTTP POST to /-/reload when --web.enable-lifecycle is set. An invalid config isn't applied. Prometheus doesn't watch the file by default.
   - relabel_configs rewrite a target's labels before the scrape. metric_relabel_configs act on scraped samples as the last step before ingestion.
   - Relabel actions include replace (the default), keep, drop, labelmap, labeldrop, labelkeep and hashmod. Regexes are RE2 and anchored at both ends.
   - Labels starting with __ are dropped after target relabeling. instance defaults to the value of __address__.
@@ -18,6 +18,8 @@ explainBack:
   prompt: You want to stop storing one very expensive metric from a target, but keep scraping everything else. Which config section would you use, and why that one rather than the other relabeling section?
   modelAnswer: I'd use metric_relabel_configs with a drop action matching that metric's __name__. Metric relabeling runs on the scraped samples as the last step before ingestion, so it can filter individual series out. relabel_configs runs earlier, on targets before the scrape, so it can only change or drop whole targets. It can't remove individual metrics.
 introduces: [prometheus.yml, scrape_interval, scrape_timeout, evaluation_interval, scrape_config, static_configs, relabeling, relabel_configs, metric_relabel_configs, honor_labels, external_labels, __address__, config reload]
+versionNotes:
+  - "Prometheus 3.x: retention can be set in prometheus.yml (the flag is deprecated), and --config.auto-reload can watch the config file. Both are recent changes. The classic behaviour is flag-based retention and manual reload."
 sources:
   - url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/
     title: Configuration › Configuration file (global defaults, reload)
@@ -33,14 +35,14 @@ sources:
     readFrom: github.com/prometheus/prometheus@5ba0e86 docs/getting_started.md
 status: source-checked
 reviewer: null
-version: 1
+version: 2
 ---
 
 ## Flags vs. the config file
 
 Prometheus takes two kinds of configuration:
 
-- **Command-line flags** set immutable system parameters: where to store data, how long to keep it, and so on. For example `--storage.tsdb.path` and `--storage.tsdb.retention.time`.
+- **Command-line flags** set immutable system parameters: where to store data, how long to keep it, and so on. For example `--storage.tsdb.path` and `--web.listen-address`. (Retention was traditionally a flag too, `--storage.tsdb.retention.time`. Recent 3.x releases deprecate that flag in favour of `storage.tsdb.retention` in prometheus.yml.)
 - **The configuration file**, YAML and loaded with `--config.file`, defines **what to scrape** (jobs and their instances) and **which rule files to load**.
 
 ## A real prometheus.yml
@@ -107,7 +109,7 @@ Prometheus can reload its config without restarting:
 - send the process a `SIGHUP`, or
 - `POST` to `/-/reload`, if the `--web.enable-lifecycle` flag is enabled.
 
-If the new file isn't valid, the change isn't applied. Rule files are reloaded at the same time.
+By default, editing the file does nothing until you trigger a reload. (Prometheus 3.x adds an opt-in `--config.auto-reload` flag, off by default.) If the new file isn't valid, the change isn't applied. Rule files are reloaded at the same time.
 
 ## Relabeling
 

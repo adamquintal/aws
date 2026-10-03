@@ -33,7 +33,7 @@ sources:
     readFrom: github.com/prometheus/docs@605cf81 docs/introduction/comparison.md
 status: source-checked
 reviewer: null
-version: 1
+version: 2
 ---
 
 ## Designed for reliability, not completeness
@@ -52,7 +52,7 @@ Prometheus collects **metrics**: numbers sampled at intervals. It doesn't record
 
 The storage docs note that local storage is **not clustered or replicated**, so it isn't arbitrarily scalable or durable against disk or node failure. Treat it like any other single-node database:
 
-- Default retention is **15 days** (`--storage.tsdb.retention.time`), and you can also cap it by size (`--storage.tsdb.retention.size`).
+- Default retention is **15 days** (`--storage.tsdb.retention.time`), and you can also cap it by size (`--storage.tsdb.retention.size`). Recent 3.x releases also accept these settings in prometheus.yml under `storage.tsdb.retention`, and deprecate the flags.
 - Prometheus stores an average of **1–2 bytes per sample**, so needed disk ≈ retention seconds × samples per second × bytes per sample.
 - Use **snapshots** for backups. **NFS (including AWS EFS) isn't supported** for local storage.
 - For long-term or durable storage, use **remote write / remote read** integrations.

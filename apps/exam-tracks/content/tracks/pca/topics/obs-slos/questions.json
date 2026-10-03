@@ -40,13 +40,13 @@
     ],
     "sources": [
       {
-        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics",
         "title": "OpenTelemetry primer › Reliability and metrics"
       }
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "slo-slo",
@@ -90,13 +90,13 @@
     ],
     "sources": [
       {
-        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics",
         "title": "OpenTelemetry primer › Reliability and metrics"
       }
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "slo-sla",
@@ -140,13 +140,13 @@
     ],
     "sources": [
       {
-        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics",
         "title": "OpenTelemetry primer › Reliability and metrics"
       }
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "slo-strict",
@@ -190,13 +190,13 @@
     ],
     "sources": [
       {
-        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics",
         "title": "OpenTelemetry primer › Reliability and metrics"
       }
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "slo-good-sli",
@@ -240,7 +240,7 @@
     ],
     "sources": [
       {
-        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics",
         "title": "OpenTelemetry primer › Reliability and metrics"
       },
       {
@@ -250,7 +250,7 @@
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "slo-ratio",
@@ -454,13 +454,13 @@
     ],
     "sources": [
       {
-        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics",
         "title": "OpenTelemetry primer › Reliability and metrics"
       }
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "slo-alert",

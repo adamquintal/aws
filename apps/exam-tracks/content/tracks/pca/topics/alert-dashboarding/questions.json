@@ -29,7 +29,7 @@
         "note": "The UI doesn't edit configuration."
       }
     ],
-    "explanation": "The expression browser at /graph lets you enter any expression and see the result as a table or graph. It's primarily useful for ad-hoc queries and debugging.",
+    "explanation": "The expression browser at /query (the expression browser; older versions used /graph) lets you enter any expression and see the result as a table or graph. It's primarily useful for ad-hoc queries and debugging.",
     "hint": "Quick questions versus permanent displays.",
     "difficulty": 1,
     "tags": [
@@ -46,7 +46,7 @@
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "db-table-graph",

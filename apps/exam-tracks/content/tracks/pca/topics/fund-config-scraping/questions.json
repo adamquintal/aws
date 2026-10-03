@@ -106,9 +106,9 @@
     "options": [
       {
         "id": "a",
-        "text": "How long to retain data on disk",
+        "text": "Where the TSDB stores its data on disk",
         "correct": true,
-        "note": "Right. Storage retention is an immutable system parameter set by flags such as --storage.tsdb.retention.time."
+        "note": "Right. The storage path is a system parameter set with --storage.tsdb.path."
       },
       {
         "id": "b",
@@ -129,7 +129,7 @@
         "note": "Scrape intervals are configured in the config file, globally or per job."
       }
     ],
-    "explanation": "Command-line flags configure immutable system parameters such as storage locations and retention. The config file defines scrape jobs, their instances, and which rule files to load.",
+    "explanation": "Command-line flags configure system parameters such as the storage path and listen address. The config file defines scrape jobs, their instances and which rule files to load. (Newer 3.x releases also allow retention in the config file, so retention is no longer a clean example.)",
     "hint": "Which one is about the server's storage rather than what it scrapes?",
     "difficulty": 2,
     "tags": [
@@ -146,7 +146,7 @@
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "cfg-reload",
@@ -167,9 +167,9 @@
       },
       {
         "id": "c",
-        "text": "Editing the file. Prometheus watches it and reloads automatically",
+        "text": "Editing the file, with a default Prometheus setup",
         "correct": false,
-        "note": "Prometheus doesn't automatically reload prometheus.yml when it changes. You trigger a reload."
+        "note": "By default Prometheus doesn't watch prometheus.yml. (Prometheus 3.x has an opt-in --config.auto-reload flag, which is off by default.)"
       },
       {
         "id": "d",
@@ -195,7 +195,7 @@
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "cfg-invalid-reload",

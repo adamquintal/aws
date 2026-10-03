@@ -391,7 +391,7 @@
         "id": "d",
         "text": "on is for set operators only; ignoring is for arithmetic only",
         "correct": false,
-        "note": "Both work with arithmetic and comparison operators."
+        "note": "Both work with arithmetic, comparison and set operators (and, or, unless)."
       }
     ],
     "explanation": "on(<label list>) only matches on the provided labels. ignoring(<label list>) ignores the provided labels when matching.",
@@ -413,7 +413,7 @@
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "bin-group-left",

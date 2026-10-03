@@ -19,7 +19,7 @@ explainBack:
   modelAnswer: Binary operations between vectors pair series with exactly the same label set. The errors series have both method and code labels, while the requests series only have method, so nothing pairs and the result is empty. ignoring(code) leaves code out of the comparison so series can pair on method. Several error series (one per code) now match the same request series, which is many-to-one, so group_left is needed to allow it. The result is one error ratio per method and code.
 introduces: [arithmetic operator, comparison operator, bool, set operator, and, or, unless, vector matching, one-to-one matching, many-to-one matching, on, ignoring, group_left, group_right, operator precedence]
 versionNotes:
-  - Newer Prometheus versions add experimental fill modifiers (fill(), fill_left(), fill_right()) to fill in missing matches, plus histogram trim operators. Both need feature flags and are beyond exam-era material.
+  - Newer Prometheus versions add experimental fill modifiers (fill(), fill_left(), fill_right()) to fill in missing matches, which need a feature flag. Histogram trim operators (</ and >/) also exist without a flag. Both are beyond exam-era material.
 sources:
   - url: https://prometheus.io/docs/prometheus/latest/querying/operators/#binary-operators
     title: Operators › Binary operators
@@ -35,7 +35,7 @@ sources:
     readFrom: github.com/prometheus/docs@605cf81 docs/practices/rules.md
 status: source-checked
 reviewer: null
-version: 1
+version: 2
 ---
 
 ## Arithmetic

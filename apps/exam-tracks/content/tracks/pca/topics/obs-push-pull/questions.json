@@ -14,7 +14,7 @@
         "id": "b",
         "text": "Targets push metrics to the Prometheus server",
         "correct": false,
-        "note": "Pushing is only supported through an intermediary, the Pushgateway, and only for limited cases."
+        "note": "Not by default. The classic way to push is through an intermediary, the Pushgateway. (Prometheus 3.x also has opt-in OTLP and remote-write receivers, off by default.)"
       },
       {
         "id": "c",
@@ -51,7 +51,7 @@
     ],
     "status": "source-checked",
     "reviewer": null,
-    "version": 1
+    "version": 2
   },
   {
     "id": "pp-advantages",
