@@ -5,7 +5,7 @@ export async function GET() {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
   const userId = session.user.id;
-  const [user, enrollments, attempts, topicProgress, reviewCards, studyDays, explainBacks, flags, readiness] = await Promise.all([
+  const [user, enrollments, attempts, topicProgress, reviewCards, studyDays, explainBacks, flags, readiness, examAttempts] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, timezone: true, role: true, createdAt: true } }),
     prisma.enrollment.findMany({ where: { userId } }),
     prisma.attempt.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
@@ -15,8 +15,9 @@ export async function GET() {
     prisma.explainBack.findMany({ where: { userId } }),
     prisma.flag.findMany({ where: { userId } }),
     prisma.readinessSnapshot.findMany({ where: { userId } }),
+    prisma.examAttempt.findMany({ where: { userId }, orderBy: { startedAt: "asc" } }),
   ]);
-  const body = JSON.stringify({ exportedAt: new Date().toISOString(), user, enrollments, attempts, topicProgress, reviewCards, studyDays, explainBacks, flags, readiness }, null, 2);
+  const body = JSON.stringify({ exportedAt: new Date().toISOString(), user, enrollments, attempts, topicProgress, reviewCards, studyDays, explainBacks, flags, readiness, examAttempts }, null, 2);
   return new Response(body, {
     headers: {
       "content-type": "application/json",

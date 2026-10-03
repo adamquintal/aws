@@ -1,6 +1,7 @@
 // Content coverage report: every curriculum item, its topic, question count and
 // verification status. Writes CONTENT_COVERAGE.md next to the track.
 import fs from "node:fs";
+import { examBlueprint } from "../lib/engine/exam";
 import path from "node:path";
 import { getAllTracks, CONTENT_ROOT } from "../lib/content/load";
 
@@ -28,6 +29,20 @@ for (const track of getAllTracks()) {
       const flag = n === 0 ? "❌" : n < min ? "⚠️" : "✅";
       const lesson = t.lesson ? `${t.lesson.status}` : "—";
       lines.push(`| ${t.index + 1} | ${t.curriculumItem} | \`${t.id}\` | ${lesson} | ${flag} ${n} | ${min}–${max} | ${st(t.questions, "draft")} / ${st(t.questions, "source-checked")} / ${st(t.questions, "human-verified")} |`);
+    }
+    lines.push("");
+  }
+
+  if (track.examPool.length) {
+    const per = track.exam ? examBlueprint(track.domains, track.exam.questions) : {};
+    lines.push("## Exam-only question bank", "");
+    lines.push(`Used only by the pre-course check and mock exams, never in daily practice. **${track.examPool.length} questions** (${st(track.examPool, "draft")} draft, ${st(track.examPool, "source-checked")} source-checked, ${st(track.examPool, "human-verified")} human-verified).`, "");
+    lines.push("| Domain | Questions | Per full mock | Distinct mocks |");
+    lines.push("|---|---|---|---|");
+    for (const d of track.domains) {
+      const n = track.examPool.filter((q) => q.domain === d.id).length;
+      const need = per[d.id] ?? 0;
+      lines.push(`| ${d.title} | ${n} | ${need} | ${need ? Math.floor(n / need) : "—"} |`);
     }
     lines.push("");
   }

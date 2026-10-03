@@ -27,8 +27,7 @@ export const optionSchema = z.object({
   note: z.string().min(8, "every option needs a note explaining why it is right or wrong"),
 });
 
-export const questionSchema = z
-  .object({
+const questionBase = z.object({
     id: z.string().regex(/^[a-z0-9-]+$/),
     type: z.enum(["single", "multi"]),
     stem: z.string().min(10),
@@ -43,8 +42,9 @@ export const questionSchema = z
     /** Glossary terms this question relies on; each must be introduced by this or an earlier lesson. */
     uses: z.array(z.string()).default([]),
     ...reviewFields,
-  })
-  .superRefine((q, ctx) => {
+  });
+
+function checkOptions(q: { type: "single" | "multi"; options: { id: string; correct: boolean }[] }, ctx: z.RefinementCtx) {
     const correct = q.options.filter((o) => o.correct).length;
     if (correct === 0) ctx.addIssue({ code: "custom", message: "no correct answer" });
     if (q.type === "single" && correct !== 1)
@@ -53,8 +53,20 @@ export const questionSchema = z
       ctx.addIssue({ code: "custom", message: "multi-select question needs at least two correct options" });
     const ids = q.options.map((o) => o.id);
     if (new Set(ids).size !== ids.length) ctx.addIssue({ code: "custom", message: "duplicate option ids" });
-  });
+}
+
+export const questionSchema = questionBase.superRefine(checkOptions);
 export type Question = z.infer<typeof questionSchema>;
+
+/**
+ * Exam-pool question: used only in the pre-course check and mock exams, never in
+ * daily practice, so scores aren't inflated by memorised practice questions.
+ * Tagged with the topic it tests so results map back to the path. No hints in exams.
+ */
+export const examQuestionSchema = questionBase
+  .extend({ topic: z.string(), hint: z.string().optional() })
+  .superRefine(checkOptions);
+export type ExamQuestion = z.infer<typeof examQuestionSchema>;
 
 export const lessonFrontmatterSchema = z.object({
   id: z.string(),

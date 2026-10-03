@@ -56,3 +56,15 @@ Curriculum: [CNCF PCA Curriculum (commit 8fbb7f2, 2022-08-31)](https://github.co
 | 17 | Instrumentation | `instr-instrumentation` | source-checked | ✅ 12 | 8–12 | 0 / 12 / 0 |
 | 18 | Structuring and naming metrics | `instr-naming` | source-checked | ✅ 11 | 8–12 | 0 / 11 / 0 |
 | 19 | Exporters | `instr-exporters` | source-checked | ✅ 11 | 8–12 | 0 / 11 / 0 |
+
+## Exam-only question bank
+
+Used only by the pre-course check and mock exams, never in daily practice. **187 questions** (0 draft, 187 source-checked, 0 human-verified).
+
+| Domain | Questions | Per full mock | Distinct mocks |
+|---|---|---|---|
+| PromQL | 55 | 17 | 3 |
+| Prometheus Fundamentals | 37 | 12 | 3 |
+| Alerting & Dashboarding | 34 | 11 | 3 |
+| Observability Concepts | 33 | 11 | 3 |
+| Instrumentation and Exporters | 28 | 9 | 3 |

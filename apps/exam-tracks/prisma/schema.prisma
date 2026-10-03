@@ -52,6 +52,7 @@ model User {
   explainBacks    ExplainBack[]
   flags           Flag[]
   reviewDecisions ReviewDecision[]
+  examAttempts    ExamAttempt[]
 }
 
 model Account {
@@ -190,6 +191,28 @@ model ReadinessSnapshot {
   createdAt DateTime @default(now())
 
   @@id([userId, trackId, day])
+}
+
+// A pre-course check ("diagnostic") or a full mock exam. Questions come from the
+// exam-only pool. Answers autosave as JSON while in progress; `result` holds the
+// graded breakdown (score, domains, confidence calibration, pass estimate).
+model ExamAttempt {
+  id               String    @id @default(cuid())
+  userId           String
+  trackId          String
+  kind             String    // "diagnostic" | "mock"
+  questionIds      String[]
+  questionVersions Int[]
+  answers          Json      @default("{}")
+  timeLimitSec     Int?      // null = untimed
+  startedAt        DateTime  @default(now())
+  submittedAt      DateTime?
+  scorePercent     Float?
+  passed           Boolean?
+  result           Json?
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, trackId, startedAt])
 }
 
 // ---------- Content quality & review ----------

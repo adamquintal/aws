@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireEnrollment } from "@/lib/session";
 import { loadGates, statusesFor } from "@/lib/services/learning";
+import { latestDiagnostic } from "@/lib/services/exams";
 import { TabBar } from "@/components/TabBar";
 import { IconCheck } from "@/components/Icons";
 
@@ -11,7 +12,9 @@ const META = { mastered: "mastered", "explain-back": "one step left", current: "
 
 export default async function Path() {
   const { user, track } = await requireEnrollment();
-  const gates = await loadGates(user.id, track);
+  const [gates, diag] = await Promise.all([loadGates(user.id, track), latestDiagnostic(user.id, track.id)]);
+  // Topics missed in the pre-course check get a gentle "take it slowly" marker.
+  const watch = new Set(Object.entries(diag?.result.byTopic ?? {}).filter(([, t]) => t.correct < t.total).map(([id]) => id));
   const statuses = statusesFor(track, gates);
   const domainTitle = Object.fromEntries(track.domains.map((d) => [d.id, d.title]));
   const mastered = track.topics.filter((t) => statuses.get(t.id) === "mastered").length;
@@ -21,6 +24,7 @@ export default async function Path() {
     <main id="main" className="page pt-14">
       <h1 className="display text-[40px]">Your path</h1>
       <p className="mt-1.5 text-[15px] text-muted">{mastered} of {track.topics.length} mastered · each topic opens the next</p>
+      {watch.size > 0 && <p className="mt-2 text-[13px] text-muted">Topics marked <span className="font-medium text-gentle">take it slowly</span> came up as gaps in your <Link className="link" href={`/exams/${diag!.id}/results`}>pre-course check</Link>.</p>}
 
       <ol className="mt-6 list-none p-0">
         {track.topics.map((t, idx) => {
@@ -36,7 +40,10 @@ export default async function Path() {
           const body = (
             <>
               <span className={`text-[16px] leading-snug ${s === "locked" ? "text-muted" : "font-semibold text-fg"}`}>{t.title}</span>
-              <span className="text-[13px] text-muted">{domainTitle[t.domain]}{META[s] ? ` · ${META[s]}` : ""}</span>
+              <span className="text-[13px] text-muted">
+                {domainTitle[t.domain]}{META[s] ? ` · ${META[s]}` : ""}
+                {watch.has(t.id) && !done && <span className="font-medium text-gentle"> · take it slowly</span>}
+              </span>
             </>
           );
           return (

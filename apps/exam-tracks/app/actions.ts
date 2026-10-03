@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { getTrack } from "@/lib/content/load";
 import { requireEnrollment, requireReviewer, requireUser } from "@/lib/session";
 import { buildDailySession, recordAnswer, submitExplainBack } from "@/lib/services/learning";
+import { saveProgress, startExam as startExamSvc, submitExam as submitExamSvc } from "@/lib/services/exams";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 
@@ -106,6 +107,27 @@ export async function explainBack(formData: FormData) {
   if (text.length < 20) throw new Error("Please write a sentence or two in your own words first.");
   await submitExplainBack({ userId: user.id, track, topicId, text, selfRating });
   redirect(`/topics/${topicId}?mastered=1`);
+}
+
+// ---------- Exams ----------
+
+export async function startExam(formData: FormData) {
+  const { user, track } = await requireEnrollment();
+  const kind = z.enum(["diagnostic", "mock"]).parse(formData.get("kind"));
+  const id = await startExamSvc(user.id, track, kind);
+  redirect(`/exams/${id}`);
+}
+
+export async function saveExamProgress(id: string, answers: unknown) {
+  const { user, track } = await requireEnrollment();
+  return saveProgress(user.id, track, z.string().parse(id), answers);
+}
+
+export async function submitExam(id: string, answers: unknown) {
+  const { user, track } = await requireEnrollment();
+  await submitExamSvc(user.id, track, z.string().parse(id), answers);
+  revalidatePath("/exams");
+  return { ok: true as const };
 }
 
 const flagSchema = z.object({

@@ -1,4 +1,5 @@
 import { type LoadedTrack, loadTrackFromDisk, listTrackIds, CONTENT_ROOT } from "./load";
+import { examBlueprint } from "../engine/exam";
 
 export type Issue = { level: "error" | "warning"; where: string; message: string };
 
@@ -57,6 +58,26 @@ export function validateTrack(track: LoadedTrack): Issue[] {
         if (/\b(all|none|both) of the above\b|^(a|b) and (b|c)\b/i.test(o.text)) err(w, `option ${o.id} depends on position ("${o.text}")`);
       for (const term of q.uses)
         if (!known.has(term.toLowerCase())) err(w, `uses term "${term}" before any lesson introduces it`);
+    }
+  }
+  for (const q of track.examPool) {
+    const w = `${track.id}/exam/${q.file}:${q.id}`;
+    if (!q.id.startsWith("x-")) err(w, 'exam-pool ids must start with "x-"');
+    if (questionIds.has(q.id)) err(w, "duplicate question id in track");
+    questionIds.add(q.id);
+    if (!topicIds.has(q.topic)) err(w, `unknown topic "${q.topic}"`);
+    for (const s of q.sources)
+      if (!hostAllowed(s.url, track.allowedSourceHosts)) err(w, `source not on an allowed host: ${s.url}`);
+    if (q.status === "human-verified" && !q.reviewer) err(w, "human-verified items must name a reviewer");
+    for (const o of q.options)
+      if (/\b(all|none|both) of the above\b|^(a|b) and (b|c)\b/i.test(o.text)) err(w, `option ${o.id} depends on position ("${o.text}")`);
+    // Exam questions may use any curriculum term: the pre-course check runs before any lesson.
+  }
+  if (track.kind === "exam" && track.exam) {
+    const per = examBlueprint(track.domains, track.exam.questions);
+    for (const d of track.domains) {
+      const have = track.examPool.filter((q) => q.domain === d.id).length;
+      if (have < per[d.id]) warn(`${track.id}/exam`, `${d.title}: ${have} exam questions, a full mock needs ${per[d.id]}`);
     }
   }
   return issues;

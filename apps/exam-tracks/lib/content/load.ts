@@ -2,9 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import {
+  examQuestionSchema,
   lessonFrontmatterSchema,
   questionSchema,
   trackSchema,
+  type ExamQuestion,
   type Lesson,
   type Question,
   type Track,
@@ -18,7 +20,8 @@ export type LoadedTopic = Track["topics"][number] & {
   questions: Question[];
 };
 
-export type LoadedTrack = Omit<Track, "topics"> & { topics: LoadedTopic[] };
+export type LoadedExamQuestion = ExamQuestion & { domain: string; file: string };
+export type LoadedTrack = Omit<Track, "topics"> & { topics: LoadedTopic[]; examPool: LoadedExamQuestion[] };
 
 export class ContentError extends Error {
   constructor(public file: string, message: string) {
@@ -73,7 +76,24 @@ export function loadTrackFromDisk(trackId: string, root = CONTENT_ROOT): LoadedT
     return { ...t, index, lesson, questions };
   });
 
-  return { ...track, topics };
+  // Exam-only pool: content/tracks/<id>/exam/*.json, one file per domain by convention.
+  const examDir = path.join(dir, "exam");
+  const examPool: LoadedExamQuestion[] = [];
+  if (fs.existsSync(examDir)) {
+    for (const f of fs.readdirSync(examDir).filter((x) => x.endsWith(".json")).sort()) {
+      const file = path.join(examDir, f);
+      const raw = readJson(file);
+      if (!Array.isArray(raw)) throw new ContentError(file, "expected an array of questions");
+      raw.forEach((q, i) => {
+        const r = examQuestionSchema.safeParse(q);
+        if (!r.success) throw new ContentError(file, `question[${i}] ${(q as { id?: string })?.id ?? ""}: ${formatZod(r.error)}`);
+        const topic = track.topics.find((t) => t.id === r.data.topic);
+        examPool.push({ ...r.data, domain: topic?.domain ?? "", file: f });
+      });
+    }
+  }
+
+  return { ...track, topics, examPool };
 }
 
 export function listTrackIds(root = CONTENT_ROOT): string[] {
@@ -106,4 +126,10 @@ export function findQuestion(track: LoadedTrack, questionId: string) {
     if (q) return { topic, question: q };
   }
   return null;
+}
+
+export function findExamQuestion(track: LoadedTrack, questionId: string) {
+  const question = track.examPool.find((q) => q.id === questionId);
+  if (!question) return null;
+  return { topic: track.topics.find((t) => t.id === question.topic)!, question };
 }

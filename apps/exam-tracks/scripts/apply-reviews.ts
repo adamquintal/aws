@@ -31,6 +31,20 @@ async function main() {
         fs.writeFileSync(file, matter.stringify(parsed.content, parsed.data));
         ok = true;
       }
+    } else if (topicId === "exam") {
+      // Exam-pool question: search the track's exam/*.json files.
+      const examDir = path.join(CONTENT_ROOT, trackId, "exam");
+      for (const f of fs.existsSync(examDir) ? fs.readdirSync(examDir).filter((x) => x.endsWith(".json")) : []) {
+        const file = path.join(examDir, f);
+        const qs = JSON.parse(fs.readFileSync(file, "utf8")) as { id: string; version: number; status: string; reviewer: string | null }[];
+        const q = qs.find((x) => x.id === qid);
+        if (q && q.version === d.version) {
+          q.status = status;
+          q.reviewer = reviewer;
+          fs.writeFileSync(file, JSON.stringify(qs, null, 2) + "\n");
+          ok = true;
+        }
+      }
     } else {
       const file = path.join(dir, "questions.json");
       const qs = JSON.parse(fs.readFileSync(file, "utf8")) as { id: string; version: number; status: string; reviewer: string | null }[];

@@ -27,6 +27,10 @@ export function itemsForTrack(track: LoadedTrack): ContentItem[] {
       out.push({ itemId: `${track.id}/${t.id}/${q.id}`, kind: "question", trackId: track.id, topicId: t.id, title: q.stem, version, status, reviewer, sources, body: rest });
     }
   }
+  for (const q of track.examPool) {
+    const { status, reviewer, version, sources, domain: _d, file: _f, ...rest } = q;
+    out.push({ itemId: `${track.id}/exam/${q.id}`, kind: "question", trackId: track.id, topicId: q.topic, title: `Exam: ${q.stem}`, version, status, reviewer, sources, body: rest });
+  }
   return out;
 }
 

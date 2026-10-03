@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireEnrollment } from "@/lib/session";
 import { getProgress } from "@/lib/services/progress";
+import { listExams } from "@/lib/services/exams";
+import { passPhrase } from "@/lib/engine/exam-copy";
 import { addDays } from "@/lib/engine/dates";
 import { Sparkline } from "@/components/Charts";
 import { TabBar } from "@/components/TabBar";
@@ -15,7 +17,8 @@ const pct = (n: number | null) => (n == null ? "–" : `${Math.round(n * 100)}%`
 
 export default async function Progress() {
   const { user, enrollment, track } = await requireEnrollment();
-  const p = await getProgress(user.id, user.timezone, track, enrollment);
+  const [p, exams] = await Promise.all([getProgress(user.id, user.timezone, track, enrollment), listExams(user.id, track)]);
+  const lastMock = exams.find((e) => e.kind === "mock" && e.submittedAt);
   const r = p.readiness;
   const proj = p.projection;
   const domainTitle = Object.fromEntries(track.domains.map((d) => [d.id, d.title]));
@@ -86,6 +89,20 @@ export default async function Progress() {
             </div>
           );
         })}
+      </section>
+
+      <section aria-labelledby="mk" className="mt-10">
+        <h2 id="mk" className="eyebrow mb-2">Mock exams</h2>
+        <Link href={lastMock ? `/exams/${lastMock.id}/results` : "/exams"} className="row border-t hover:opacity-80">
+          {lastMock?.estimate ? (
+            <>
+              <span>Latest: {Math.round(lastMock.scorePercent ?? 0)}% <span className="text-muted">· likely {lastMock.estimate.low}–{lastMock.estimate.high}%</span></span>
+              <span className="shrink-0 text-muted">{passPhrase(lastMock.estimate.passProbability)}</span>
+            </>
+          ) : (
+            <><span>No mock taken yet</span><span className="text-muted">Take one</span></>
+          )}
+        </Link>
       </section>
 
       {started.length > 0 && (

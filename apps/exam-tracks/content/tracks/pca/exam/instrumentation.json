@@ -1,0 +1,1322 @@
+[
+  {
+    "id": "x-cl-what",
+    "type": "single",
+    "topic": "instr-client-libs",
+    "stem": "What does a Prometheus client library do inside your application?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Defines metrics and serves them over HTTP",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Pushes metrics to Prometheus every few seconds",
+        "correct": false,
+        "note": "Client libraries expose metrics for pulling by default."
+      },
+      {
+        "id": "c",
+        "text": "Stores metrics in a local time series database",
+        "correct": false,
+        "note": "The Prometheus server stores data."
+      },
+      {
+        "id": "d",
+        "text": "Evaluates alerting rules inside the application",
+        "correct": false,
+        "note": "That's the server."
+      }
+    ],
+    "explanation": "Client libraries let you define and expose internal metrics via an HTTP endpoint on your application's instance, serving current state when scraped.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/clientlibs/",
+        "title": "Client libraries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cl-official",
+    "type": "single",
+    "topic": "instr-client-libs",
+    "stem": "Which language has an official Prometheus client library listed in the docs?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Go",
+        "correct": true,
+        "note": "Right. Go, Java/Scala, Node.js, Python, Ruby and Rust are listed as official."
+      },
+      {
+        "id": "b",
+        "text": "COBOL",
+        "correct": false,
+        "note": "Not an official library."
+      },
+      {
+        "id": "c",
+        "text": "Fortran",
+        "correct": false,
+        "note": "Not an official library."
+      },
+      {
+        "id": "d",
+        "text": "Perl",
+        "correct": false,
+        "note": "Not listed as official; third-party libraries exist for many languages."
+      }
+    ],
+    "explanation": "Official client libraries are listed for Go, Java or Scala, Node.js, Python, Ruby and Rust; many others are third-party.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/clientlibs/",
+        "title": "Client libraries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cl-zero",
+    "type": "single",
+    "topic": "instr-client-libs",
+    "stem": "A counter with no labels is created at startup but nothing has happened yet. What do most client libraries expose?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The metric, with value 0",
+        "correct": true,
+        "note": "Right. That avoids missing series."
+      },
+      {
+        "id": "b",
+        "text": "Nothing until the first increment",
+        "correct": false,
+        "note": "Unlabelled metrics are exported at 0 by most libraries."
+      },
+      {
+        "id": "c",
+        "text": "The metric, with value NaN",
+        "correct": false,
+        "note": "Counters start at 0, not NaN."
+      },
+      {
+        "id": "d",
+        "text": "The metric, with no value line",
+        "correct": false,
+        "note": "A sample line always has a value."
+      }
+    ],
+    "explanation": "Most client libraries (including Go, Java and Python) automatically export a 0 for metrics with no labels.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cl-labeled-init",
+    "type": "single",
+    "topic": "instr-client-libs",
+    "stem": "A counter has a `result` label with values success and failure. Failures are rare. What should you do so alerts on failures work reliably?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Initialise both label values to 0 at startup",
+        "correct": true,
+        "note": "Right. Missing series are hard to query."
+      },
+      {
+        "id": "b",
+        "text": "Create the failure series on the first failure",
+        "correct": false,
+        "note": "Then rate() and ratios break until it appears."
+      },
+      {
+        "id": "c",
+        "text": "Use a gauge set to 1 while failures happen",
+        "correct": false,
+        "note": "Doesn't solve the missing-series problem, and loses counts."
+      },
+      {
+        "id": "d",
+        "text": "Add a timestamp label to each failure series",
+        "correct": false,
+        "note": "That would explode cardinality."
+      }
+    ],
+    "explanation": "Avoid missing metrics: export a default value such as 0 for any time series you know may exist in advance.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cl-default-metrics",
+    "type": "single",
+    "topic": "instr-client-libs",
+    "stem": "Many client libraries expose some metrics without you writing code. Which is a typical example?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`process_cpu_seconds_total`",
+        "correct": true,
+        "note": "Right. Standard process metrics."
+      },
+      {
+        "id": "b",
+        "text": "`http_requests_total` for every app",
+        "correct": false,
+        "note": "Request metrics depend on your instrumentation or framework."
+      },
+      {
+        "id": "c",
+        "text": "`up` for the application itself",
+        "correct": false,
+        "note": "up is generated by Prometheus at scrape time."
+      },
+      {
+        "id": "d",
+        "text": "`scrape_duration_seconds`",
+        "correct": false,
+        "note": "Also generated by Prometheus at scrape time."
+      }
+    ],
+    "explanation": "Client libraries typically offer standard process metrics such as process_cpu_seconds_total and process_start_time_seconds.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/",
+        "title": "Writing client libraries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cl-histogram-observe",
+    "type": "single",
+    "topic": "instr-client-libs",
+    "stem": "In a client library, how do you record the duration of a request in a histogram?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Call observe() with the duration",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Call inc() on the matching bucket",
+        "correct": false,
+        "note": "The library updates the cumulative buckets for you."
+      },
+      {
+        "id": "c",
+        "text": "Set the _sum gauge to the duration",
+        "correct": false,
+        "note": "_sum is managed for you."
+      },
+      {
+        "id": "d",
+        "text": "Push the duration to the Pushgateway",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "Histograms sample observations: the library updates bucket counts, _sum and _count when you observe a value.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/metric_types/",
+        "title": "Metric types"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cl-exemplar",
+    "type": "single",
+    "topic": "instr-client-libs",
+    "stem": "A client library supports exemplars. What is a typical use?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Attaching a trace ID to an observation",
+        "correct": true,
+        "note": "Right. It links metrics to traces."
+      },
+      {
+        "id": "b",
+        "text": "Adding a user ID label to every series",
+        "correct": false,
+        "note": "That's a cardinality problem."
+      },
+      {
+        "id": "c",
+        "text": "Compressing the exposition format",
+        "correct": false,
+        "note": "Unrelated."
+      },
+      {
+        "id": "d",
+        "text": "Setting a retention period per series",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "Exemplars are references to data outside the metric set, commonly a trace ID, exposed in the OpenMetrics format.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/",
+        "title": "Exposition formats"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ip-online",
+    "type": "single",
+    "topic": "instr-instrumentation",
+    "stem": "For an online-serving system, which metrics are key according to the docs?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Queries, errors and latency",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "CPU, memory and disk usage",
+        "correct": false,
+        "note": "Resource metrics alone miss what users experience."
+      },
+      {
+        "id": "c",
+        "text": "Last success timestamp and duration",
+        "correct": false,
+        "note": "That's key for batch jobs."
+      },
+      {
+        "id": "d",
+        "text": "Open file descriptors and threads",
+        "correct": false,
+        "note": "Useful but not the key online-serving metrics."
+      }
+    ],
+    "explanation": "The key metrics for online-serving systems are the number of performed queries, errors, and latency.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ip-batch",
+    "type": "single",
+    "topic": "instr-instrumentation",
+    "stem": "What is the key metric of a batch job?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The last time it succeeded",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Its peak memory during a run",
+        "correct": false,
+        "note": "Useful, but not the key metric."
+      },
+      {
+        "id": "c",
+        "text": "The volume of logs it wrote",
+        "correct": false,
+        "note": "Not a metric the docs emphasise."
+      },
+      {
+        "id": "d",
+        "text": "Requests served per second",
+        "correct": false,
+        "note": "Batch jobs don't serve requests."
+      }
+    ],
+    "explanation": "The key metric of a batch job is the last time it succeeded. Also track when it last completed, and how long each stage took.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ip-cardinality",
+    "type": "single",
+    "topic": "instr-instrumentation",
+    "stem": "What's the general guideline for label cardinality on most metrics?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Below about 10",
+        "correct": true,
+        "note": "Right. Investigate anything over 100 or likely to grow."
+      },
+      {
+        "id": "b",
+        "text": "There's no practical limit",
+        "correct": false,
+        "note": "Every label combination is a series."
+      },
+      {
+        "id": "c",
+        "text": "Exactly one label per metric",
+        "correct": false,
+        "note": "Labels are encouraged, just bounded."
+      },
+      {
+        "id": "d",
+        "text": "Up to 10,000 on any metric",
+        "correct": false,
+        "note": "Far beyond the guideline."
+      }
+    ],
+    "explanation": "Try to keep the cardinality of your metrics below 10, and for metrics exceeding that, aim to limit them to a handful across your whole system.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ip-timestamps",
+    "type": "single",
+    "topic": "instr-instrumentation",
+    "stem": "To track when something last happened, what should a metric expose?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The Unix timestamp of the event",
+        "correct": true,
+        "note": "Right. time() - metric gives the age."
+      },
+      {
+        "id": "b",
+        "text": "Seconds since it happened, kept updated",
+        "correct": false,
+        "note": "That needs constant updating and breaks if the app stops."
+      },
+      {
+        "id": "c",
+        "text": "A counter that increments every second",
+        "correct": false,
+        "note": "Not a reliable approach."
+      },
+      {
+        "id": "d",
+        "text": "A log line written when it happens",
+        "correct": false,
+        "note": "Not a metric."
+      }
+    ],
+    "explanation": "Timestamps, not time since: export the Unix timestamp at which something happened, and calculate time since in PromQL.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ip-offline",
+    "type": "single",
+    "topic": "instr-instrumentation",
+    "stem": "In an offline processing pipeline, what do the docs suggest to see how long items take to pass through?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A timestamped heartbeat through each stage",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "A summary per item with an item_id label",
+        "correct": false,
+        "note": "Per-item labels explode cardinality."
+      },
+      {
+        "id": "c",
+        "text": "Polling the database row count per stage",
+        "correct": false,
+        "note": "Doesn't show per-stage latency."
+      },
+      {
+        "id": "d",
+        "text": "Graphing irate() of the queue size",
+        "correct": false,
+        "note": "That's not how the docs suggest it."
+      }
+    ],
+    "explanation": "For offline processing, send a heartbeat through the system that includes the timestamp; each stage exports the most recent heartbeat timestamp it saw.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ip-failures",
+    "type": "single",
+    "topic": "instr-instrumentation",
+    "stem": "How should you instrument failures alongside total requests?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A failure counter plus a total counter",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "A gauge that's set to 1 while failing",
+        "correct": false,
+        "note": "That loses counts."
+      },
+      {
+        "id": "c",
+        "text": "A failure counter with no total",
+        "correct": false,
+        "note": "You need the total for a ratio."
+      },
+      {
+        "id": "d",
+        "text": "Log the failures and skip metrics",
+        "correct": false,
+        "note": "Metrics are needed for alerting on rates."
+      }
+    ],
+    "explanation": "Every time there is a failure, increment a counter. When reporting failures you should generally also have a metric for the total number of attempts, so the failure ratio can be calculated.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ip-histogram-vs-summary",
+    "type": "single",
+    "topic": "instr-instrumentation",
+    "stem": "You know the latency target is 300 ms but need to aggregate across instances. What's the better instrumentation choice?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A histogram with a bucket at 0.3 s",
+        "correct": true,
+        "note": "Right. Aggregatable, and accurate at the threshold."
+      },
+      {
+        "id": "b",
+        "text": "A summary with a 0.95 quantile",
+        "correct": false,
+        "note": "Summary quantiles can't be aggregated across instances."
+      },
+      {
+        "id": "c",
+        "text": "A gauge of the last request's latency",
+        "correct": false,
+        "note": "Loses the distribution."
+      },
+      {
+        "id": "d",
+        "text": "A summary with a 0.3 s objective",
+        "correct": false,
+        "note": "Summaries' quantiles still can't be aggregated across instances."
+      }
+    ],
+    "explanation": "Use histograms if you need to aggregate; place a bucket at a known threshold for an accurate fraction.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-in-counter-suffix",
+    "type": "single",
+    "topic": "instr-naming",
+    "stem": "Which is the best name for a counter of processed jobs?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`jobs_processed_total`",
+        "correct": true,
+        "note": "Right. Counters end in _total."
+      },
+      {
+        "id": "b",
+        "text": "`jobsProcessed`",
+        "correct": false,
+        "note": "Use snake_case and the _total suffix."
+      },
+      {
+        "id": "c",
+        "text": "`jobs_processed_count`",
+        "correct": false,
+        "note": "_count is used by histograms and summaries."
+      },
+      {
+        "id": "d",
+        "text": "`jobs_processed_rate`",
+        "correct": false,
+        "note": "Rates are calculated in PromQL."
+      }
+    ],
+    "explanation": "An accumulating count has total as a suffix, in addition to the unit if applicable.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-in-units",
+    "type": "single",
+    "topic": "instr-naming",
+    "stem": "A latency metric is measured in milliseconds in your code. What should it be named and exposed as?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`..._duration_seconds`, in seconds",
+        "correct": true,
+        "note": "Right. Use base units."
+      },
+      {
+        "id": "b",
+        "text": "`..._duration_ms`, in milliseconds",
+        "correct": false,
+        "note": "Base units are preferred."
+      },
+      {
+        "id": "c",
+        "text": "`..._duration`, in milliseconds",
+        "correct": false,
+        "note": "The unit should be in the name, and in seconds."
+      },
+      {
+        "id": "d",
+        "text": "`..._duration_millis_total`",
+        "correct": false,
+        "note": "Gauges and durations don't take _total, and use base units."
+      }
+    ],
+    "explanation": "Metrics should use base units (seconds, bytes, meters) and include the unit in the name, e.g. http_request_duration_seconds.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-in-ratio",
+    "type": "single",
+    "topic": "instr-naming",
+    "stem": "How should a metric for disk usage as a proportion be exposed?",
+    "options": [
+      {
+        "id": "a",
+        "text": "0 to 1, e.g. `disk_usage_ratio`",
+        "correct": true,
+        "note": "Right. Not 0–100."
+      },
+      {
+        "id": "b",
+        "text": "0 to 100, e.g. `disk_usage_percent`",
+        "correct": false,
+        "note": "The docs prefer ratios from 0 to 1."
+      },
+      {
+        "id": "c",
+        "text": "A string label such as \"85%\"",
+        "correct": false,
+        "note": "Values are numbers."
+      },
+      {
+        "id": "d",
+        "text": "0 to 100, e.g. `disk_usage_ratio`",
+        "correct": false,
+        "note": "ratio means 0–1; a 0–100 value under that name misleads."
+      }
+    ],
+    "explanation": "Percent is expressed as a ratio with values 0–1 rather than 0–100; ratio is used as a suffix, e.g. disk_usage_ratio.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-in-prefix",
+    "type": "single",
+    "topic": "instr-naming",
+    "stem": "What should the first part of a metric name be?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A single-word application prefix",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "The hostname of the exporting machine",
+        "correct": false,
+        "note": "Hosts belong in labels."
+      },
+      {
+        "id": "c",
+        "text": "The metric type, such as `counter_`",
+        "correct": false,
+        "note": "Not part of the convention."
+      },
+      {
+        "id": "d",
+        "text": "The version of the instrumenting library",
+        "correct": false,
+        "note": "Versions belong in an info metric's labels."
+      }
+    ],
+    "explanation": "Metric names should have a single-word application prefix relevant to the domain, sometimes called the namespace.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-in-labels-not-names",
+    "type": "single",
+    "topic": "instr-naming",
+    "stem": "Which naming approach follows best practice?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`api_http_requests_total{operation=\"create\"}`",
+        "correct": true,
+        "note": "Right. Differentiate with labels."
+      },
+      {
+        "id": "b",
+        "text": "`api_create_requests_total` and so on",
+        "correct": false,
+        "note": "Separate names make aggregation hard."
+      },
+      {
+        "id": "c",
+        "text": "`api_http_requests_total_create`",
+        "correct": false,
+        "note": "Don't encode label values in names."
+      },
+      {
+        "id": "d",
+        "text": "`api_http_requests{type=\"total\"}`",
+        "correct": false,
+        "note": "_total is a suffix, not a label."
+      }
+    ],
+    "explanation": "Use labels to differentiate the characteristics of the thing being measured, e.g. api_http_requests_total with operation=\"create|update|delete\".",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-in-single-unit",
+    "type": "single",
+    "topic": "instr-naming",
+    "stem": "Why is `request_size_and_duration` a bad metric?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It mixes two quantities",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Underscores aren't allowed",
+        "correct": false,
+        "note": "Underscores are standard."
+      },
+      {
+        "id": "c",
+        "text": "It doesn't end in _total",
+        "correct": false,
+        "note": "Only counters take _total."
+      },
+      {
+        "id": "d",
+        "text": "It's missing a namespace prefix",
+        "correct": false,
+        "note": "The bigger problem is mixing two quantities."
+      }
+    ],
+    "explanation": "A metric name must refer to a single unit and a single quantity; don't mix request size with request duration.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-in-info",
+    "type": "single",
+    "topic": "instr-naming",
+    "stem": "How is build version information usually exposed?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`foobar_build_info{version=\"1.2.3\"} 1`",
+        "correct": true,
+        "note": "Right. Constant value 1, data in labels."
+      },
+      {
+        "id": "b",
+        "text": "`foobar_build_version 1.23` as a gauge",
+        "correct": false,
+        "note": "Version strings aren't numbers."
+      },
+      {
+        "id": "c",
+        "text": "A version label on every metric",
+        "correct": false,
+        "note": "That bloats every series."
+      },
+      {
+        "id": "d",
+        "text": "`foobar_builds_total` incremented per build",
+        "correct": false,
+        "note": "Not meaningful."
+      }
+    ],
+    "explanation": "Pseudo-metrics with an _info suffix carry information in labels and have a constant value of 1, e.g. foobar_build_info.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ie-what",
+    "type": "single",
+    "topic": "instr-exporters",
+    "stem": "When do you use an exporter?",
+    "options": [
+      {
+        "id": "a",
+        "text": "When you can't instrument the code",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Always, instead of client libraries",
+        "correct": false,
+        "note": "Direct instrumentation is preferred when possible."
+      },
+      {
+        "id": "c",
+        "text": "To forward alerts to receivers",
+        "correct": false,
+        "note": "That's Alertmanager."
+      },
+      {
+        "id": "d",
+        "text": "To store metrics long term",
+        "correct": false,
+        "note": "That's the server."
+      }
+    ],
+    "explanation": "Exporters help export existing metrics from third-party systems as Prometheus metrics, when instrumenting directly isn't feasible.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exporters/",
+        "title": "Exporters and integrations"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ie-node",
+    "type": "single",
+    "topic": "instr-exporters",
+    "stem": "Which exporter exposes hardware and OS metrics of a Linux host?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Node exporter",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Blackbox exporter",
+        "correct": false,
+        "note": "That probes endpoints."
+      },
+      {
+        "id": "c",
+        "text": "Pushgateway",
+        "correct": false,
+        "note": "Not an exporter for host metrics."
+      },
+      {
+        "id": "d",
+        "text": "JMX exporter",
+        "correct": false,
+        "note": "That's for Java applications."
+      }
+    ],
+    "explanation": "The node exporter exposes a wide variety of hardware- and kernel-related metrics.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exporters/",
+        "title": "Exporters and integrations"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ie-blackbox",
+    "type": "single",
+    "topic": "instr-exporters",
+    "stem": "You need to check that a public HTTPS endpoint responds and its certificate is valid, from the outside. Which exporter fits?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Blackbox exporter",
+        "correct": true,
+        "note": "Right. It probes endpoints over HTTP, DNS, TCP and ICMP."
+      },
+      {
+        "id": "b",
+        "text": "Node exporter",
+        "correct": false,
+        "note": "That reports host internals."
+      },
+      {
+        "id": "c",
+        "text": "mysqld exporter",
+        "correct": false,
+        "note": "That's for MySQL."
+      },
+      {
+        "id": "d",
+        "text": "Textfile collector",
+        "correct": false,
+        "note": "That reads files on a host."
+      }
+    ],
+    "explanation": "The blackbox exporter probes endpoints such as HTTP, HTTPS, DNS, TCP and ICMP; Prometheus passes it the target to probe.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/",
+        "title": "Writing exporters"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ie-one-instance",
+    "type": "single",
+    "topic": "instr-exporters",
+    "stem": "How do the docs recommend deploying an exporter like haproxy_exporter?",
+    "options": [
+      {
+        "id": "a",
+        "text": "One per application instance",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "One central exporter for all HAProxies",
+        "correct": false,
+        "note": "Discovery belongs in Prometheus."
+      },
+      {
+        "id": "c",
+        "text": "As a plugin inside Prometheus",
+        "correct": false,
+        "note": "Exporters are separate processes."
+      },
+      {
+        "id": "d",
+        "text": "Behind the Pushgateway",
+        "correct": false,
+        "note": "Exporters are scraped directly."
+      }
+    ],
+    "explanation": "Each exporter should monitor exactly one instance application, preferably beside it; all service discovery is done in Prometheus.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/",
+        "title": "Writing exporters"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ie-timestamps",
+    "type": "single",
+    "topic": "instr-exporters",
+    "stem": "Should an exporter set timestamps on the metrics it exposes?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Generally no",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Yes, always",
+        "correct": false,
+        "note": "The docs advise against it."
+      },
+      {
+        "id": "c",
+        "text": "Only on counters",
+        "correct": false,
+        "note": "No such rule."
+      },
+      {
+        "id": "d",
+        "text": "Only in OpenMetrics",
+        "correct": false,
+        "note": "Not the guidance."
+      }
+    ],
+    "explanation": "You should not set timestamps on the metrics you expose; let Prometheus take care of that.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/",
+        "title": "Writing exporters"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ie-on-scrape",
+    "type": "single",
+    "topic": "instr-exporters",
+    "stem": "When should an exporter fetch data from the application it monitors?",
+    "options": [
+      {
+        "id": "a",
+        "text": "On each scrape",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "On its own timer every few seconds",
+        "correct": false,
+        "note": "The docs prefer fetching on scrape."
+      },
+      {
+        "id": "c",
+        "text": "Once at startup, then cached",
+        "correct": false,
+        "note": "Values would never update."
+      },
+      {
+        "id": "d",
+        "text": "Only when an alert is firing",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "Metrics should be pulled from the application only when Prometheus scrapes, using custom collectors that build metrics fresh on each scrape.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/",
+        "title": "Writing exporters"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ie-up-metric",
+    "type": "single",
+    "topic": "instr-exporters",
+    "stem": "An exporter can reach its host but not the database it monitors. What's a common way to signal that?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Expose `mysql_up` set to 0",
+        "correct": true,
+        "note": "Right. Prometheus's up only shows the exporter was scraped."
+      },
+      {
+        "id": "b",
+        "text": "Stop serving /metrics",
+        "correct": false,
+        "note": "Then you can't tell exporter failure from database failure."
+      },
+      {
+        "id": "c",
+        "text": "Expose `up` set to 0 itself",
+        "correct": false,
+        "note": "up is generated by Prometheus; an exporter shouldn't expose it."
+      },
+      {
+        "id": "d",
+        "text": "Return all metrics as NaN",
+        "correct": false,
+        "note": "Not the convention."
+      }
+    ],
+    "explanation": "Prometheus's up only says the exporter answered the scrape. Many exporters also expose an exporter-prefixed metric such as mysql_up to report whether they could reach the application (common practice; the docs use haproxy_up as a naming example).",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/",
+        "title": "Writing exporters"
+      },
+      {
+        "url": "https://prometheus.io/docs/concepts/jobs_instances/",
+        "title": "Jobs and instances"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

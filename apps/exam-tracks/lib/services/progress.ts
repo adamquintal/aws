@@ -7,6 +7,8 @@ import { projectReadyDate } from "@/lib/engine/projection";
 import { dayKey } from "@/lib/engine/dates";
 import { loadGates, statusesFor } from "./learning";
 
+const isPractice = (context: string) => context !== "mock" && context !== "diagnostic";
+
 export function domainDefs(track: LoadedTrack): DomainDef[] {
   return track.domains.map((d) => ({ ...d, topicIds: track.topics.filter((t) => t.domain === d.id).map((t) => t.id) }));
 }
@@ -14,7 +16,7 @@ export function domainDefs(track: LoadedTrack): DomainDef[] {
 export async function getProgress(userId: string, timezone: string, track: LoadedTrack, enrollment: { startedAt: Date; examDate: Date | null }) {
   const now = new Date();
   const today = dayKey(now, timezone);
-  const [attempts, gates, studyDays, dueCount, snapshots] = await Promise.all([
+  const [attempts, gates, studyDays, dueCount, snapshots, passedMock] = await Promise.all([
     prisma.attempt.findMany({
       where: { userId, trackId: track.id },
       select: { domainId: true, topicId: true, correct: true, firstAttempt: true, createdAt: true, context: true },
@@ -23,6 +25,7 @@ export async function getProgress(userId: string, timezone: string, track: Loade
     prisma.studyDay.findMany({ where: { userId, trackId: track.id }, orderBy: { day: "asc" } }),
     prisma.reviewCard.count({ where: { userId, trackId: track.id, dueAt: { lte: now } } }),
     prisma.readinessSnapshot.findMany({ where: { userId, trackId: track.id }, orderBy: { day: "asc" }, take: 120 }),
+    prisma.examAttempt.findFirst({ where: { userId, trackId: track.id, kind: "mock", passed: true }, select: { id: true } }),
   ]);
 
   const statuses = statusesFor(track, gates);
@@ -32,7 +35,7 @@ export async function getProgress(userId: string, timezone: string, track: Loade
     domains,
     attempts,
     mastered,
-    mockPassed: false, // mock exams arrive in Phase 2
+    mockPassed: !!passedMock,
     threshold: track.readiness.domainThreshold,
     recentWindow: track.readiness.recentWindow,
     examHasMock: track.kind === "exam",
@@ -47,7 +50,7 @@ export async function getProgress(userId: string, timezone: string, track: Loade
   const trend = [...snapshots.filter((s) => s.day !== today).map((s) => ({ day: s.day, score: s.score })), { day: today, score: readiness.score }];
 
   const topicAccuracy = track.topics.map((t) => {
-    const xs = attempts.filter((a) => a.topicId === t.id && a.context !== "mock");
+    const xs = attempts.filter((a) => a.topicId === t.id && isPractice(a.context));
     return { topicId: t.id, title: t.title, domain: t.domain, status: statuses.get(t.id)!, attempts: xs.length, accuracy: xs.length ? xs.filter((a) => a.correct).length / xs.length : null };
   });
 
@@ -71,8 +74,8 @@ export async function getProgress(userId: string, timezone: string, track: Loade
     masteredCount: mastered.size,
     totalTopics: track.topics.length,
     topicAccuracy,
-    weakest: weakestTopics(attempts.filter((a) => a.context !== "mock")).map((w) => ({ ...w, title: track.topics.find((t) => t.id === w.topicId)?.title ?? w.topicId })),
-    sinceDayOne: sinceDayOne(domains, attempts.filter((a) => a.context !== "mock"), track.readiness.recentWindow),
+    weakest: weakestTopics(attempts.filter((a) => isPractice(a.context))).map((w) => ({ ...w, title: track.topics.find((t) => t.id === w.topicId)?.title ?? w.topicId })),
+    sinceDayOne: sinceDayOne(domains, attempts.filter((a) => isPractice(a.context)), track.readiness.recentWindow),
     projection,
     statuses,
     gates,

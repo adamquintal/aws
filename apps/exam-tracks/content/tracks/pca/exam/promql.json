@@ -1,0 +1,2627 @@
+[
+  {
+    "id": "x-ps-regex",
+    "type": "single",
+    "topic": "promql-selecting",
+    "stem": "Which selector returns `http_requests_total` series for every status code in the 500s?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`http_requests_total{status=~\"5..\"}`",
+        "correct": true,
+        "note": "Right. =~ is a regex match, anchored on both ends."
+      },
+      {
+        "id": "b",
+        "text": "`http_requests_total{status=\"5..\"}`",
+        "correct": false,
+        "note": "= is an exact match, so it looks for the literal string 5.."
+      },
+      {
+        "id": "c",
+        "text": "`http_requests_total{status=~\"5*\"}`",
+        "correct": false,
+        "note": "5* means zero or more 5s, which matches 5 or 55, not 500–599."
+      },
+      {
+        "id": "d",
+        "text": "`http_requests_total{status=~\"5\"}`",
+        "correct": false,
+        "note": "Regexes are anchored, so this only matches the exact value 5."
+      }
+    ],
+    "explanation": "Label matchers: = equal, != not equal, =~ regex match, !~ regex not match. Regex matches are fully anchored.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ps-anchor",
+    "type": "single",
+    "topic": "promql-selecting",
+    "stem": "Does `job=~\"api\"` match a series with `job=\"api-server\"`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "No, regex matchers are fully anchored",
+        "correct": true,
+        "note": "Right. Use api.* to match api-server."
+      },
+      {
+        "id": "b",
+        "text": "Yes, regexes match any substring",
+        "correct": false,
+        "note": "PromQL regexes are anchored on both ends."
+      },
+      {
+        "id": "c",
+        "text": "Yes, but only in Prometheus 3.x",
+        "correct": false,
+        "note": "Anchoring isn't version-dependent."
+      },
+      {
+        "id": "d",
+        "text": "No, because `=~` needs a `.*` prefix",
+        "correct": false,
+        "note": "It doesn't need a prefix; it needs a trailing .* here."
+      }
+    ],
+    "explanation": "Regex matches are fully anchored. A match of env=~\"foo\" is treated as env=~\"^foo$\".",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ps-empty-matcher",
+    "type": "single",
+    "topic": "promql-selecting",
+    "stem": "Which selector is invalid on its own?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`{job=~\".*\"}`",
+        "correct": true,
+        "note": "Right. A selector must contain at least one matcher that doesn't match the empty string."
+      },
+      {
+        "id": "b",
+        "text": "`{job=~\".+\"}`",
+        "correct": false,
+        "note": "This can't match an empty value, so it's valid."
+      },
+      {
+        "id": "c",
+        "text": "`{__name__=\"up\"}`",
+        "correct": false,
+        "note": "Selecting by name is valid."
+      },
+      {
+        "id": "d",
+        "text": "`up{job=~\".*\"}`",
+        "correct": false,
+        "note": "The metric name makes it valid."
+      }
+    ],
+    "explanation": "Vector selectors must either specify a name or at least one label matcher that does not match the empty string.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ps-range",
+    "type": "single",
+    "topic": "promql-selecting",
+    "stem": "What does `node_cpu_seconds_total[5m]` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Each series' samples from the last 5 minutes",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Each series' value averaged over 5 minutes",
+        "correct": false,
+        "note": "No averaging happens; you'd need a function."
+      },
+      {
+        "id": "c",
+        "text": "A single scalar summing the last 5 minutes",
+        "correct": false,
+        "note": "It returns per-series sample ranges."
+      },
+      {
+        "id": "d",
+        "text": "Each series' value from exactly 5 minutes ago",
+        "correct": false,
+        "note": "That's what offset does."
+      }
+    ],
+    "explanation": "Range vector selectors select a range of samples back from the current instant for each matching series.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ps-graph-range",
+    "type": "single",
+    "topic": "promql-selecting",
+    "stem": "Why does entering `rate(x[5m])[1h]` fail?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Range selectors only apply to series selectors",
+        "correct": true,
+        "note": "Right. Use a subquery such as [1h:1m]."
+      },
+      {
+        "id": "b",
+        "text": "rate() doesn't accept a 5m range",
+        "correct": false,
+        "note": "5m is a valid range."
+      },
+      {
+        "id": "c",
+        "text": "1h is longer than the retention allows",
+        "correct": false,
+        "note": "Duration isn't the problem."
+      },
+      {
+        "id": "d",
+        "text": "The inner range must be longer than 1h",
+        "correct": false,
+        "note": "No such rule; the syntax itself is invalid."
+      }
+    ],
+    "explanation": "Range selectors only apply to vector selectors. To get a range over an expression's result, use a subquery: <instant_query>[<range>:<resolution>].",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ps-offset",
+    "type": "single",
+    "topic": "promql-selecting",
+    "stem": "What does `http_requests_total offset 1w` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Each series' value from one week earlier",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Each series' change over the past week",
+        "correct": false,
+        "note": "That would need increase()."
+      },
+      {
+        "id": "c",
+        "text": "Each series' value one week in the future",
+        "correct": false,
+        "note": "Positive offsets look back in time."
+      },
+      {
+        "id": "d",
+        "text": "Only series created in the past week",
+        "correct": false,
+        "note": "Offset shifts time; it doesn't filter."
+      }
+    ],
+    "explanation": "The offset modifier changes the time offset for individual instant and range vectors in a query.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ps-at",
+    "type": "single",
+    "topic": "promql-selecting",
+    "stem": "What does `up @ 1700000000` do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Evaluates up at that fixed Unix time",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Filters series whose value is 1700000000",
+        "correct": false,
+        "note": "That's a comparison, not @."
+      },
+      {
+        "id": "c",
+        "text": "Shifts the query back by 1700000000 seconds",
+        "correct": false,
+        "note": "That would be offset."
+      },
+      {
+        "id": "d",
+        "text": "Returns up only if scraped at that time",
+        "correct": false,
+        "note": "@ changes evaluation time; it doesn't filter by scrape time."
+      }
+    ],
+    "explanation": "The @ modifier changes the evaluation time for individual instant and range vectors to a given Unix timestamp. start() and end() can also be used.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ps-lookback",
+    "type": "single",
+    "topic": "promql-selecting",
+    "stem": "An instant query finds no sample for a series in the last 6 minutes. With default settings, what's returned for that series?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Nothing for that series",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Its last known value, however old",
+        "correct": false,
+        "note": "Values older than the lookback aren't used."
+      },
+      {
+        "id": "c",
+        "text": "Zero, marked as a stale sample",
+        "correct": false,
+        "note": "Missing data isn't zero."
+      },
+      {
+        "id": "d",
+        "text": "NaN, with a warning annotation",
+        "correct": false,
+        "note": "The series simply isn't in the result."
+      }
+    ],
+    "explanation": "If no sample is found within the lookback period (5 minutes by default) before the evaluation time, no value is returned for that series.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-rate-def",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "What does `rate(http_requests_total[5m])` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Per-second average increase over 5 minutes",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Total increase over the last 5 minutes",
+        "correct": false,
+        "note": "That's increase()."
+      },
+      {
+        "id": "c",
+        "text": "Per-second rate from the last two samples",
+        "correct": false,
+        "note": "That's irate()."
+      },
+      {
+        "id": "d",
+        "text": "The counter's value from 5 minutes ago",
+        "correct": false,
+        "note": "That's offset."
+      }
+    ],
+    "explanation": "rate() calculates the per-second average rate of increase of the time series in the range vector, adjusting for counter resets.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-irate-use",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "When is `irate()` preferable to `rate()`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Graphing volatile, fast-moving counters",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Alerting rules on slow-moving counters",
+        "correct": false,
+        "note": "The docs advise rate() for alerts and slow-moving counters."
+      },
+      {
+        "id": "c",
+        "text": "Calculating the slope of a gauge",
+        "correct": false,
+        "note": "Neither is for gauges."
+      },
+      {
+        "id": "d",
+        "text": "Always, since it's more accurate",
+        "correct": false,
+        "note": "It only uses two points, so it's noisier."
+      }
+    ],
+    "explanation": "irate should only be used when graphing volatile, fast-moving counters. Use rate for alerts and slow-moving counters.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-increase-frac",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "`increase(jobs_total[1h])` returns 2.95 although the counter only goes up by whole numbers. Why?",
+    "options": [
+      {
+        "id": "a",
+        "text": "increase() extrapolates to the full range",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "A counter reset corrupted the result",
+        "correct": false,
+        "note": "Resets are adjusted for."
+      },
+      {
+        "id": "c",
+        "text": "Floating point rounding of large numbers",
+        "correct": false,
+        "note": "The extrapolation is the reason."
+      },
+      {
+        "id": "d",
+        "text": "increase() returns a per-second rate",
+        "correct": false,
+        "note": "It returns the total increase."
+      }
+    ],
+    "explanation": "The increase is extrapolated to cover the full time range, so it's possible to get a non-integer result even if a counter increases only by integer increments.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-rate-then-sum",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "Which expression correctly totals the request rate across all instances?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`sum(rate(http_requests_total[5m]))`",
+        "correct": true,
+        "note": "Right. rate first, then aggregate."
+      },
+      {
+        "id": "b",
+        "text": "`rate(sum(http_requests_total)[5m])`",
+        "correct": false,
+        "note": "Summing raw counters hides resets, and this needs a subquery anyway."
+      },
+      {
+        "id": "c",
+        "text": "`sum(http_requests_total) / 300`",
+        "correct": false,
+        "note": "That divides a cumulative total, not a rate."
+      },
+      {
+        "id": "d",
+        "text": "`irate(sum(http_requests_total))`",
+        "correct": false,
+        "note": "irate needs a range vector."
+      }
+    ],
+    "explanation": "When combining rate() with an aggregation, always take rate() first, then aggregate. Otherwise rate() can't detect counter resets.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-deriv",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "Which function gives the per-second rate of change of a gauge?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`deriv()`",
+        "correct": true,
+        "note": "Right. It uses linear regression."
+      },
+      {
+        "id": "b",
+        "text": "`rate()`",
+        "correct": false,
+        "note": "rate is for counters and treats any decrease as a reset."
+      },
+      {
+        "id": "c",
+        "text": "`increase()`",
+        "correct": false,
+        "note": "Also counter-only."
+      },
+      {
+        "id": "d",
+        "text": "`changes()`",
+        "correct": false,
+        "note": "That counts value changes."
+      }
+    ],
+    "explanation": "deriv(v range-vector) calculates the per-second derivative of each float series using simple linear regression. Use it with gauges.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-predict",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "Which expression is true when a filesystem is predicted to fill within 4 hours, based on the last hour?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`predict_linear(node_filesystem_avail_bytes[1h], 4 * 3600) < 0`",
+        "correct": true,
+        "note": "Right. Predict 4 hours ahead and check for below zero."
+      },
+      {
+        "id": "b",
+        "text": "`deriv(node_filesystem_avail_bytes[1h]) * 4 * 3600 < 0`",
+        "correct": false,
+        "note": "This estimates the change in 4 hours, not the predicted value; it's < 0 whenever space is shrinking."
+      },
+      {
+        "id": "c",
+        "text": "`node_filesystem_avail_bytes offset -4h < 0`",
+        "correct": false,
+        "note": "A negative offset looks at later data, which doesn't exist yet. It doesn't predict."
+      },
+      {
+        "id": "d",
+        "text": "`rate(node_filesystem_avail_bytes[1h]) * 4 * 3600 < 0`",
+        "correct": false,
+        "note": "rate is for counters, and this measures change, not the predicted level."
+      }
+    ],
+    "explanation": "predict_linear(v, t) predicts the value t seconds from now based on the range vector, using simple linear regression.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-resets",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "What does `resets(process_cpu_seconds_total[1h])` tell you?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The number of counter resets in the hour",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "The CPU seconds since the last reset",
+        "correct": false,
+        "note": "It counts resets."
+      },
+      {
+        "id": "c",
+        "text": "Whether the counter behaves like a gauge",
+        "correct": false,
+        "note": "No type detection."
+      },
+      {
+        "id": "d",
+        "text": "The per-second rate with resets removed",
+        "correct": false,
+        "note": "That's rate()."
+      }
+    ],
+    "explanation": "resets() returns the number of counter resets within the provided time range.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-changes",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "Which function counts how many times a gauge's value changed in a range?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`changes()`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`resets()`",
+        "correct": false,
+        "note": "resets counts decreases in counters."
+      },
+      {
+        "id": "c",
+        "text": "`delta()`",
+        "correct": false,
+        "note": "delta gives the difference between first and last values."
+      },
+      {
+        "id": "d",
+        "text": "`count_over_time()`",
+        "correct": false,
+        "note": "That counts samples, changed or not."
+      }
+    ],
+    "explanation": "changes() returns the number of times a series' value has changed within the time range.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pr-delta",
+    "type": "single",
+    "topic": "promql-rates",
+    "stem": "Which function is the gauge counterpart of increase(), giving the difference between the first and last value?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`delta()`",
+        "correct": true,
+        "note": "Right. It should only be used with gauges."
+      },
+      {
+        "id": "b",
+        "text": "`idelta()`",
+        "correct": false,
+        "note": "idelta uses only the last two samples."
+      },
+      {
+        "id": "c",
+        "text": "`rate()`",
+        "correct": false,
+        "note": "rate is for counters."
+      },
+      {
+        "id": "d",
+        "text": "`deriv()`",
+        "correct": false,
+        "note": "deriv gives a per-second slope via regression."
+      }
+    ],
+    "explanation": "delta(v range-vector) calculates the difference between the first and last value of each series, extrapolated; it should only be used with gauges.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pat-avg",
+    "type": "single",
+    "topic": "promql-agg-time",
+    "stem": "Which expression gives each series' average value over the last hour?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`avg_over_time(node_load1[1h])`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`avg(node_load1[1h])`",
+        "correct": false,
+        "note": "avg aggregates across series and needs an instant vector."
+      },
+      {
+        "id": "c",
+        "text": "`avg by (instance) (node_load1)`",
+        "correct": false,
+        "note": "That averages across series at one instant."
+      },
+      {
+        "id": "d",
+        "text": "`node_load1 offset 30m`",
+        "correct": false,
+        "note": "That's a single old value."
+      }
+    ],
+    "explanation": "<aggregation>_over_time() functions aggregate each series of a range vector over time and return an instant vector.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pat-max",
+    "type": "single",
+    "topic": "promql-agg-time",
+    "stem": "What's the difference between `max(x)` and `max_over_time(x[1h])`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "max is across series; max_over_time is across time",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "They're the same; max_over_time is just older syntax",
+        "correct": false,
+        "note": "One is across series, the other across time."
+      },
+      {
+        "id": "c",
+        "text": "max_over_time only works on counters",
+        "correct": false,
+        "note": "Works on any float series."
+      },
+      {
+        "id": "d",
+        "text": "max returns a range vector; max_over_time doesn't",
+        "correct": false,
+        "note": "It returns an instant vector."
+      }
+    ],
+    "explanation": "Aggregation operators aggregate across series; _over_time functions aggregate each series across time.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pat-quantile",
+    "type": "single",
+    "topic": "promql-agg-time",
+    "stem": "Which expression gives the 95th percentile of each series' values over the past day?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`quantile_over_time(0.95, temperature_celsius[1d])`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`histogram_quantile(0.95, temperature_celsius[1d])`",
+        "correct": false,
+        "note": "That's for histogram buckets."
+      },
+      {
+        "id": "c",
+        "text": "`quantile(0.95, temperature_celsius)`",
+        "correct": false,
+        "note": "That's across series at one instant."
+      },
+      {
+        "id": "d",
+        "text": "`topk(95, temperature_celsius[1d])`",
+        "correct": false,
+        "note": "topk returns the largest k series."
+      }
+    ],
+    "explanation": "quantile_over_time(scalar, range-vector) returns the φ-quantile of the values in the specified interval.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pat-count",
+    "type": "single",
+    "topic": "promql-agg-time",
+    "stem": "What does `count_over_time(up[1h])` return for a target scraped every 15 s?",
+    "options": [
+      {
+        "id": "a",
+        "text": "About 240",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "1",
+        "correct": false,
+        "note": "It counts samples per series, not series."
+      },
+      {
+        "id": "c",
+        "text": "The number of samples where up was 1",
+        "correct": false,
+        "note": "It counts all samples, whatever the value."
+      },
+      {
+        "id": "d",
+        "text": "The number of targets in the job",
+        "correct": false,
+        "note": "That's count(up)."
+      }
+    ],
+    "explanation": "count_over_time returns the count of all values in the specified interval.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pat-subquery",
+    "type": "single",
+    "topic": "promql-agg-time",
+    "stem": "What does `max_over_time(rate(http_requests_total[5m])[1h:1m])` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The peak 5-minute request rate in the last hour",
+        "correct": true,
+        "note": "Right. A subquery feeds max_over_time."
+      },
+      {
+        "id": "b",
+        "text": "The request rate from exactly one hour ago",
+        "correct": false,
+        "note": "That would use offset."
+      },
+      {
+        "id": "c",
+        "text": "A syntax error, as rate() can't be nested",
+        "correct": false,
+        "note": "Subqueries are valid."
+      },
+      {
+        "id": "d",
+        "text": "The total number of requests in the last hour",
+        "correct": false,
+        "note": "That would be increase over 1h."
+      }
+    ],
+    "explanation": "A subquery runs an instant query over a range and resolution, producing a range vector that _over_time functions can consume.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pat-last",
+    "type": "single",
+    "topic": "promql-agg-time",
+    "stem": "Which function returns the most recent sample in a range for each series?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`last_over_time()`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`max_over_time()`",
+        "correct": false,
+        "note": "That returns the largest value."
+      },
+      {
+        "id": "c",
+        "text": "`timestamp()`",
+        "correct": false,
+        "note": "That returns sample timestamps."
+      },
+      {
+        "id": "d",
+        "text": "`present_over_time()`",
+        "correct": false,
+        "note": "present_over_time returns 1 for any series with samples in the range."
+      }
+    ],
+    "explanation": "last_over_time returns the most recent point value in the specified interval.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pat-absent-over",
+    "type": "single",
+    "topic": "promql-agg-time",
+    "stem": "Which expression returns 1 if no `heartbeat_total` sample for job=\"cron\" arrived in the last hour?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`absent_over_time(heartbeat_total{job=\"cron\"}[1h])`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`absent(heartbeat_total{job=\"cron\"})`",
+        "correct": false,
+        "note": "absent only looks at the current instant (with lookback)."
+      },
+      {
+        "id": "c",
+        "text": "`count_over_time(heartbeat_total{job=\"cron\"}[1h]) == 0`",
+        "correct": false,
+        "note": "With no samples there's no series to compare, so nothing is returned."
+      },
+      {
+        "id": "d",
+        "text": "`heartbeat_total{job=\"cron\"} == 0`",
+        "correct": false,
+        "note": "That checks the value, not presence."
+      }
+    ],
+    "explanation": "absent_over_time returns a 1-element vector with value 1 if the range vector has no elements, useful for alerting on missing series over a period.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pad-by",
+    "type": "single",
+    "topic": "promql-agg-dimensions",
+    "stem": "Which expression gives the request rate per `job`, removing all other labels?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`sum by (job) (rate(http_requests_total[5m]))`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`sum without (job) (rate(http_requests_total[5m]))`",
+        "correct": false,
+        "note": "without removes job and keeps the rest."
+      },
+      {
+        "id": "c",
+        "text": "`rate(http_requests_total{job}[5m])`",
+        "correct": false,
+        "note": "Not valid label filtering."
+      },
+      {
+        "id": "d",
+        "text": "`sum(rate(http_requests_total[5m])) by job`",
+        "correct": false,
+        "note": "by needs parentheses around the label list."
+      }
+    ],
+    "explanation": "by keeps only the listed labels; without removes the listed labels and keeps the rest.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pad-without",
+    "type": "single",
+    "topic": "promql-agg-dimensions",
+    "stem": "When might `sum without (instance)` be preferable to `sum by (job, path, method)`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It keeps all other labels, including new ones",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "It's always faster to evaluate",
+        "correct": false,
+        "note": "Not a performance feature."
+      },
+      {
+        "id": "c",
+        "text": "by can't list more than two labels",
+        "correct": false,
+        "note": "by can list many."
+      },
+      {
+        "id": "d",
+        "text": "without also keeps the metric name",
+        "correct": false,
+        "note": "Both drop the metric name; that's not the difference."
+      }
+    ],
+    "explanation": "without removes listed labels and preserves all others, while by preserves only those listed.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pad-topk",
+    "type": "single",
+    "topic": "promql-agg-dimensions",
+    "stem": "What does `topk(3, sum by (path) (rate(http_requests_total[5m])))` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The 3 paths with the highest request rate",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "The top 3% of paths by request rate",
+        "correct": false,
+        "note": "k is a count, not a percentage."
+      },
+      {
+        "id": "c",
+        "text": "A single value summing the top 3 paths",
+        "correct": false,
+        "note": "topk returns series."
+      },
+      {
+        "id": "d",
+        "text": "The 3 paths with the most recent requests",
+        "correct": false,
+        "note": "Not about recency."
+      }
+    ],
+    "explanation": "topk returns the largest k elements by sample value, keeping their labels.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pad-count",
+    "type": "single",
+    "topic": "promql-agg-dimensions",
+    "stem": "Which expression counts how many targets of job=\"node\" are currently down?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`count(up{job=\"node\"} == 0)`",
+        "correct": true,
+        "note": "Right. The comparison filters, count counts what's left."
+      },
+      {
+        "id": "b",
+        "text": "`sum(up{job=\"node\"})`",
+        "correct": false,
+        "note": "That counts targets that are up."
+      },
+      {
+        "id": "c",
+        "text": "`count(up{job=\"node\"})`",
+        "correct": false,
+        "note": "That counts all targets."
+      },
+      {
+        "id": "d",
+        "text": "`absent(up{job=\"node\"} == 1)`",
+        "correct": false,
+        "note": "That only tells you if none are up."
+      }
+    ],
+    "explanation": "Comparison operators filter by default; count() counts the remaining series.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pad-count-values",
+    "type": "single",
+    "topic": "promql-agg-dimensions",
+    "stem": "What does `count_values(\"version\", build_version)` do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Counts series per value, in a `version` label",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Counts the series that have a version label",
+        "correct": false,
+        "note": "It groups by sample value."
+      },
+      {
+        "id": "c",
+        "text": "Returns the highest build_version value",
+        "correct": false,
+        "note": "That would be max."
+      },
+      {
+        "id": "d",
+        "text": "Copies the version label into the value",
+        "correct": false,
+        "note": "count_values goes the other way: values into labels."
+      }
+    ],
+    "explanation": "count_values outputs one series per unique sample value, with the value as a label named by the parameter.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pad-label-replace",
+    "type": "single",
+    "topic": "promql-agg-dimensions",
+    "stem": "What does this expression produce for a series with `instance=\"web-1:9100\"`?",
+    "code": "label_replace(up, \"host\", \"$1\", \"instance\", \"(.*):.*\")",
+    "codeLang": "promql",
+    "options": [
+      {
+        "id": "a",
+        "text": "The series plus a label `host=\"web-1\"`",
+        "correct": true,
+        "note": "Right. $1 is the regex capture group."
+      },
+      {
+        "id": "b",
+        "text": "The series with instance set to `web-1`",
+        "correct": false,
+        "note": "dst_label is host, so instance is unchanged."
+      },
+      {
+        "id": "c",
+        "text": "An empty result, as the regex doesn't match",
+        "correct": false,
+        "note": "The regex matches."
+      },
+      {
+        "id": "d",
+        "text": "The series with `host=\"web-1:9100\"`",
+        "correct": false,
+        "note": "The capture group (.*) stops before the colon, so the port isn't included."
+      }
+    ],
+    "explanation": "label_replace(v, dst_label, replacement, src_label, regex) sets dst_label to the expansion of replacement if regex matches src_label; capture groups use $1, $2.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pad-label-join",
+    "type": "single",
+    "topic": "promql-agg-dimensions",
+    "stem": "Which function concatenates several label values into a new label?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`label_join()`",
+        "correct": true,
+        "note": "Right. With a separator you choose."
+      },
+      {
+        "id": "b",
+        "text": "`label_replace()`",
+        "correct": false,
+        "note": "That uses one source label and a regex."
+      },
+      {
+        "id": "c",
+        "text": "`group()`",
+        "correct": false,
+        "note": "group aggregates with value 1."
+      },
+      {
+        "id": "d",
+        "text": "`concat()`",
+        "correct": false,
+        "note": "Not a PromQL function."
+      }
+    ],
+    "explanation": "label_join(v, dst_label, separator, src_label_1, src_label_2, ...) joins the values of the source labels into dst_label.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pad-sort",
+    "type": "single",
+    "topic": "promql-agg-dimensions",
+    "stem": "In Grafana, a range query uses `sort_desc(...)` but the legend order doesn't change. Why?",
+    "options": [
+      {
+        "id": "a",
+        "text": "sort only affects instant queries",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "sort_desc only works on counters",
+        "correct": false,
+        "note": "It works on any float vector."
+      },
+      {
+        "id": "c",
+        "text": "Grafana strips PromQL functions",
+        "correct": false,
+        "note": "It does."
+      },
+      {
+        "id": "d",
+        "text": "sort_desc needs a by clause",
+        "correct": false,
+        "note": "It takes no grouping."
+      }
+    ],
+    "explanation": "sort and sort_desc only affect the results of instant queries, as range query results always have a fixed output ordering.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-ratio",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "Which expression gives the fraction of requests that returned 5xx, per job?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`sum by (job) (rate(http_requests_total{status=~\"5..\"}[5m])) / sum by (job) (rate(http_requests_total[5m]))`",
+        "correct": true,
+        "note": "Right. Both sides have the same job label set, so they match."
+      },
+      {
+        "id": "b",
+        "text": "`rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])`",
+        "correct": false,
+        "note": "Without aggregation, each 5xx series only matches its own series, giving 1."
+      },
+      {
+        "id": "c",
+        "text": "`sum by (job) (rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m]))`",
+        "correct": false,
+        "note": "The right side has no job label, so nothing matches the per-job left side."
+      },
+      {
+        "id": "d",
+        "text": "`sum by (job, status) (rate(http_requests_total{status=~\"5..\"}[5m])) / sum by (job) (rate(http_requests_total[5m]))`",
+        "correct": false,
+        "note": "Left keeps status, right doesn't, so label sets don't match one-to-one."
+      }
+    ],
+    "explanation": "Binary operators match series with identical label sets (one-to-one). Aggregate both sides to the same labels first.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/examples/",
+        "title": "Query examples"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-filter",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "What does `node_load1 > 4` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Only the series above 4, with their values",
+        "correct": true,
+        "note": "Right. Comparisons filter by default."
+      },
+      {
+        "id": "b",
+        "text": "Every series, with 1 or 0 as the value",
+        "correct": false,
+        "note": "That needs the bool modifier."
+      },
+      {
+        "id": "c",
+        "text": "The scalar 4 if any series is above it",
+        "correct": false,
+        "note": "It returns series, not a scalar."
+      },
+      {
+        "id": "d",
+        "text": "Every series, with values capped at 4",
+        "correct": false,
+        "note": "Comparisons don't cap values."
+      }
+    ],
+    "explanation": "Comparison operators filter by default: elements where the comparison is false are dropped. With bool they return 0 or 1.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-bool",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "What does `node_load1 > bool 4` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Every series, with 1 or 0 as the value",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Only the series above 4, with their values",
+        "correct": false,
+        "note": "That's without bool."
+      },
+      {
+        "id": "c",
+        "text": "A single scalar: 1 if any series is above 4",
+        "correct": false,
+        "note": "It returns a vector, not a scalar."
+      },
+      {
+        "id": "d",
+        "text": "Every series, with values capped at 4",
+        "correct": false,
+        "note": "Comparisons don't cap values."
+      }
+    ],
+    "explanation": "With the bool modifier, comparisons return 0 or 1 instead of filtering.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-on",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "Two vectors have labels {instance, job, mode} and {instance, job}. How do you divide them, matching only on instance?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`a / on(instance) b`",
+        "correct": true,
+        "note": "Right, provided each side has one series per instance."
+      },
+      {
+        "id": "b",
+        "text": "`a / ignoring(instance) b`",
+        "correct": false,
+        "note": "That ignores the label you want to match on."
+      },
+      {
+        "id": "c",
+        "text": "`a / b`",
+        "correct": false,
+        "note": "Label sets differ, so nothing matches."
+      },
+      {
+        "id": "d",
+        "text": "`a / by(instance) b`",
+        "correct": false,
+        "note": "by is for aggregation, not binary matching."
+      }
+    ],
+    "explanation": "on(labels) restricts matching to the listed labels; ignoring(labels) excludes the listed labels from matching.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-group-left",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "When do you need `group_left`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "For many-to-one matching",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "For one-to-one matching",
+        "correct": false,
+        "note": "That's one-to-one, the default."
+      },
+      {
+        "id": "c",
+        "text": "To sort the result by labels",
+        "correct": false,
+        "note": "Unrelated."
+      },
+      {
+        "id": "d",
+        "text": "To aggregate by the listed labels",
+        "correct": false,
+        "note": "That's by or without."
+      }
+    ],
+    "explanation": "group_left/group_right enable many-to-one and one-to-many matching; the 'many' side is indicated by the modifier.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-info-join",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "What does this expression do?",
+    "code": "rate(http_requests_total[5m])\n  * on(instance) group_left(version)\napp_build_info",
+    "codeLang": "promql",
+    "options": [
+      {
+        "id": "a",
+        "text": "Adds the version label to each request-rate series",
+        "correct": true,
+        "note": "Right. A common info-metric join."
+      },
+      {
+        "id": "b",
+        "text": "Multiplies each request rate by the version number",
+        "correct": false,
+        "note": "Info metrics have value 1, so values don't change."
+      },
+      {
+        "id": "c",
+        "text": "Fails, because info metrics can't be joined",
+        "correct": false,
+        "note": "This is the usual join pattern."
+      },
+      {
+        "id": "d",
+        "text": "Returns build info only for busy instances",
+        "correct": false,
+        "note": "The left side's request-rate series are what's returned."
+      }
+    ],
+    "explanation": "group_left(label) copies the listed labels from the 'one' side to the result. Multiplying by an info metric (value 1) keeps the left values.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-unless",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "What does `up{job=\"api\"} unless on(instance) maintenance_mode == 1` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "api targets not in maintenance",
+        "correct": true,
+        "note": "Right. unless keeps left elements with no match on the right."
+      },
+      {
+        "id": "b",
+        "text": "Only instances in maintenance",
+        "correct": false,
+        "note": "That's closer to 'and'."
+      },
+      {
+        "id": "c",
+        "text": "All targets plus the maintenance series",
+        "correct": false,
+        "note": "That's 'or'."
+      },
+      {
+        "id": "d",
+        "text": "A boolean for each api target",
+        "correct": false,
+        "note": "Set operators return series, not booleans."
+      }
+    ],
+    "explanation": "vector1 unless vector2 results in elements of vector1 for which there are no elements in vector2 with matching label sets.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-precedence",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "How is `a + b * c > d and e` evaluated?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`((a + (b * c)) > d) and e`",
+        "correct": true,
+        "note": "Right. * then +, then comparison, then and."
+      },
+      {
+        "id": "b",
+        "text": "`(a + b) * (c > d) and e`",
+        "correct": false,
+        "note": "Multiplication binds tighter than addition."
+      },
+      {
+        "id": "c",
+        "text": "`a + (b * (c > (d and e)))`",
+        "correct": false,
+        "note": "and has the lowest precedence of these."
+      },
+      {
+        "id": "d",
+        "text": "Left to right with no precedence",
+        "correct": false,
+        "note": "PromQL has defined precedence."
+      }
+    ],
+    "explanation": "Precedence from highest: ^; * / % atan2; + -; comparisons; and unless; or.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pbi-scalar",
+    "type": "single",
+    "topic": "promql-binary",
+    "stem": "What does `scalar(sum(up))` return when `sum(up)` is a single series with value 12?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The scalar 12",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "NaN",
+        "correct": false,
+        "note": "NaN is returned only when the input doesn't have exactly one element."
+      },
+      {
+        "id": "c",
+        "text": "A vector with value 12",
+        "correct": false,
+        "note": "It converts to a scalar."
+      },
+      {
+        "id": "d",
+        "text": "An error",
+        "correct": false,
+        "note": "Single-element input is the normal case."
+      }
+    ],
+    "explanation": "scalar(v) returns the sample value of a single-element vector as a scalar; otherwise NaN.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ph-quantile",
+    "type": "single",
+    "topic": "promql-histograms",
+    "stem": "Which expression correctly calculates the 95th percentile request latency across all instances from a classic histogram?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))`",
+        "correct": true,
+        "note": "Right. rate the buckets, sum keeping le, then quantile."
+      },
+      {
+        "id": "b",
+        "text": "`histogram_quantile(0.95, sum by (instance) (rate(http_request_duration_seconds_bucket[5m])))`",
+        "correct": false,
+        "note": "Summing away le leaves no buckets for histogram_quantile to use."
+      },
+      {
+        "id": "c",
+        "text": "`avg(histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])))`",
+        "correct": false,
+        "note": "Averaging per-instance quantiles isn't the quantile across all instances."
+      },
+      {
+        "id": "d",
+        "text": "`histogram_quantile(0.95, sum by (le) (http_request_duration_seconds_bucket))`",
+        "correct": false,
+        "note": "Without rate(), this uses counts since process start, not the last 5 minutes."
+      }
+    ],
+    "explanation": "To aggregate a classic histogram, rate the buckets, sum them keeping the le label, then apply histogram_quantile.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ph-avg",
+    "type": "single",
+    "topic": "promql-histograms",
+    "stem": "A histogram is named `x` (in seconds). Which expression gives the average duration over the last 5 minutes?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`rate(x_sum[5m]) / rate(x_count[5m])`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`avg(rate(x_bucket[5m]))`",
+        "correct": false,
+        "note": "Averaging bucket rates is meaningless."
+      },
+      {
+        "id": "c",
+        "text": "`rate(x_count[5m]) / rate(x_sum[5m])`",
+        "correct": false,
+        "note": "Inverted: that's observations per second of duration."
+      },
+      {
+        "id": "d",
+        "text": "`histogram_quantile(0.5, rate(x_bucket[5m]))`",
+        "correct": false,
+        "note": "That's the median, not the mean."
+      }
+    ],
+    "explanation": "Average from a histogram or summary: rate of _sum divided by rate of _count.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ph-interp",
+    "type": "single",
+    "topic": "promql-histograms",
+    "stem": "Your buckets are 0.1, 0.25, 0.5 and 1. histogram_quantile reports p95 = 0.43 s. What should you keep in mind?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It's interpolated within the 0.25–0.5 bucket",
+        "correct": true,
+        "note": "Right. Accuracy depends on bucket layout."
+      },
+      {
+        "id": "b",
+        "text": "It's exact to the millisecond",
+        "correct": false,
+        "note": "It's estimated by linear interpolation."
+      },
+      {
+        "id": "c",
+        "text": "0.43 must be a configured bucket boundary",
+        "correct": false,
+        "note": "Results are interpolated between boundaries."
+      },
+      {
+        "id": "d",
+        "text": "The histogram has an invalid bucket layout",
+        "correct": false,
+        "note": "Interpolation is normal."
+      }
+    ],
+    "explanation": "histogram_quantile linearly interpolates within the bucket containing the quantile, so the error depends on bucket widths.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Histograms and summaries"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ph-summary-agg",
+    "type": "single",
+    "topic": "promql-histograms",
+    "stem": "Why is `avg(rpc_duration_seconds{quantile=\"0.99\"})` across instances statistically misleading?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Averaged quantiles aren't the combined quantile",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Summaries don't expose quantile series",
+        "correct": false,
+        "note": "They do."
+      },
+      {
+        "id": "c",
+        "text": "avg can't be applied to labelled series",
+        "correct": false,
+        "note": "Syntax isn't the problem."
+      },
+      {
+        "id": "d",
+        "text": "Quantiles are identical on every instance",
+        "correct": false,
+        "note": "They usually differ."
+      }
+    ],
+    "explanation": "Quantiles calculated by summaries can't be meaningfully aggregated; averaging them is statistically nonsensical.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ph-native",
+    "type": "single",
+    "topic": "promql-histograms",
+    "stem": "With a native histogram `http_request_duration_seconds`, how do you get the 90th percentile?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`histogram_quantile(0.9, rate(http_request_duration_seconds[5m]))`",
+        "correct": true,
+        "note": "Right. No _bucket suffix or le label is needed."
+      },
+      {
+        "id": "b",
+        "text": "`histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[5m]))`",
+        "correct": false,
+        "note": "Native histograms don't have _bucket series."
+      },
+      {
+        "id": "c",
+        "text": "`quantile(0.9, http_request_duration_seconds)`",
+        "correct": false,
+        "note": "quantile works across float series."
+      },
+      {
+        "id": "d",
+        "text": "You can't calculate quantiles from native histograms",
+        "correct": false,
+        "note": "You can, directly."
+      }
+    ],
+    "explanation": "Native histograms are single series with histogram samples; histogram_quantile operates on them directly.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ph-fraction",
+    "type": "single",
+    "topic": "promql-histograms",
+    "stem": "Which function estimates the fraction of native histogram observations between two values?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`histogram_fraction()`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`histogram_quantile()`",
+        "correct": false,
+        "note": "That returns a value for a given quantile."
+      },
+      {
+        "id": "c",
+        "text": "`histogram_count()`",
+        "correct": false,
+        "note": "That returns the observation count."
+      },
+      {
+        "id": "d",
+        "text": "`rate()`",
+        "correct": false,
+        "note": "That gives a rate."
+      }
+    ],
+    "explanation": "histogram_fraction(lower, upper, b) estimates the fraction of observations between the two values.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ph-apdex",
+    "type": "single",
+    "topic": "promql-histograms",
+    "stem": "Target latency is 300 ms and tolerated latency 1.2 s. How does the Apdex expression in the Prometheus docs combine them?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Fraction under 300 ms plus half of 300 ms–1.2 s",
+        "correct": true,
+        "note": "Right. Satisfied requests count fully, tolerating ones count half."
+      },
+      {
+        "id": "b",
+        "text": "The average of the 0.3 and 1.2 quantiles",
+        "correct": false,
+        "note": "Apdex uses fractions of requests, not quantiles."
+      },
+      {
+        "id": "c",
+        "text": "The fraction under 1.2 s, with no target",
+        "correct": false,
+        "note": "That ignores the target."
+      },
+      {
+        "id": "d",
+        "text": "Rate of _sum divided by rate of _count",
+        "correct": false,
+        "note": "That's average latency."
+      }
+    ],
+    "explanation": "The histograms page computes Apdex as histogram_fraction(0, 0.3, ...) + histogram_fraction(0.3, 1.2, ...) / 2, with the tolerated duration usually 4× the target.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pt-age",
+    "type": "single",
+    "topic": "promql-timestamps",
+    "stem": "A batch job exposes `job_last_success_timestamp_seconds`. Which expression returns seconds since it last succeeded?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`time() - job_last_success_timestamp_seconds`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`rate(job_last_success_timestamp_seconds[1h])`",
+        "correct": false,
+        "note": "rate is for counters."
+      },
+      {
+        "id": "c",
+        "text": "`timestamp(job_last_success_timestamp_seconds)`",
+        "correct": false,
+        "note": "That's when the sample was scraped, not when the job succeeded."
+      },
+      {
+        "id": "d",
+        "text": "`job_last_success_timestamp_seconds offset 1h`",
+        "correct": false,
+        "note": "That's an old value."
+      }
+    ],
+    "explanation": "Exporting the Unix time of an event as a gauge lets you compute time since with time() - metric.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/",
+        "title": "Instrumentation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pt-time",
+    "type": "single",
+    "topic": "promql-timestamps",
+    "stem": "What exactly does `time()` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Seconds since the epoch at evaluation time",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Milliseconds since the epoch, wall clock",
+        "correct": false,
+        "note": "Seconds, and evaluation time."
+      },
+      {
+        "id": "c",
+        "text": "The timestamp of the most recent scrape",
+        "correct": false,
+        "note": "That's timestamp()."
+      },
+      {
+        "id": "d",
+        "text": "Seconds since the Prometheus server started",
+        "correct": false,
+        "note": "That would need process_start_time_seconds."
+      }
+    ],
+    "explanation": "time() returns the number of seconds since January 1, 1970 UTC: the time at which the expression is evaluated.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pt-timestamp",
+    "type": "single",
+    "topic": "promql-timestamps",
+    "stem": "What does `timestamp(up)` return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Each sample's timestamp, in seconds",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Each series' value of up",
+        "correct": false,
+        "note": "It returns timestamps, not values."
+      },
+      {
+        "id": "c",
+        "text": "When each target process started",
+        "correct": false,
+        "note": "That would be a start-time metric."
+      },
+      {
+        "id": "d",
+        "text": "A range vector of scrape times",
+        "correct": false,
+        "note": "It returns an instant vector."
+      }
+    ],
+    "explanation": "timestamp(v) returns the timestamp of each sample as seconds since January 1, 1970 UTC.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pt-uptime",
+    "type": "single",
+    "topic": "promql-timestamps",
+    "stem": "Which expression gives process uptime in seconds?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`time() - process_start_time_seconds`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`process_start_time_seconds`",
+        "correct": false,
+        "note": "That's when it started, not how long ago."
+      },
+      {
+        "id": "c",
+        "text": "`rate(process_start_time_seconds[5m])`",
+        "correct": false,
+        "note": "Not a counter."
+      },
+      {
+        "id": "d",
+        "text": "`changes(process_start_time_seconds[1d])`",
+        "correct": false,
+        "note": "That counts restarts."
+      }
+    ],
+    "explanation": "Client libraries' standard process_start_time_seconds metric holds the start time in Unix seconds; subtract it from time() for uptime.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      },
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/",
+        "title": "Writing client libraries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pt-absent",
+    "type": "single",
+    "topic": "promql-timestamps",
+    "stem": "Which expression is designed to alert when no series exist for `up{job=\"payments\"}`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`absent(up{job=\"payments\"})`",
+        "correct": true,
+        "note": "Right. It returns 1 when the selector matches nothing."
+      },
+      {
+        "id": "b",
+        "text": "`up{job=\"payments\"} == 0`",
+        "correct": false,
+        "note": "That needs the series to exist with value 0."
+      },
+      {
+        "id": "c",
+        "text": "`count(up{job=\"payments\"}) == 0`",
+        "correct": false,
+        "note": "count of nothing returns nothing, not 0."
+      },
+      {
+        "id": "d",
+        "text": "`sum(up{job=\"payments\"}) < 1`",
+        "correct": false,
+        "note": "sum of nothing returns nothing."
+      }
+    ],
+    "explanation": "absent(v) returns a 1-element vector with value 1 if the vector passed to it has no elements. Useful for alerting when series are missing.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pt-vector",
+    "type": "single",
+    "topic": "promql-timestamps",
+    "stem": "Why might you write `sum(rate(errors_total[5m])) or vector(0)`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "To get 0 when no error series exist",
+        "correct": true,
+        "note": "Right. vector(0) is a single, label-free series."
+      },
+      {
+        "id": "b",
+        "text": "To convert the result into a scalar",
+        "correct": false,
+        "note": "vector() goes from scalar to vector."
+      },
+      {
+        "id": "c",
+        "text": "To round the result to whole numbers",
+        "correct": false,
+        "note": "No rounding."
+      },
+      {
+        "id": "d",
+        "text": "Because or needs a vector on each side",
+        "correct": false,
+        "note": "or works without it; vector(0) just supplies a fallback series."
+      }
+    ],
+    "explanation": "vector(s) converts a scalar to a single-element instant vector with no labels; or fills in where the left side is empty.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/operators/",
+        "title": "Query operators"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-pt-clamp",
+    "type": "single",
+    "topic": "promql-timestamps",
+    "stem": "What does `clamp(x, 0, 100)` do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Limits values to between 0 and 100",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Drops values outside 0 to 100",
+        "correct": false,
+        "note": "Values are limited, not dropped."
+      },
+      {
+        "id": "c",
+        "text": "Rounds values to the nearest 100",
+        "correct": false,
+        "note": "That's round(x, 100)."
+      },
+      {
+        "id": "d",
+        "text": "Rescales values into percentages",
+        "correct": false,
+        "note": "No scaling happens."
+      }
+    ],
+    "explanation": "clamp(v, min, max) clamps sample values to have a lower limit of min and an upper limit of max.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

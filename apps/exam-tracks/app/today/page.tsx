@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireEnrollment } from "@/lib/session";
 import { getProgress } from "@/lib/services/progress";
 import { buildDailySession, currentTopic } from "@/lib/services/learning";
+import { listExams } from "@/lib/services/exams";
 import { addDays } from "@/lib/engine/dates";
 import { TabBar } from "@/components/TabBar";
 import { RunBar } from "@/components/RunBar";
@@ -12,7 +13,10 @@ export const dynamic = "force-dynamic";
 
 export default async function Today() {
   const { user, enrollment, track } = await requireEnrollment();
-  const [p, session] = await Promise.all([getProgress(user.id, user.timezone, track, enrollment), buildDailySession(user.id, track)]);
+  const [p, session, exams] = await Promise.all([getProgress(user.id, user.timezone, track, enrollment), buildDailySession(user.id, track), listExams(user.id, track)]);
+  const hasExamPool = track.examPool.length > 0;
+  const tookCheck = exams.some((e) => e.kind === "diagnostic");
+  const tookMock = exams.some((e) => e.kind === "mock" && e.submittedAt);
   const cur = currentTopic(track, p.statuses);
   const status = cur ? p.statuses.get(cur.id) : undefined;
   const gate = cur ? p.gates.get(cur.id) : undefined;
@@ -91,6 +95,25 @@ export default async function Today() {
             <li key={r.label} className="row"><span>{r.label}</span><span className="text-muted">{r.n} {r.n === 1 ? "question" : "questions"}</span></li>
           ))}
         </ul>
+      )}
+
+      {hasExamPool && !tookCheck && p.masteredCount === 0 && (
+        <Link href="/exams" className="mt-9 flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-4 hover:border-muted">
+          <span>
+            <span className="block text-[15px] font-semibold">Not sure where you stand?</span>
+            <span className="mt-0.5 block text-[14px] text-muted">A 20-minute pre-course check maps your strong and weak areas.</span>
+          </span>
+          <IconArrow size={18} className="shrink-0 text-muted" />
+        </Link>
+      )}
+      {hasExamPool && !tookMock && p.masteredCount >= Math.ceil(track.topics.length / 2) && (
+        <Link href="/exams" className="mt-9 flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-4 hover:border-muted">
+          <span>
+            <span className="block text-[15px] font-semibold">Ready for a dress rehearsal?</span>
+            <span className="mt-0.5 block text-[14px] text-muted">A timed mock exam shows how you’d do on the day.</span>
+          </span>
+          <IconArrow size={18} className="shrink-0 text-muted" />
+        </Link>
       )}
 
       <Link href="/dashboard" className="mt-auto flex items-baseline justify-between pb-6 pt-10">

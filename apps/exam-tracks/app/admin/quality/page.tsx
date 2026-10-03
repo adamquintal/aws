@@ -10,7 +10,7 @@ export default async function Quality() {
   const items = allItems().filter((i) => i.kind === "question");
   const byQ = new Map(items.map((i) => [(i.body as { id: string }).id, i]));
   const [stats, flags] = await Promise.all([
-    prisma.attempt.groupBy({ by: ["questionId", "correct"], where: { context: { not: "mock" } }, _count: true }),
+    prisma.attempt.groupBy({ by: ["questionId", "correct"], _count: true }),
     prisma.flag.findMany({ where: { status: "open" }, orderBy: { createdAt: "desc" }, take: 100 }),
   ]);
   const agg = new Map<string, { total: number; wrong: number }>();

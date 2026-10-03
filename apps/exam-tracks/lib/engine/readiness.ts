@@ -43,7 +43,7 @@ export function computeReadiness(opts: {
 }): Readiness {
   const threshold = opts.threshold ?? 0.8;
   const window = opts.recentWindow ?? 30;
-  const sorted = [...opts.attempts].filter((a) => a.context !== "mock").sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  const sorted = [...opts.attempts].filter((a) => a.context !== "mock" && a.context !== "diagnostic").sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   const totalWeight = opts.domains.reduce((s, d) => s + d.weight, 0) || 1;
 
   const domains: DomainReadiness[] = opts.domains.map((d) => {

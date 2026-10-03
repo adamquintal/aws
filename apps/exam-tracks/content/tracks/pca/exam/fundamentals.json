@@ -1,0 +1,1777 @@
+[
+  {
+    "id": "x-fa-server-role",
+    "type": "single",
+    "topic": "fund-architecture",
+    "stem": "Which component scrapes targets, stores time series and evaluates rules?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The Prometheus server",
+        "correct": true,
+        "note": "Right. Scraping, TSDB and rule evaluation all live in the server."
+      },
+      {
+        "id": "b",
+        "text": "The Alertmanager cluster",
+        "correct": false,
+        "note": "Alertmanager handles alerts sent to it; it doesn't scrape."
+      },
+      {
+        "id": "c",
+        "text": "The Pushgateway service",
+        "correct": false,
+        "note": "It holds pushed metrics for scraping."
+      },
+      {
+        "id": "d",
+        "text": "A dedicated exporter",
+        "correct": false,
+        "note": "Exporters expose metrics for the server to scrape."
+      }
+    ],
+    "explanation": "The Prometheus server scrapes and stores time series data and runs rules to aggregate data or generate alerts.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/",
+        "title": "Overview"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-fa-am-role",
+    "type": "single",
+    "topic": "fund-architecture",
+    "stem": "In the Prometheus ecosystem, what does Alertmanager do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Groups, deduplicates and routes alerts to receivers",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Evaluates alerting rule expressions on a schedule",
+        "correct": false,
+        "note": "Prometheus evaluates rules and sends firing alerts."
+      },
+      {
+        "id": "c",
+        "text": "Stores metrics long term for alert history",
+        "correct": false,
+        "note": "It stores no metrics."
+      },
+      {
+        "id": "d",
+        "text": "Discovers scrape targets for alerting rules",
+        "correct": false,
+        "note": "That's service discovery in the server."
+      }
+    ],
+    "explanation": "Alerting rules in Prometheus servers send alerts to an Alertmanager, which manages them, including silencing, inhibition, aggregation and sending notifications.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+        "title": "Alertmanager"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/",
+        "title": "Overview"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-fa-agent",
+    "type": "single",
+    "topic": "fund-architecture",
+    "stem": "What does Prometheus Agent mode (`--agent`) disable?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Local querying, alerting and rules",
+        "correct": true,
+        "note": "Right. It's optimised for forwarding data."
+      },
+      {
+        "id": "b",
+        "text": "Service discovery and relabeling",
+        "correct": false,
+        "note": "Discovery is kept."
+      },
+      {
+        "id": "c",
+        "text": "Scraping of targets over HTTP",
+        "correct": false,
+        "note": "Scraping is the main thing it still does."
+      },
+      {
+        "id": "d",
+        "text": "Remote write to central storage",
+        "correct": false,
+        "note": "Remote write is its whole point."
+      }
+    ],
+    "explanation": "Agent mode optimises Prometheus for remote write. It disables querying, alerting and local storage (using a customised WAL), keeping scraping and discovery.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/prometheus_agent/",
+        "title": "Agent mode"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-fa-federation",
+    "type": "single",
+    "topic": "fund-architecture",
+    "stem": "Which endpoint lets one Prometheus server scrape selected series from another?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`/federate` with `match[]` selectors",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`/api/v1/write` with a remote-write client",
+        "correct": false,
+        "note": "That's the remote-write receiver."
+      },
+      {
+        "id": "c",
+        "text": "`/metrics` with honor_labels set",
+        "correct": false,
+        "note": "That's the server's own metrics."
+      },
+      {
+        "id": "d",
+        "text": "`/api/v1/query` with a range parameter",
+        "correct": false,
+        "note": "That runs PromQL queries; it doesn't federate series for scraping."
+      }
+    ],
+    "explanation": "The /federate endpoint returns current values for series selected by at least one match[] parameter. Scrape it with honor_labels: true.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/federation/",
+        "title": "Federation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-fa-hier-fed",
+    "type": "single",
+    "topic": "fund-architecture",
+    "stem": "In hierarchical federation, what do the global Prometheus servers typically pull from the per-datacenter servers?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Aggregated series from recording rules",
+        "correct": true,
+        "note": "Right. Detail stays local."
+      },
+      {
+        "id": "b",
+        "text": "Every raw series from every instance",
+        "correct": false,
+        "note": "That defeats the purpose and doesn't scale."
+      },
+      {
+        "id": "c",
+        "text": "Only the alerts each server is firing",
+        "correct": false,
+        "note": "Federation transfers time series."
+      },
+      {
+        "id": "d",
+        "text": "Log streams from the local exporters",
+        "correct": false,
+        "note": "Prometheus doesn't handle logs."
+      }
+    ],
+    "explanation": "Hierarchical federation: local servers collect detailed data; global servers collect and store only aggregated time series from them.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/federation/",
+        "title": "Federation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-fa-api",
+    "type": "single",
+    "topic": "fund-architecture",
+    "stem": "Under which path is the stable Prometheus HTTP API served?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`/api/v1`",
+        "correct": true,
+        "note": "Right. For example /api/v1/query and /api/v1/query_range."
+      },
+      {
+        "id": "b",
+        "text": "`/v2/api`",
+        "correct": false,
+        "note": "That's not the Prometheus path."
+      },
+      {
+        "id": "c",
+        "text": "`/graphql`",
+        "correct": false,
+        "note": "Prometheus has no GraphQL API."
+      },
+      {
+        "id": "d",
+        "text": "`/federate/api`",
+        "correct": false,
+        "note": "Not a real path."
+      }
+    ],
+    "explanation": "The current stable HTTP API is reachable under /api/v1 on a Prometheus server.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/api/",
+        "title": "HTTP API"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-fa-query-range",
+    "type": "single",
+    "topic": "fund-architecture",
+    "stem": "Grafana draws a graph over the last 6 hours. Which API endpoint does it use?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`/api/v1/query_range`",
+        "correct": true,
+        "note": "Right. A range query evaluates the expression at each step."
+      },
+      {
+        "id": "b",
+        "text": "`/api/v1/query` with a lookback",
+        "correct": false,
+        "note": "That's a single instant query."
+      },
+      {
+        "id": "c",
+        "text": "`/api/v1/series` with match[]",
+        "correct": false,
+        "note": "That finds series, not values."
+      },
+      {
+        "id": "d",
+        "text": "`/federate` with match[]",
+        "correct": false,
+        "note": "That exposes current values for federation, not a range over time."
+      }
+    ],
+    "explanation": "Range queries evaluate an expression over a range of time with start, end and step parameters, via /api/v1/query_range.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/api/",
+        "title": "HTTP API"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-fa-remote-write",
+    "type": "single",
+    "topic": "fund-architecture",
+    "stem": "What is remote write used for?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Sending samples to remote storage",
+        "correct": true,
+        "note": "Right. Commonly for long-term or global storage."
+      },
+      {
+        "id": "b",
+        "text": "Pushing metrics from apps into Prometheus",
+        "correct": false,
+        "note": "Apps are normally scraped."
+      },
+      {
+        "id": "c",
+        "text": "Sending firing alerts to Alertmanager",
+        "correct": false,
+        "note": "That uses the alerting configuration."
+      },
+      {
+        "id": "d",
+        "text": "Writing new rules into prometheus.yml",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "Prometheus can write samples it ingests to a remote URL in a standardised format, integrating with remote storage systems.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/",
+        "title": "Storage"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-dm-identity",
+    "type": "single",
+    "topic": "fund-data-model",
+    "stem": "What uniquely identifies a time series?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Its metric name plus all its labels",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Its metric name on its own",
+        "correct": false,
+        "note": "Different label sets are different series."
+      },
+      {
+        "id": "c",
+        "text": "The job and instance it was scraped from",
+        "correct": false,
+        "note": "instance is just one label."
+      },
+      {
+        "id": "d",
+        "text": "The timestamp of its first sample",
+        "correct": false,
+        "note": "Timestamps belong to samples."
+      }
+    ],
+    "explanation": "Every time series is uniquely identified by its metric name and optional key-value pairs called labels.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-dm-name-label",
+    "type": "single",
+    "topic": "fund-data-model",
+    "stem": "How is a metric name represented internally?",
+    "options": [
+      {
+        "id": "a",
+        "text": "As a label called `__name__`",
+        "correct": true,
+        "note": "Right. So `{__name__=\"up\"}` selects up."
+      },
+      {
+        "id": "b",
+        "text": "As the first label value",
+        "correct": false,
+        "note": "It has its own reserved label."
+      },
+      {
+        "id": "c",
+        "text": "It isn't stored",
+        "correct": false,
+        "note": "It's part of series identity."
+      },
+      {
+        "id": "d",
+        "text": "As a separate index file per name",
+        "correct": false,
+        "note": "Not how the data model defines it."
+      }
+    ],
+    "explanation": "The metric name is internally represented as a label pair with the special label name __name__.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-dm-empty",
+    "type": "single",
+    "topic": "fund-data-model",
+    "stem": "What does a label with an empty value mean?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It's the same as the label being absent",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "It matches every value in a selector",
+        "correct": false,
+        "note": "Empty means absent."
+      },
+      {
+        "id": "c",
+        "text": "It's invalid, so the scrape fails",
+        "correct": false,
+        "note": "It's allowed."
+      },
+      {
+        "id": "d",
+        "text": "It's stored as the string \"null\"",
+        "correct": false,
+        "note": "No such conversion."
+      }
+    ],
+    "explanation": "Labels with an empty label value are considered equivalent to labels that do not exist.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-dm-reserved",
+    "type": "single",
+    "topic": "fund-data-model",
+    "stem": "Which label names are reserved for internal Prometheus use?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Names starting with `__`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Names ending in `_total`",
+        "correct": false,
+        "note": "That's a counter naming convention."
+      },
+      {
+        "id": "c",
+        "text": "Names containing a colon",
+        "correct": false,
+        "note": "Colons are reserved in metric names for recording rules."
+      },
+      {
+        "id": "d",
+        "text": "Names shorter than three characters",
+        "correct": false,
+        "note": "No such rule."
+      }
+    ],
+    "explanation": "Label names beginning with __ (two underscores) must be reserved for internal Prometheus use.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-dm-colon",
+    "type": "single",
+    "topic": "fund-data-model",
+    "stem": "Why shouldn't an exporter expose a metric named `http:requests:rate5m`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Colons are reserved for recording rules",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Metric names must not be lowercase",
+        "correct": false,
+        "note": "Lowercase is normal."
+      },
+      {
+        "id": "c",
+        "text": "Exporters must not expose computed rates",
+        "correct": false,
+        "note": "Exporters expose raw counters."
+      },
+      {
+        "id": "d",
+        "text": "Names over 20 characters are rejected",
+        "correct": false,
+        "note": "No such limit."
+      }
+    ],
+    "explanation": "Colons are reserved for user-defined recording rules and should not be used by exporters or direct instrumentation.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-dm-notation",
+    "type": "single",
+    "topic": "fund-data-model",
+    "stem": "Which selector is equivalent to `api_http_requests_total{method=\"POST\"}`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`{__name__=\"api_http_requests_total\", method=\"POST\"}`",
+        "correct": true,
+        "note": "Right. The name is the __name__ label."
+      },
+      {
+        "id": "b",
+        "text": "`{__metric__=\"api_http_requests_total\", method=\"POST\"}`",
+        "correct": false,
+        "note": "The internal label is __name__, not __metric__."
+      },
+      {
+        "id": "c",
+        "text": "`api_http_requests_total{__name__=\"POST\"}`",
+        "correct": false,
+        "note": "This sets the name to POST, which is wrong."
+      },
+      {
+        "id": "d",
+        "text": "`{name=\"api_http_requests_total\", method=\"POST\"}`",
+        "correct": false,
+        "note": "The label is __name__, with two underscores each side."
+      }
+    ],
+    "explanation": "Since the metric name is the __name__ label, `{__name__=\"name\", ...}` is equivalent notation.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-dm-cardinality",
+    "type": "single",
+    "topic": "fund-data-model",
+    "stem": "A metric has labels `method` (5 values), `status` (8 values) and `path` (100 values). What's the most series it can create per target?",
+    "options": [
+      {
+        "id": "a",
+        "text": "4,000",
+        "correct": true,
+        "note": "Right. 5 × 8 × 100 label combinations."
+      },
+      {
+        "id": "b",
+        "text": "113",
+        "correct": false,
+        "note": "Combinations multiply, they don't add."
+      },
+      {
+        "id": "c",
+        "text": "800",
+        "correct": false,
+        "note": "That ignores the method label: 8 × 100."
+      },
+      {
+        "id": "d",
+        "text": "100",
+        "correct": false,
+        "note": "That counts only the path label."
+      }
+    ],
+    "explanation": "Every unique combination of key-value label pairs represents a new time series, so label cardinalities multiply.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/",
+        "title": "Metric and label naming"
+      },
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-dm-utf8",
+    "type": "single",
+    "topic": "fund-data-model",
+    "stem": "In Prometheus 3.x, a metric name contains a dot (`http.server.duration`). How do you select it in PromQL?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`{\"http.server.duration\"}`",
+        "correct": true,
+        "note": "Right. UTF-8 names outside the classic set must be quoted."
+      },
+      {
+        "id": "b",
+        "text": "`http.server.duration` unquoted",
+        "correct": false,
+        "note": "Dots aren't valid in an unquoted name."
+      },
+      {
+        "id": "c",
+        "text": "`http_server_duration` only",
+        "correct": false,
+        "note": "That's a different metric name."
+      },
+      {
+        "id": "d",
+        "text": "`{__name__=http.server.duration}`",
+        "correct": false,
+        "note": "Label values must be quoted strings."
+      }
+    ],
+    "explanation": "Since v3.0, metric names may use UTF-8; names outside [a-zA-Z_:][a-zA-Z0-9_:]* must be quoted, e.g. {\"<metric name>\", ...}.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ef-help-type",
+    "type": "single",
+    "topic": "fund-exposition",
+    "stem": "In the text exposition format, which lines carry metadata about a metric?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`# HELP` and `# TYPE` lines",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`# META` and `# UNIT` lines",
+        "correct": false,
+        "note": "Not part of the Prometheus text format."
+      },
+      {
+        "id": "c",
+        "text": "A JSON header block",
+        "correct": false,
+        "note": "The text format isn't JSON."
+      },
+      {
+        "id": "d",
+        "text": "`@type` annotations per line",
+        "correct": false,
+        "note": "Not part of the format."
+      }
+    ],
+    "explanation": "Lines starting with # are comments unless the first token after # is HELP or TYPE, which carry the docstring and the metric type.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/",
+        "title": "Exposition formats"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ef-inf",
+    "type": "single",
+    "topic": "fund-exposition",
+    "stem": "A classic histogram is exposed in the text format. Which bucket must always be present?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`le=\"+Inf\"`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`le=\"0\"`",
+        "correct": false,
+        "note": "Not required."
+      },
+      {
+        "id": "c",
+        "text": "`le=\"1\"`",
+        "correct": false,
+        "note": "Bucket boundaries are up to the instrumentation."
+      },
+      {
+        "id": "d",
+        "text": "`le=\"0.5\"`",
+        "correct": false,
+        "note": "Bucket boundaries are up to the instrumentation."
+      }
+    ],
+    "explanation": "A histogram must have a bucket with {le=\"+Inf\"}, and its value must be identical to the value of x_count.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/",
+        "title": "Exposition formats"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ef-timestamp",
+    "type": "single",
+    "topic": "fund-exposition",
+    "stem": "What unit is the optional timestamp at the end of a text-format sample line?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Milliseconds since the epoch",
+        "correct": true,
+        "note": "Right. It's an int64."
+      },
+      {
+        "id": "b",
+        "text": "Seconds since the epoch",
+        "correct": false,
+        "note": "Seconds are used in PromQL's time(), not the exposition timestamp."
+      },
+      {
+        "id": "c",
+        "text": "Nanoseconds since the epoch",
+        "correct": false,
+        "note": "Too fine-grained for this format."
+      },
+      {
+        "id": "d",
+        "text": "An RFC 3339 date string",
+        "correct": false,
+        "note": "It's an integer."
+      }
+    ],
+    "explanation": "The optional timestamp is an int64 (milliseconds since epoch).",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/",
+        "title": "Exposition formats"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ef-escape",
+    "type": "single",
+    "topic": "fund-exposition",
+    "stem": "Which characters must be escaped in a label value in the text format?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Backslash, double quote, line feed",
+        "correct": true,
+        "note": "Right. As \\\\, \\\" and \\n."
+      },
+      {
+        "id": "b",
+        "text": "Spaces, commas and equals signs",
+        "correct": false,
+        "note": "These are fine inside a quoted value."
+      },
+      {
+        "id": "c",
+        "text": "Colons, dots and slashes",
+        "correct": false,
+        "note": "Fine inside a quoted value."
+      },
+      {
+        "id": "d",
+        "text": "Only non-ASCII characters",
+        "correct": false,
+        "note": "UTF-8 is allowed; three characters need escaping."
+      }
+    ],
+    "explanation": "label_value can be any UTF-8 sequence, but backslash, double-quote and line feed must be escaped as \\\\, \\\" and \\n.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/",
+        "title": "Exposition formats"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ef-om-eof",
+    "type": "single",
+    "topic": "fund-exposition",
+    "stem": "What must an OpenMetrics text exposition end with?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`# EOF`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`# END`",
+        "correct": false,
+        "note": "The marker is EOF."
+      },
+      {
+        "id": "c",
+        "text": "An empty line",
+        "correct": false,
+        "note": "Not sufficient in OpenMetrics."
+      },
+      {
+        "id": "d",
+        "text": "A checksum",
+        "correct": false,
+        "note": "No checksum is used."
+      }
+    ],
+    "explanation": "OpenMetrics text exposition must end with the # EOF marker.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/",
+        "title": "Exposition formats"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ef-content-type",
+    "type": "single",
+    "topic": "fund-exposition",
+    "stem": "A target serves metrics but its HTTP Content-Type header is missing. What does Prometheus 3.x do by default?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The scrape fails",
+        "correct": true,
+        "note": "Right. This was a breaking change in 3.0."
+      },
+      {
+        "id": "b",
+        "text": "It falls back to the text format",
+        "correct": false,
+        "note": "That was 2.x behaviour, before the breaking change."
+      },
+      {
+        "id": "c",
+        "text": "It tries OpenMetrics, then text",
+        "correct": false,
+        "note": "No automatic fallback without fallback_scrape_protocol."
+      },
+      {
+        "id": "d",
+        "text": "It uses the format of the last scrape",
+        "correct": false,
+        "note": "No such behaviour."
+      }
+    ],
+    "explanation": "Since 3.0, scrapes fail if the target doesn't provide a correct Content-Type, unless a fallback protocol is configured with fallback_scrape_protocol. This is a breaking change from 2.x.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/migration/",
+        "title": "Prometheus 3.0 migration guide"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ef-read",
+    "type": "single",
+    "topic": "fund-exposition",
+    "stem": "Given the lines below, what type is `queue_jobs`?",
+    "code": "# HELP queue_jobs Jobs waiting in the queue.\n# TYPE queue_jobs gauge\nqueue_jobs{queue=\"email\"} 12\nqueue_jobs{queue=\"sms\"} 3",
+    "codeLang": "text",
+    "options": [
+      {
+        "id": "a",
+        "text": "Gauge",
+        "correct": true,
+        "note": "Right. The TYPE line declares it."
+      },
+      {
+        "id": "b",
+        "text": "Counter",
+        "correct": false,
+        "note": "The TYPE line says gauge."
+      },
+      {
+        "id": "c",
+        "text": "Untyped",
+        "correct": false,
+        "note": "A TYPE line is present."
+      },
+      {
+        "id": "d",
+        "text": "Summary",
+        "correct": false,
+        "note": "No quantile lines and TYPE says gauge."
+      }
+    ],
+    "explanation": "The # TYPE line names the metric and its type: counter, gauge, histogram, summary or untyped.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/",
+        "title": "Exposition formats"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cf-defaults",
+    "type": "single",
+    "topic": "fund-config-scraping",
+    "stem": "If `scrape_interval` isn't set anywhere, how often does Prometheus scrape?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Every 1 minute",
+        "correct": true,
+        "note": "Right. The global default is 1m."
+      },
+      {
+        "id": "b",
+        "text": "Every 15 seconds",
+        "correct": false,
+        "note": "15s is common in example configs, but not the default."
+      },
+      {
+        "id": "c",
+        "text": "Every 10 seconds",
+        "correct": false,
+        "note": "10s is the default scrape_timeout."
+      },
+      {
+        "id": "d",
+        "text": "Every 5 minutes",
+        "correct": false,
+        "note": "Not the default."
+      }
+    ],
+    "explanation": "The global default scrape_interval is 1m and the default scrape_timeout is 10s.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/",
+        "title": "Configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cf-eval",
+    "type": "single",
+    "topic": "fund-config-scraping",
+    "stem": "What does `evaluation_interval` control?",
+    "options": [
+      {
+        "id": "a",
+        "text": "How often rules are evaluated",
+        "correct": true,
+        "note": "Right. Default 1m."
+      },
+      {
+        "id": "b",
+        "text": "How often targets are scraped",
+        "correct": false,
+        "note": "That's scrape_interval."
+      },
+      {
+        "id": "c",
+        "text": "How long samples are retained",
+        "correct": false,
+        "note": "That's retention."
+      },
+      {
+        "id": "d",
+        "text": "How often notifications are sent",
+        "correct": false,
+        "note": "That's Alertmanager's own timing."
+      }
+    ],
+    "explanation": "evaluation_interval is how frequently to evaluate rules (default 1m).",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/",
+        "title": "Configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cf-honor-conflict",
+    "type": "single",
+    "topic": "fund-config-scraping",
+    "stem": "A target exposes series with its own `job` label and `honor_labels` is false. What happens?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It's renamed to `exported_job`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "The target's job label is kept",
+        "correct": false,
+        "note": "That's honor_labels: true."
+      },
+      {
+        "id": "c",
+        "text": "The scrape fails with an error",
+        "correct": false,
+        "note": "Conflicts are resolved, not rejected."
+      },
+      {
+        "id": "d",
+        "text": "The two values are joined with a comma",
+        "correct": false,
+        "note": "No merging happens."
+      }
+    ],
+    "explanation": "With honor_labels false, conflicting labels in scraped data are renamed to exported_<label> and server-side labels are attached.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cf-metric-relabel",
+    "type": "single",
+    "topic": "fund-config-scraping",
+    "stem": "You want to drop an expensive metric from one target before it's stored. Where does that relabel rule go?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`metric_relabel_configs`",
+        "correct": true,
+        "note": "Right. It applies to scraped samples before ingestion."
+      },
+      {
+        "id": "b",
+        "text": "`relabel_configs`",
+        "correct": false,
+        "note": "That acts on targets before scraping."
+      },
+      {
+        "id": "c",
+        "text": "`alert_relabel_configs`",
+        "correct": false,
+        "note": "That acts on alerts sent to Alertmanager."
+      },
+      {
+        "id": "d",
+        "text": "`write_relabel_configs`",
+        "correct": false,
+        "note": "That acts on samples sent to remote write."
+      }
+    ],
+    "explanation": "Metric relabeling is applied to samples as the last step before ingestion, using the same format as target relabeling.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cf-labelmap",
+    "type": "single",
+    "topic": "fund-config-scraping",
+    "stem": "Which relabel action copies Kubernetes pod labels (`__meta_kubernetes_pod_label_(.+)`) into normal labels?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`labelmap`",
+        "correct": true,
+        "note": "Right. It maps label names matching the regex to new names."
+      },
+      {
+        "id": "b",
+        "text": "`keep`",
+        "correct": false,
+        "note": "keep filters targets."
+      },
+      {
+        "id": "c",
+        "text": "`labeldrop`",
+        "correct": false,
+        "note": "That removes labels."
+      },
+      {
+        "id": "d",
+        "text": "`hashmod`",
+        "correct": false,
+        "note": "That's for sharding."
+      }
+    ],
+    "explanation": "labelmap matches regex against all source label names, then copies the values of matching labels to label names given by replacement.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config",
+        "title": "Configuration › relabel_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cf-reload",
+    "type": "single",
+    "topic": "fund-config-scraping",
+    "stem": "How do you make a running Prometheus re-read prometheus.yml without restarting it? (default flags)",
+    "options": [
+      {
+        "id": "a",
+        "text": "Send it SIGHUP",
+        "correct": true,
+        "note": "Right. POST /-/reload also works if --web.enable-lifecycle is set."
+      },
+      {
+        "id": "b",
+        "text": "Send it SIGKILL",
+        "correct": false,
+        "note": "That kills it."
+      },
+      {
+        "id": "c",
+        "text": "Touch the file; it's watched by default",
+        "correct": false,
+        "note": "Not by default. 3.x has an opt-in auto-reload flag."
+      },
+      {
+        "id": "d",
+        "text": "Call /api/v1/reload",
+        "correct": false,
+        "note": "Not a real endpoint."
+      }
+    ],
+    "explanation": "Prometheus can reload its configuration at runtime on SIGHUP, or via an HTTP POST to /-/reload when --web.enable-lifecycle is enabled.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/",
+        "title": "Configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cf-timeout",
+    "type": "single",
+    "topic": "fund-config-scraping",
+    "stem": "Which scrape setting must not be greater than `scrape_interval`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`scrape_timeout`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`sample_limit`",
+        "correct": false,
+        "note": "That's a count limit."
+      },
+      {
+        "id": "c",
+        "text": "`evaluation_interval`",
+        "correct": false,
+        "note": "That's a global rule setting."
+      },
+      {
+        "id": "d",
+        "text": "`metrics_path`",
+        "correct": false,
+        "note": "That's a path."
+      }
+    ],
+    "explanation": "scrape_timeout is per-scrape timeout and cannot be greater than the scrape interval.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-cf-static",
+    "type": "single",
+    "topic": "fund-config-scraping",
+    "stem": "What does this config do?",
+    "code": "scrape_configs:\n  - job_name: node\n    scrape_interval: 15s\n    static_configs:\n      - targets: ['host1:9100', 'host2:9100']\n        labels:\n          env: prod",
+    "codeLang": "yaml",
+    "options": [
+      {
+        "id": "a",
+        "text": "Scrapes both hosts every 15 s, adding env=\"prod\"",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Scrapes only host1, using host2 as a fallback",
+        "correct": false,
+        "note": "Both targets are scraped."
+      },
+      {
+        "id": "c",
+        "text": "Pushes metrics to both hosts every 15 seconds",
+        "correct": false,
+        "note": "Prometheus pulls; it doesn't push."
+      },
+      {
+        "id": "d",
+        "text": "Federates series from both hosts via /federate",
+        "correct": false,
+        "note": "There's no /federate path or match[]."
+      }
+    ],
+    "explanation": "static_configs list targets directly; labels in a static config are attached to all of its targets.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config",
+        "title": "Configuration › scrape_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-li-billing",
+    "type": "single",
+    "topic": "fund-limitations",
+    "stem": "Why isn't Prometheus a good fit for per-request billing?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It values reliability over complete accuracy",
+        "correct": true,
+        "note": "Right. The FAQ suggests another system for billing."
+      },
+      {
+        "id": "b",
+        "text": "It can't store values larger than 1,000",
+        "correct": false,
+        "note": "Values are float64."
+      },
+      {
+        "id": "c",
+        "text": "It has no way to sum values across series",
+        "correct": false,
+        "note": "PromQL has sum() and many aggregations."
+      },
+      {
+        "id": "d",
+        "text": "It only keeps data for about an hour",
+        "correct": false,
+        "note": "Default retention is 15 days."
+      }
+    ],
+    "explanation": "If you need 100% accuracy, such as for per-request billing, Prometheus is not a good choice, as collected data will likely not be detailed and complete enough.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/",
+        "title": "Overview"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-li-retention",
+    "type": "single",
+    "topic": "fund-limitations",
+    "stem": "What is the default local retention time?",
+    "options": [
+      {
+        "id": "a",
+        "text": "15 days",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "24 hours",
+        "correct": false,
+        "note": "Much longer by default."
+      },
+      {
+        "id": "c",
+        "text": "90 days",
+        "correct": false,
+        "note": "Not the default."
+      },
+      {
+        "id": "d",
+        "text": "Forever",
+        "correct": false,
+        "note": "Old blocks are deleted."
+      }
+    ],
+    "explanation": "If neither a time nor a size retention is set, the retention time defaults to 15d.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/",
+        "title": "Storage"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-li-clustered",
+    "type": "single",
+    "topic": "fund-limitations",
+    "stem": "What limitation of local storage do the docs call out?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It isn't clustered or replicated",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "It can only hold one target's data",
+        "correct": false,
+        "note": "It handles many targets."
+      },
+      {
+        "id": "c",
+        "text": "It needs an external database server",
+        "correct": false,
+        "note": "The TSDB is built in."
+      },
+      {
+        "id": "d",
+        "text": "It can only store counter metrics",
+        "correct": false,
+        "note": "All types are stored."
+      }
+    ],
+    "explanation": "A limitation of local storage is that it is not clustered or replicated. For durability and scale, use remote storage.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/storage/",
+        "title": "Storage"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-li-ha",
+    "type": "single",
+    "topic": "fund-limitations",
+    "stem": "How is high availability usually achieved for Prometheus alerting?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Two identical servers and an Alertmanager cluster",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Prometheus's built-in clustering mode",
+        "correct": false,
+        "note": "Prometheus servers don't cluster."
+      },
+      {
+        "id": "c",
+        "text": "A Pushgateway in front of both servers",
+        "correct": false,
+        "note": "That adds a single point of failure."
+      },
+      {
+        "id": "d",
+        "text": "Federation between two active servers",
+        "correct": false,
+        "note": "Federation isn't the HA mechanism."
+      }
+    ],
+    "explanation": "Alertmanager supports clustering for high availability; multiple Prometheus servers can send to it and it deduplicates identical alerts.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+        "title": "Alertmanager"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/",
+        "title": "FAQ"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-li-float",
+    "type": "single",
+    "topic": "fund-limitations",
+    "stem": "Why can counters in Prometheus lose precision when they get extremely large?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Values are float64, exact only up to 2^53",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Counters wrap around at 2^32",
+        "correct": false,
+        "note": "Values are float64, not 32-bit ints."
+      },
+      {
+        "id": "c",
+        "text": "Prometheus rounds values to two decimals",
+        "correct": false,
+        "note": "No such rounding."
+      },
+      {
+        "id": "d",
+        "text": "Counters reset automatically every day",
+        "correct": false,
+        "note": "Only on process restart."
+      }
+    ],
+    "explanation": "All sample values are float64. Very large integer counters lose precision above 2^53.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/concepts/data_model/",
+        "title": "Data model"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/",
+        "title": "FAQ"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-li-events",
+    "type": "single",
+    "topic": "fund-limitations",
+    "stem": "Which use case is outside what Prometheus is designed for?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Recording each login with its username",
+        "correct": true,
+        "note": "Right. That's an event or log store's job."
+      },
+      {
+        "id": "b",
+        "text": "Alerting when error rates rise",
+        "correct": false,
+        "note": "That's a core use."
+      },
+      {
+        "id": "c",
+        "text": "Graphing CPU usage over time",
+        "correct": false,
+        "note": "A core use."
+      },
+      {
+        "id": "d",
+        "text": "Monitoring dynamic Kubernetes services",
+        "correct": false,
+        "note": "A core use."
+      }
+    ],
+    "explanation": "Prometheus records numeric time series. Event logging with per-event detail belongs to logging or event systems.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/overview/",
+        "title": "Overview"
+      },
+      {
+        "url": "https://prometheus.io/docs/introduction/comparison/",
+        "title": "Comparison to alternatives"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

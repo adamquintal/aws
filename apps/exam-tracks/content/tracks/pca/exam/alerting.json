@@ -1,0 +1,1618 @@
+[
+  {
+    "id": "x-ab-symptoms",
+    "type": "single",
+    "topic": "alert-basics",
+    "stem": "According to Prometheus alerting practice, what should you mainly alert on?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Symptoms that users feel, like errors",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Every cause, such as each component's CPU",
+        "correct": false,
+        "note": "That creates noisy, unactionable pages."
+      },
+      {
+        "id": "c",
+        "text": "Any log line that contains ERROR",
+        "correct": false,
+        "note": "Not the guidance, and not a metric."
+      },
+      {
+        "id": "d",
+        "text": "Every restart of any scrape target",
+        "correct": false,
+        "note": "Usually invisible to users."
+      }
+    ],
+    "explanation": "Aim to have as few alerts as possible, by alerting on symptoms associated with end-user pain rather than every possible cause.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Alerting practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ab-actionable",
+    "type": "single",
+    "topic": "alert-basics",
+    "stem": "Which page breaks the docs' advice on alerting?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A 3am page nobody can act on",
+        "correct": true,
+        "note": "Right. Avoid pages where there's nothing to do."
+      },
+      {
+        "id": "b",
+        "text": "A page for a high user-visible error rate",
+        "correct": false,
+        "note": "That's a good page."
+      },
+      {
+        "id": "c",
+        "text": "A page for high latency at the top of the stack",
+        "correct": false,
+        "note": "Recommended."
+      },
+      {
+        "id": "d",
+        "text": "A ticket, not a page, for a slowly filling disk",
+        "correct": false,
+        "note": "Sensible."
+      }
+    ],
+    "explanation": "Keep alerting simple, alert on symptoms, have good consoles to pinpoint causes, and avoid pages where there is nothing to do.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Alerting practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ab-stack",
+    "type": "single",
+    "topic": "alert-basics",
+    "stem": "Where in the stack should you page on latency?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Once, as high in the stack as possible",
+        "correct": true,
+        "note": "Right. Lower components being slow doesn't matter if users are fine."
+      },
+      {
+        "id": "b",
+        "text": "At every layer, each with its own alert",
+        "correct": false,
+        "note": "That multiplies pages for one problem."
+      },
+      {
+        "id": "c",
+        "text": "Only at the database, where it starts",
+        "correct": false,
+        "note": "Users experience the top of the stack."
+      },
+      {
+        "id": "d",
+        "text": "Never; latency is too noisy to alert on",
+        "correct": false,
+        "note": "It's a key symptom."
+      }
+    ],
+    "explanation": "Only page on latency at one point in a stack. If a lower-level component is slow but overall user latency is fine, there's no need to page.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Alerting practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ab-slack",
+    "type": "single",
+    "topic": "alert-basics",
+    "stem": "Why do the docs say to 'allow for slack' in alerting?",
+    "options": [
+      {
+        "id": "a",
+        "text": "To avoid paging on small, brief blips",
+        "correct": true,
+        "note": "Right. Usually done with a for duration."
+      },
+      {
+        "id": "b",
+        "text": "To post alerts to Slack",
+        "correct": false,
+        "note": "Different kind of slack."
+      },
+      {
+        "id": "c",
+        "text": "To reduce scrape intervals",
+        "correct": false,
+        "note": "Unrelated."
+      },
+      {
+        "id": "d",
+        "text": "Because Alertmanager drops fast alerts",
+        "correct": false,
+        "note": "Not true."
+      }
+    ],
+    "explanation": "Allow for slack in alerting to accommodate small blips.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Alerting practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ab-batch",
+    "type": "single",
+    "topic": "alert-basics",
+    "stem": "How should you alert on a batch job, according to the docs?",
+    "options": [
+      {
+        "id": "a",
+        "text": "When it hasn't succeeded recently enough",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "On every failed run, immediately",
+        "correct": false,
+        "note": "A single failure often doesn't need a human."
+      },
+      {
+        "id": "c",
+        "text": "When its CPU usage is unusually high",
+        "correct": false,
+        "note": "Not the key signal."
+      },
+      {
+        "id": "d",
+        "text": "Never; batch jobs are best-effort",
+        "correct": false,
+        "note": "They should, on staleness of success."
+      }
+    ],
+    "explanation": "For batch jobs, page if the job has not succeeded recently enough, and this will cause user-visible problems.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Alerting practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ab-metamon",
+    "type": "single",
+    "topic": "alert-basics",
+    "stem": "What is meta-monitoring?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Monitoring the monitoring system itself",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Monitoring the metadata labels on series",
+        "correct": false,
+        "note": "Not what it means."
+      },
+      {
+        "id": "c",
+        "text": "Monitoring exporters but not applications",
+        "correct": false,
+        "note": "Broader than that."
+      },
+      {
+        "id": "d",
+        "text": "Alerting when dashboards fail to load",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "Have alerts to ensure that Prometheus servers, Alertmanagers, Pushgateways and other monitoring infrastructure are available and running correctly.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Alerting practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ab-capacity",
+    "type": "single",
+    "topic": "alert-basics",
+    "stem": "Which alert is most appropriate as a non-paging ticket rather than a page?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Disk predicted to fill in 3 days",
+        "correct": true,
+        "note": "Right. Important but not urgent."
+      },
+      {
+        "id": "b",
+        "text": "Users getting 50% errors right now",
+        "correct": false,
+        "note": "That's urgent."
+      },
+      {
+        "id": "c",
+        "text": "Checkout latency far above SLO",
+        "correct": false,
+        "note": "Urgent and user-facing."
+      },
+      {
+        "id": "d",
+        "text": "Payment service down",
+        "correct": false,
+        "note": "Urgent and user-facing, so page."
+      }
+    ],
+    "explanation": "Pages should be urgent, important, actionable and real; capacity issues that aren't imminent are better handled as tickets.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Alerting practices"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/",
+        "title": "The Zen of Prometheus"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-for",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "What does `for: 10m` do in an alerting rule?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The condition must hold 10m before firing",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "The alert fires for exactly 10 minutes",
+        "correct": false,
+        "note": "It controls when firing starts."
+      },
+      {
+        "id": "c",
+        "text": "The rule is evaluated every 10 minutes",
+        "correct": false,
+        "note": "That's the group interval."
+      },
+      {
+        "id": "d",
+        "text": "Notifications repeat every 10 minutes",
+        "correct": false,
+        "note": "That's Alertmanager's repeat_interval."
+      }
+    ],
+    "explanation": "The for clause makes Prometheus wait for an alert's condition to be active for a duration before firing; meanwhile the alert is pending.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/",
+        "title": "Alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-states",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "An alert's expression just became true and the rule has a `for` clause. What state is the alert in?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Pending",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Firing",
+        "correct": false,
+        "note": "Only after the for duration."
+      },
+      {
+        "id": "c",
+        "text": "Resolved",
+        "correct": false,
+        "note": "It just started."
+      },
+      {
+        "id": "d",
+        "text": "Silenced",
+        "correct": false,
+        "note": "Silences are applied in Alertmanager."
+      }
+    ],
+    "explanation": "Alerts whose condition is met but haven't been active for the for duration are in the pending state; then they become firing.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/",
+        "title": "Alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-keep-firing",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "What does `keep_firing_for: 5m` do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Keeps firing 5m after the condition clears",
+        "correct": true,
+        "note": "Right. Helps with flapping or gaps in data."
+      },
+      {
+        "id": "b",
+        "text": "Delays firing until 5m after it's true",
+        "correct": false,
+        "note": "That's for."
+      },
+      {
+        "id": "c",
+        "text": "Repeats the notification every 5 minutes",
+        "correct": false,
+        "note": "That's Alertmanager."
+      },
+      {
+        "id": "d",
+        "text": "Silences the alert for its first 5 minutes",
+        "correct": false,
+        "note": "Silences live in Alertmanager."
+      }
+    ],
+    "explanation": "keep_firing_for tells Prometheus to keep the alert firing for the given duration after the firing condition was last met.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/",
+        "title": "Alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-template",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "Which annotation correctly includes the alerting instance and current value?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`{{ $labels.instance }} is at {{ $value }}`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`{{ .instance }} is at {{ .value }}`",
+        "correct": false,
+        "note": "Prometheus alert templates use $labels and $value."
+      },
+      {
+        "id": "c",
+        "text": "`{{ $instance }} is at {{ $value }}`",
+        "correct": false,
+        "note": "Labels are accessed via $labels.<name>."
+      },
+      {
+        "id": "d",
+        "text": "`{{ labels.instance }} is at {{ value }}`",
+        "correct": false,
+        "note": "The variables need the $ prefix."
+      }
+    ],
+    "explanation": "Label and annotation values can be templated: $labels holds the alert instance's labels and $value its evaluated value.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/",
+        "title": "Alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-labels-vs-annotations",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "What's the difference between labels and annotations on an alerting rule?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Labels route; annotations describe",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Annotations route; labels describe",
+        "correct": false,
+        "note": "Reversed: routing uses labels."
+      },
+      {
+        "id": "c",
+        "text": "Only labels can be templated",
+        "correct": false,
+        "note": "Both can be templated."
+      },
+      {
+        "id": "d",
+        "text": "They're interchangeable",
+        "correct": false,
+        "note": "They serve different purposes."
+      }
+    ],
+    "explanation": "Labels add or overwrite labels attached to the alert; annotations specify informational labels such as descriptions or runbook links.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/",
+        "title": "Alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-recording-name",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "Which recording rule name follows the recommended `level:metric:operations` convention?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`job:http_requests:rate5m`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`http_requests_rate_5m_by_job`",
+        "correct": false,
+        "note": "Doesn't use the colon convention."
+      },
+      {
+        "id": "c",
+        "text": "`rate5m:job:http_requests`",
+        "correct": false,
+        "note": "Order is level, metric, operations."
+      },
+      {
+        "id": "d",
+        "text": "`HttpRequestsRate`",
+        "correct": false,
+        "note": "That's alert-style CamelCase."
+      }
+    ],
+    "explanation": "Recording rules should be of the general form level:metric:operations, e.g. job:http_requests:rate5m.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/rules/",
+        "title": "Recording rule practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-recording-why",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "Why use recording rules?",
+    "options": [
+      {
+        "id": "a",
+        "text": "To precompute expensive expressions",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "To reduce how often targets are scraped",
+        "correct": false,
+        "note": "Unrelated."
+      },
+      {
+        "id": "c",
+        "text": "To send alerts to Alertmanager",
+        "correct": false,
+        "note": "That's alerting rules."
+      },
+      {
+        "id": "d",
+        "text": "To store logs next to the metrics",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "Recording rules precompute frequently needed or computationally expensive expressions and save the result as a new set of time series.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/",
+        "title": "Recording rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-group-seq",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "How are rules within one rule group evaluated?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Sequentially, at the same time",
+        "correct": true,
+        "note": "Right. So a rule can use an earlier rule's result."
+      },
+      {
+        "id": "b",
+        "text": "In parallel, in random order",
+        "correct": false,
+        "note": "Within a group they run sequentially."
+      },
+      {
+        "id": "c",
+        "text": "Only when they're queried",
+        "correct": false,
+        "note": "They're evaluated on a schedule."
+      },
+      {
+        "id": "d",
+        "text": "Once, when the file is loaded",
+        "correct": false,
+        "note": "They run repeatedly at the group interval."
+      }
+    ],
+    "explanation": "Rules within a group are run sequentially at a regular interval, with the same evaluation time.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/",
+        "title": "Recording rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-promtool",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "How can you check a rule file's syntax before loading it?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`promtool check rules file.yml`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "`prometheus --check-rules file.yml`",
+        "correct": false,
+        "note": "Not a real flag."
+      },
+      {
+        "id": "c",
+        "text": "`amtool check-config file.yml`",
+        "correct": false,
+        "note": "amtool checks Alertmanager config, not rule files."
+      },
+      {
+        "id": "d",
+        "text": "`promtool test metrics file.yml`",
+        "correct": false,
+        "note": "That's for checking metrics, not rules."
+      }
+    ],
+    "explanation": "To quickly check whether a rule file is syntactically correct without starting a server, use promtool check rules.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/",
+        "title": "Recording rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-ar-read",
+    "type": "single",
+    "topic": "alert-rules",
+    "stem": "Read the rule. When does it fire?",
+    "code": "groups:\n  - name: example\n    rules:\n      - alert: InstanceDown\n        expr: up == 0\n        for: 5m\n        labels:\n          severity: page",
+    "codeLang": "yaml",
+    "options": [
+      {
+        "id": "a",
+        "text": "After up has been 0 for 5 minutes",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "As soon as any target's up is 0",
+        "correct": false,
+        "note": "for: 5m adds a delay."
+      },
+      {
+        "id": "c",
+        "text": "After a target has been up for 5m",
+        "correct": false,
+        "note": "The expression is up == 0."
+      },
+      {
+        "id": "d",
+        "text": "Every 5 minutes, whatever up is",
+        "correct": false,
+        "note": "It depends on the expression."
+      }
+    ],
+    "explanation": "The expression selects series where up == 0; for: 5m requires that to hold for 5 minutes before firing.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/",
+        "title": "Alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-grouping",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "50 instances of a service go down at once. How does Alertmanager avoid sending 50 separate notifications?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Grouping",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Inhibition",
+        "correct": false,
+        "note": "Inhibition suppresses alerts when another alert fires."
+      },
+      {
+        "id": "c",
+        "text": "Silencing",
+        "correct": false,
+        "note": "Silences are manual mutes."
+      },
+      {
+        "id": "d",
+        "text": "Throttling",
+        "correct": false,
+        "note": "Not an Alertmanager feature name."
+      }
+    ],
+    "explanation": "Grouping categorises alerts of similar nature (sharing the group_by labels) into a single notification, useful during larger outages.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+        "title": "Alertmanager"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-inhibition",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "A whole datacenter is unreachable. You want to suppress the many per-service alerts while the datacenter alert fires. What do you use?",
+    "options": [
+      {
+        "id": "a",
+        "text": "An inhibition rule",
+        "correct": true,
+        "note": "Right. A source alert mutes matching target alerts."
+      },
+      {
+        "id": "b",
+        "text": "A silence",
+        "correct": false,
+        "note": "Silences are manual and time-bounded."
+      },
+      {
+        "id": "c",
+        "text": "A longer group_wait",
+        "correct": false,
+        "note": "That only delays notifications."
+      },
+      {
+        "id": "d",
+        "text": "A recording rule",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "Inhibition suppresses notifications for certain alerts if certain other alerts are already firing.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+        "title": "Alertmanager"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-silence",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "You're doing planned maintenance for two hours. How do you stop alerts for the affected hosts?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Create a 2-hour silence for those hosts",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Delete the alerting rules for two hours",
+        "correct": false,
+        "note": "Heavy-handed and easy to forget to restore."
+      },
+      {
+        "id": "c",
+        "text": "Add an inhibition rule for those hosts",
+        "correct": false,
+        "note": "Inhibition depends on another alert firing."
+      },
+      {
+        "id": "d",
+        "text": "Stop Prometheus during the maintenance",
+        "correct": false,
+        "note": "You'd lose all monitoring."
+      }
+    ],
+    "explanation": "Silences are a straightforward way to mute alerts for a given time, configured with matchers in the web UI or via amtool.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+        "title": "Alertmanager"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-group-wait",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "What does `group_wait` control?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Delay before a new group's first notification",
+        "correct": true,
+        "note": "Right. Default 30s."
+      },
+      {
+        "id": "b",
+        "text": "How often a still-firing alert is resent",
+        "correct": false,
+        "note": "That's repeat_interval."
+      },
+      {
+        "id": "c",
+        "text": "Delay before new alerts in a group are sent",
+        "correct": false,
+        "note": "That's group_interval."
+      },
+      {
+        "id": "d",
+        "text": "How long an alert must be pending first",
+        "correct": false,
+        "note": "That's for, in Prometheus."
+      }
+    ],
+    "explanation": "group_wait: how long to initially wait to send a notification for a group, allowing time for more alerts to arrive (default 30s).",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/",
+        "title": "Alertmanager configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-repeat",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "An alert is still firing and nothing has changed. With defaults, when is the notification resent?",
+    "options": [
+      {
+        "id": "a",
+        "text": "After 4 hours",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "After 5 minutes",
+        "correct": false,
+        "note": "5m is the default group_interval."
+      },
+      {
+        "id": "c",
+        "text": "After 30 seconds",
+        "correct": false,
+        "note": "30s is the default group_wait."
+      },
+      {
+        "id": "d",
+        "text": "Never",
+        "correct": false,
+        "note": "repeat_interval resends."
+      }
+    ],
+    "explanation": "repeat_interval: how long to wait before re-sending a notification for an alert that has already been sent (default 4h). group_wait defaults to 30s and group_interval to 5m.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/",
+        "title": "Alertmanager configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-group-interval",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "What does `group_interval` (default 5m) control?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Wait before notifying of new alerts in a group",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "How often Prometheus evaluates alert rules",
+        "correct": false,
+        "note": "That's Prometheus."
+      },
+      {
+        "id": "c",
+        "text": "How long a new silence lasts by default",
+        "correct": false,
+        "note": "Silences have their own times."
+      },
+      {
+        "id": "d",
+        "text": "How often Alertmanager resends unchanged alerts",
+        "correct": false,
+        "note": "That's repeat_interval."
+      }
+    ],
+    "explanation": "group_interval: how long to wait before sending a notification about new alerts added to a group for which an initial notification was already sent.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/",
+        "title": "Alertmanager configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-continue",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "In the routing tree, an alert matches the first child route. What happens by default?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Routing stops at that child",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "It's also sent to matching siblings",
+        "correct": false,
+        "note": "Only with continue: true."
+      },
+      {
+        "id": "c",
+        "text": "It goes back to the root receiver",
+        "correct": false,
+        "note": "The matched child handles it."
+      },
+      {
+        "id": "d",
+        "text": "It's sent to the default receiver too",
+        "correct": false,
+        "note": "Only the matched child's receiver is used."
+      }
+    ],
+    "explanation": "If continue is false (the default), routing stops after the first matching child; if true, the alert continues to match subsequent siblings.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/",
+        "title": "Alertmanager configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-inherit",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "A child route doesn't set `group_wait`. What value does it use?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Its parent route's group_wait",
+        "correct": true,
+        "note": "Right. Routing settings are inherited."
+      },
+      {
+        "id": "b",
+        "text": "Zero",
+        "correct": false,
+        "note": "Not zero."
+      },
+      {
+        "id": "c",
+        "text": "It must be set, or the config is invalid",
+        "correct": false,
+        "note": "It's optional."
+      },
+      {
+        "id": "d",
+        "text": "The global resolve_timeout",
+        "correct": false,
+        "note": "Different setting."
+      }
+    ],
+    "explanation": "receiver, group_by, group_wait, group_interval and repeat_interval are inherited from the parent node if not set.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/",
+        "title": "Alertmanager configuration"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-ha",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "How should Prometheus be configured to send alerts to a 3-node Alertmanager cluster?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Send to all three instances directly",
+        "correct": true,
+        "note": "Right. The cluster deduplicates."
+      },
+      {
+        "id": "b",
+        "text": "Send to one, which forwards to the rest",
+        "correct": false,
+        "note": "Send to all of them."
+      },
+      {
+        "id": "c",
+        "text": "Send through a round-robin load balancer",
+        "correct": false,
+        "note": "The docs explicitly say not to."
+      },
+      {
+        "id": "d",
+        "text": "Send to whichever one is the leader",
+        "correct": false,
+        "note": "There's no leader; every instance should receive alerts."
+      }
+    ],
+    "explanation": "Configure Prometheus to send alerts to all Alertmanager instances, not via a load balancer. Silences and notification state are replicated between peers.",
+    "difficulty": 3,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/high_availability/",
+        "title": "Alertmanager › High availability"
+      },
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+        "title": "Alertmanager"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-am-amtool",
+    "type": "single",
+    "topic": "alert-alertmanager",
+    "stem": "What is `amtool`?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A CLI for the Alertmanager API",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "An exporter for Alertmanager metrics",
+        "correct": false,
+        "note": "Alertmanager exposes its own metrics."
+      },
+      {
+        "id": "c",
+        "text": "A Grafana plugin for alert panels",
+        "correct": false,
+        "note": "Unrelated."
+      },
+      {
+        "id": "d",
+        "text": "A rule-testing tool for Prometheus",
+        "correct": false,
+        "note": "That's promtool."
+      }
+    ],
+    "explanation": "amtool is a CLI tool for interacting with the Alertmanager API, bundled with Alertmanager releases.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://github.com/prometheus/alertmanager#amtool",
+        "title": "Alertmanager README › amtool"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-db-grafana",
+    "type": "single",
+    "topic": "alert-dashboarding",
+    "stem": "Which tool do the Prometheus docs point to for building dashboards?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Grafana",
+        "correct": true,
+        "note": "Right. It supports querying Prometheus."
+      },
+      {
+        "id": "b",
+        "text": "Alertmanager",
+        "correct": false,
+        "note": "Alertmanager handles alerts."
+      },
+      {
+        "id": "c",
+        "text": "The Pushgateway UI",
+        "correct": false,
+        "note": "It shows pushed groups."
+      },
+      {
+        "id": "d",
+        "text": "promtool",
+        "correct": false,
+        "note": "promtool is a CLI."
+      }
+    ],
+    "explanation": "Grafana supports querying Prometheus and is the recommended way to build dashboards.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/",
+        "title": "Grafana support for Prometheus"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-db-legend",
+    "type": "single",
+    "topic": "alert-dashboarding",
+    "stem": "In Grafana, how do you show legends like `GET - 200` for a query with method and status labels?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Legend format `{{method}} - {{status}}`",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Legend format `$method - $status`",
+        "correct": false,
+        "note": "Grafana's legend format uses {{label}}."
+      },
+      {
+        "id": "c",
+        "text": "Legend format `{method} - {status}`",
+        "correct": false,
+        "note": "Needs double braces."
+      },
+      {
+        "id": "d",
+        "text": "Legend format `%method - %status`",
+        "correct": false,
+        "note": "Not the legend syntax."
+      }
+    ],
+    "explanation": "To format the legend names of time series, use the Legend format input, e.g. {{method}} - {{status}}.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/",
+        "title": "Grafana support for Prometheus"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-db-browser",
+    "type": "single",
+    "topic": "alert-dashboarding",
+    "stem": "What is Prometheus's built-in expression browser best suited for?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Ad-hoc queries and debugging",
+        "correct": true,
+        "note": "Right. Use Grafana for dashboards."
+      },
+      {
+        "id": "b",
+        "text": "Long-term dashboards for the whole team",
+        "correct": false,
+        "note": "Use Grafana for that."
+      },
+      {
+        "id": "c",
+        "text": "Silencing alerts",
+        "correct": false,
+        "note": "That's Alertmanager."
+      },
+      {
+        "id": "d",
+        "text": "Editing prometheus.yml",
+        "correct": false,
+        "note": "It's read-only for config."
+      }
+    ],
+    "explanation": "The expression browser at /query (/graph in 2.x) shows results as a table or graph. It's mainly useful for ad-hoc queries and debugging.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/getting_started/",
+        "title": "Getting started"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-db-table-vs-graph",
+    "type": "single",
+    "topic": "alert-dashboarding",
+    "stem": "In the expression browser, what's the difference between the Table and Graph tabs?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Table: one instant; Graph: a range",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Table: raw samples; Graph: rates",
+        "correct": false,
+        "note": "Both show the expression's result."
+      },
+      {
+        "id": "c",
+        "text": "Table: any type; Graph: counters",
+        "correct": false,
+        "note": "Any numeric expression can be graphed."
+      },
+      {
+        "id": "d",
+        "text": "Table: range vectors; Graph: instant",
+        "correct": false,
+        "note": "Reversed, and both show the expression's result."
+      }
+    ],
+    "explanation": "The Table view evaluates the expression at one instant; the Graph view evaluates it over a range of time.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/getting_started/",
+        "title": "Getting started"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/api/",
+        "title": "HTTP API"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-db-rate-graph",
+    "type": "single",
+    "topic": "alert-dashboarding",
+    "stem": "A dashboard panel graphs `http_requests_total` directly and shows an ever-rising line. What's a better query?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`sum by (job) (rate(http_requests_total[5m]))`",
+        "correct": true,
+        "note": "Right. Show the rate, not the raw counter."
+      },
+      {
+        "id": "b",
+        "text": "`sum by (job) (http_requests_total)`",
+        "correct": false,
+        "note": "Still a cumulative counter, just summed."
+      },
+      {
+        "id": "c",
+        "text": "`sum by (job) (http_requests_total offset 5m)`",
+        "correct": false,
+        "note": "Still raw, just older."
+      },
+      {
+        "id": "d",
+        "text": "`sum by (job) (delta(http_requests_total[5m]))`",
+        "correct": false,
+        "note": "delta is for gauges; use rate for counters."
+      }
+    ],
+    "explanation": "Counters are best graphed with rate() to show per-second throughput.",
+    "difficulty": 1,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/",
+        "title": "Query functions"
+      },
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/",
+        "title": "Grafana support for Prometheus"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-db-recording",
+    "type": "single",
+    "topic": "alert-dashboarding",
+    "stem": "A slow dashboard runs the same heavy aggregation in ten panels. What helps most?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A recording rule for the aggregation",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "A shorter scrape interval on targets",
+        "correct": false,
+        "note": "That increases load."
+      },
+      {
+        "id": "c",
+        "text": "Removing the for clause from alerts",
+        "correct": false,
+        "note": "That's for alerts."
+      },
+      {
+        "id": "d",
+        "text": "Replacing rate() with irate()",
+        "correct": false,
+        "note": "Doesn't address cost."
+      }
+    ],
+    "explanation": "Recording rules precompute frequently needed or expensive expressions; querying the precomputed result is much faster, e.g. for dashboards.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/",
+        "title": "Recording rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "x-db-red",
+    "type": "single",
+    "topic": "alert-dashboarding",
+    "stem": "Which set of signals does the RED method put on a service dashboard?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Rate, Errors, Duration",
+        "correct": true,
+        "note": "This is the correct answer."
+      },
+      {
+        "id": "b",
+        "text": "Reads, Evictions, Disk",
+        "correct": false,
+        "note": "Not the RED method."
+      },
+      {
+        "id": "c",
+        "text": "Restarts, Exceptions, Deploys",
+        "correct": false,
+        "note": "Not RED."
+      },
+      {
+        "id": "d",
+        "text": "Retention, Exemplars, Dashboards",
+        "correct": false,
+        "note": "Not RED."
+      }
+    ],
+    "explanation": "The Zen of Prometheus mentions RED (Rate, Errors, Duration), USE and the Four Golden Signals as ways to choose what to measure.",
+    "difficulty": 2,
+    "tags": [
+      "exam"
+    ],
+    "uses": [],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/",
+        "title": "The Zen of Prometheus"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]
