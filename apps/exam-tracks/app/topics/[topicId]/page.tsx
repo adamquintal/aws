@@ -4,6 +4,9 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { requireEnrollment } from "@/lib/session";
 import { loadGates, markLessonViewed, statusesFor } from "@/lib/services/learning";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Stepper } from "@/components/Stepper";
+import { FocusHeader } from "@/components/FocusHeader";
+import { InlineCode } from "@/components/InlineCode";
 
 export const dynamic = "force-dynamic";
 
@@ -15,78 +18,101 @@ export default async function TopicPage({ params, searchParams }: { params: Prom
   if (!topic?.lesson) notFound();
   const statuses = statusesFor(track, await loadGates(user.id, track));
   const status = statuses.get(topic.id)!;
+  const label = `Topic ${topic.index + 1} of ${track.topics.length}`;
+
   if (status === "locked") {
     return (
-      <div className="card space-y-3">
-        <h1 className="text-xl font-semibold">{topic.title}</h1>
-        <p className="text-muted">This topic opens after the ones before it, because it builds on them. You'll get here.</p>
-        <Link href="/topics" className="btn-ghost">Back to topics</Link>
-      </div>
+      <main id="main" className="page flex min-h-dvh flex-col pt-12">
+        <FocusHeader href="/topics" label={label} />
+        <h1 className="display mt-10 text-[38px]">{topic.title}</h1>
+        <p className="mt-4 text-[17px] leading-relaxed text-soft">This opens after the topics before it, because it builds on them. You’ll get here.</p>
+        <Link href="/topics" className="btn-ghost mt-8 self-start">Back to your path</Link>
+      </main>
     );
   }
   if (status === "current") await markLessonViewed(user.id, track.id, topic.id);
   const l = topic.lesson;
   const next = track.topics[topic.index + 1];
+  const isMastered = status === "mastered";
+
+  if (mastered && isMastered) {
+    return (
+      <main id="main" className="page flex min-h-dvh flex-col justify-center pb-16">
+        <Stepper done={["Learn", "Practice", "Explain"]} />
+        <p className="eyebrow mt-14">Topic mastered</p>
+        <h1 className="display mt-3 text-[44px]">{topic.title}</h1>
+        <p className="mt-5 text-[17px] leading-relaxed text-soft">That’s real, durable progress. It’ll come back now and then in reviews to keep it fresh.</p>
+        {next ? (
+          <Link href={`/topics/${next.id}`} className="btn-primary mt-10">Next: {next.title}</Link>
+        ) : (
+          <Link href="/today" className="btn-primary mt-10">Back to study</Link>
+        )}
+        <Link href="/topics" className="mt-3 self-center py-3 text-[15px] text-muted underline-offset-4 hover:underline">See your path</Link>
+      </main>
+    );
+  }
 
   return (
-    <article className="space-y-6">
-      {mastered && (
-        <div role="status" className="card border-good">
-          <p className="font-semibold text-good">🌿 Topic mastered: {topic.title}</p>
-          <p className="mt-1 text-sm">That's real, durable progress. It'll come back now and then in reviews to keep it fresh.</p>
-          {next && <Link href={`/topics/${next.id}`} className="btn-primary mt-3">Next: {next.title}</Link>}
-        </div>
-      )}
-      <header className="space-y-2">
-        <p className="text-sm text-muted">Topic {topic.index + 1} · {track.domains.find((d) => d.id === topic.domain)?.title} · {topic.curriculumItem}</p>
-        <h1 className="text-2xl font-semibold">{l.title}</h1>
-        <p className="text-lg text-muted">{l.summary}</p>
+    <div className="flex min-h-dvh flex-col">
+      <header className="page flex flex-col gap-5 pt-12">
+        <FocusHeader href={isMastered ? "/topics" : "/today"} label={label} />
+        <Stepper current={isMastered ? undefined : status === "explain-back" ? "Explain" : "Learn"} done={isMastered ? ["Learn", "Practice", "Explain"] : status === "explain-back" ? ["Learn", "Practice"] : []} />
       </header>
 
-      <section className="card" aria-labelledby="analogy">
-        <h2 id="analogy" className="label">Think of it like this</h2>
-        <p className="mt-1">{l.analogy}</p>
-      </section>
+      <main id="main" className="page flex flex-col gap-8 pb-36 pt-9">
+        <div className="flex flex-col gap-4">
+          <h1 className="display text-[38px]">{l.title}</h1>
+          <p className="text-[18px] leading-relaxed text-soft">{l.summary}</p>
+        </div>
 
-      <div className="prose-lesson">
-        <MDXRemote source={l.body} />
-      </div>
+        <figure className="m-0">
+          <blockquote className="m-0 font-serif text-[22px] italic leading-[1.4] text-fg">“{l.analogy}”</blockquote>
+        </figure>
 
-      <section className="card" aria-labelledby="kp">
-        <h2 id="kp" className="font-semibold">Key points</h2>
-        <ul className="mt-2 list-disc space-y-1 pl-6">{l.keyPoints.map((k) => <li key={k}>{k}</li>)}</ul>
-      </section>
+        <div className="prose-lesson"><MDXRemote source={l.body} /></div>
 
-      <section className="card border-gentle" aria-labelledby="trap">
-        <h2 id="trap" className="font-semibold text-gentle">Common trap</h2>
-        <p className="mt-1">{l.commonTrap}</p>
-      </section>
-
-      {l.versionNotes.length > 0 && (
-        <section className="card" aria-labelledby="vn">
-          <h2 id="vn" className="font-semibold">Version notes</h2>
-          <ul className="mt-2 list-disc space-y-1 pl-6 text-sm">{l.versionNotes.map((k) => <li key={k}>{k}</li>)}</ul>
+        <section aria-labelledby="remember">
+          <h2 id="remember" className="eyebrow mb-2">Remember</h2>
+          <ol className="m-0 list-none p-0">
+            {l.keyPoints.map((k, i) => (
+              <li key={k} className="flex gap-4 border-t border-border py-3 text-[16px] leading-relaxed last:border-b">
+                <span className="w-4 shrink-0 font-serif text-[20px] leading-7 text-accent">{i + 1}</span>
+                <span><InlineCode text={k} /></span>
+              </li>
+            ))}
+          </ol>
         </section>
-      )}
 
-      <footer className="space-y-3 border-t border-border pt-4 text-sm text-muted">
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge status={l.status} /> <span>v{l.version}</span>
-          {l.reviewer && <span>· reviewed by {l.reviewer}</span>}
-        </div>
-        <div>
-          Written in our own words from:
-          <ul className="mt-1 list-disc pl-6">
-            {l.sources.map((s) => <li key={s.url}><a className="underline" href={s.url} target="_blank" rel="noreferrer">{s.title}</a></li>)}
-          </ul>
-        </div>
-      </footer>
+        <section aria-labelledby="trap" className="rounded-2xl bg-trap p-5">
+          <h2 id="trap" className="mb-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-gentle">Common trap</h2>
+          <p className="m-0 text-[16px] leading-relaxed text-fg"><InlineCode text={l.commonTrap} /></p>
+        </section>
 
-      <div className="flex flex-wrap gap-3">
-        {status === "current" && <Link href="/learn" className="btn-primary">Practice this topic</Link>}
-        {status === "explain-back" && <Link href={`/topics/${topic.id}/explain`} className="btn-primary">Explain it back</Link>}
-        <Link href="/topics" className="btn-ghost">All topics</Link>
+        {l.versionNotes.length > 0 && (
+          <section aria-labelledby="vn">
+            <h2 id="vn" className="eyebrow mb-2">Version notes</h2>
+            {l.versionNotes.map((v) => <p key={v} className="my-2 text-[15px] leading-relaxed text-soft"><InlineCode text={v} /></p>)}
+          </section>
+        )}
+
+        <footer className="flex flex-col gap-2 text-[13px] leading-relaxed text-muted">
+          <p className="m-0">
+            Written in our own words from{" "}
+            {l.sources.map((s, i) => (
+              <span key={s.url}>{i > 0 && (i === l.sources.length - 1 ? " and " : ", ")}<a className="link" href={s.url} target="_blank" rel="noreferrer">{s.title}</a></span>
+            ))}.
+          </p>
+          <div className="flex items-center gap-2"><StatusBadge status={l.status} /><span>v{l.version}</span>{l.reviewer && <span>· reviewed by {l.reviewer}</span>}</div>
+        </footer>
+      </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+        <div className="page py-4">
+          {status === "current" && <Link href="/learn" className="btn-primary w-full">Start practice</Link>}
+          {status === "explain-back" && <Link href={`/topics/${topic.id}/explain`} className="btn-primary w-full">Explain it back</Link>}
+          {(isMastered || status === "coming-soon") && <Link href="/topics" className="btn-ghost w-full">Back to your path</Link>}
+        </div>
       </div>
-    </article>
+    </div>
   );
 }

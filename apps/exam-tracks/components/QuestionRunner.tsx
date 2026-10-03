@@ -5,8 +5,10 @@ import type { Feedback, SessionPayload } from "@/lib/services/learning";
 import { reportProblem, startSession, submitAnswer } from "@/app/actions";
 import { Code } from "./Code";
 import { InlineCode } from "./InlineCode";
+import { FocusHeader } from "./FocusHeader";
+import { IconCheck } from "./Icons";
 
-const KIND_LABEL = { warmup: "Warm-up", review: "Review", learn: "New material" } as const;
+const KIND_LABEL = { warmup: "Warm-up", review: "Review", learn: "New" } as const;
 
 export function QuestionRunner({ initial }: { initial: SessionPayload }) {
   const [session, setSession] = useState(initial);
@@ -14,35 +16,50 @@ export function QuestionRunner({ initial }: { initial: SessionPayload }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [hintShown, setHintShown] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [tally, setTally] = useState({ right: 0, total: 0 });
+  const [results, setResults] = useState<boolean[]>([]);
   const [run, setRun] = useState(initial.run);
   const [gateReached, setGateReached] = useState(false);
   const [pending, startTransition] = useTransition();
   const startedAt = useRef(Date.now());
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const feedbackRef = useRef<HTMLDivElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
 
   const item = session.items[i];
   useEffect(() => {
     startedAt.current = Date.now();
     headingRef.current?.focus();
+    window.scrollTo({ top: 0 });
   }, [i, session]);
   useEffect(() => {
-    if (feedback) feedbackRef.current?.focus();
+    if (feedback) sheetRef.current?.focus();
   }, [feedback]);
 
   if (!item) {
-    return <Summary tally={tally} gateReached={gateReached} topicId={session.currentTopic?.id} onAgain={() => startTransition(async () => {
-      const next = await startSession();
-      setSession(next); setI(0); setTally({ right: 0, total: 0 }); setRun(next.run);
-    })} pending={pending} hasCurrent={!!session.currentTopic && session.currentTopic.status === "current"} />;
+    const right = results.filter(Boolean).length;
+    return (
+      <Summary
+        total={results.length}
+        right={right}
+        gateReached={gateReached}
+        topicId={session.currentTopic?.id}
+        hasCurrent={!!session.currentTopic && session.currentTopic.status === "current"}
+        pending={pending}
+        onAgain={() =>
+          startTransition(async () => {
+            const next = await startSession();
+            setSession(next); setI(0); setResults([]); setRun(next.run);
+          })
+        }
+      />
+    );
   }
 
   const q = item.question;
   const multi = q.type === "multi";
+  const isLearn = item.kind === "learn" && !!session.currentTopic;
 
   function toggle(id: string) {
-    if (feedback) return;
+    if (feedback || pending) return;
     if (multi) setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
     else submit([id]);
   }
@@ -53,7 +70,7 @@ export function QuestionRunner({ initial }: { initial: SessionPayload }) {
     startTransition(async () => {
       const fb = await submitAnswer({ questionId: q.id, selected: sel, hintUsed: hintShown, durationMs: Date.now() - startedAt.current, kind: item.kind });
       setFeedback(fb);
-      setTally((t) => ({ right: t.right + (fb.correct ? 1 : 0), total: t.total + 1 }));
+      setResults((r) => [...r, fb.correct]);
       if (fb.gate) {
         setRun(fb.gate.run);
         if (fb.gate.event === "gate-reached") setGateReached(true);
@@ -73,143 +90,156 @@ export function QuestionRunner({ initial }: { initial: SessionPayload }) {
     setI(i + 1);
   }
 
+  const runLabel = feedback?.gate?.event === "reset" ? "Run starts again" : `${run} in a row`;
+
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
-      <div className="flex items-center justify-between text-sm text-muted">
-        <span>{KIND_LABEL[item.kind]} · {q.topicTitle}</span>
-        <span aria-label={`Question ${i + 1} of ${session.items.length}`}>{i + 1} / {session.items.length}</span>
-      </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-border" aria-hidden>
-        <div className="h-full bg-accent transition-all" style={{ width: `${(i / session.items.length) * 100}%` }} />
-      </div>
-      {item.kind === "learn" && session.currentTopic && (
-        <p className="text-sm text-muted" aria-live="polite">
-          {run} of {session.runTarget} in a row on this topic
-        </p>
-      )}
+    <div className="flex min-h-dvh flex-col">
+      <header className="page flex flex-col gap-4 pt-12">
+        <div className="flex items-center gap-3">
+          <FocusHeader href="/today" close />
+          <div className="grid flex-1 gap-1" style={{ gridTemplateColumns: `repeat(${session.items.length}, minmax(0, 1fr))` }} role="img" aria-label={`Question ${i + 1} of ${session.items.length}`}>
+            {session.items.map((_, k) => (
+              <div key={k} className={`h-[5px] rounded-full ${k < results.length ? (results[k] ? "bg-accent" : "bg-gentle") : k === i ? "bg-muted" : "bg-track"}`} />
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-between gap-4 text-[13px] text-muted">
+          <span className="min-w-0 truncate">{KIND_LABEL[item.kind]} · {q.topicTitle}</span>
+          {isLearn && <span aria-live="polite" className="shrink-0 whitespace-nowrap">{runLabel}</span>}
+        </div>
+      </header>
 
-      <div className="card space-y-4">
-        <h1 ref={headingRef} tabIndex={-1} className="text-lg font-medium leading-snug outline-none"><InlineCode text={q.stem} /></h1>
+      <main id="main" className={`page flex flex-col gap-6 pt-7 ${feedback ? "pb-[22rem]" : "pb-10"}`}>
+        <h1 ref={headingRef} tabIndex={-1} className="font-serif text-[28px] font-normal leading-[1.22] outline-none [overflow-wrap:anywhere]">
+          <InlineCode text={q.stem} />
+        </h1>
         {q.code && <Code code={q.code} lang={q.codeLang} />}
-        {multi && <p className="text-sm font-medium text-accent">More than one answer is correct. Select all that apply, then tap Check answer.</p>}
+        {multi && !feedback && <p className="-mt-2 text-[15px] font-medium text-accent">Select all that apply, then check.</p>}
 
-        <fieldset className="space-y-2" disabled={!!feedback || pending}>
-          <legend className="sr-only">Answer options</legend>
-          {q.options.map((o, idx) => {
+        <div role="group" aria-label="Answers" className="flex flex-col gap-2.5">
+          {q.options.map((o) => {
             const isSel = selected.includes(o.id);
-            const isRight = feedback?.correctIds.includes(o.id);
-            // Exactly one border/background class per state, so selection is always visible (no class conflicts).
-            const state = !feedback
-              ? isSel
-                ? "border-2 border-accent bg-accent/10"
-                : "border border-border bg-surface [@media(hover:hover)]:hover:border-accent"
-              : isRight
-                ? "border-2 border-good bg-surface"
-                : isSel
-                  ? "border-2 border-gentle bg-surface"
-                  : "border border-border bg-surface opacity-80";
-            const mark = multi ? (isSel ? "☑" : "☐") : isSel ? "◉" : "○";
+            const isRight = !!feedback?.correctIds.includes(o.id);
+            const wrongPick = !!feedback && isSel && !isRight;
+            const box = !feedback
+              ? isSel ? "border-2 border-accent bg-accent/10" : "border border-border bg-surface [@media(hover:hover)]:hover:border-muted"
+              : isRight ? "border-2 border-accent bg-accent/10" : wrongPick ? "border-2 border-gentle bg-trap" : "border border-border bg-surface opacity-60";
+            const markShape = multi ? "rounded-md" : "rounded-full";
+            const mark = !feedback
+              ? isSel ? `${markShape} border-[1.5px] border-accent bg-accent text-surface` : `${markShape} border-[1.5px] border-track`
+              : isRight ? `${markShape} border-[1.5px] border-accent bg-accent text-surface` : wrongPick ? `${markShape} border-[1.5px] border-gentle bg-gentle text-surface` : `${markShape} border-[1.5px] border-track`;
             return (
-              <div key={o.id}>
+              <div key={o.id} className="flex flex-col gap-1.5">
                 <button
                   type="button"
                   role={multi ? "checkbox" : undefined}
                   aria-checked={multi ? isSel : undefined}
                   aria-pressed={!multi ? isSel : undefined}
                   onClick={() => toggle(o.id)}
-                  className={`flex w-full items-start gap-2 rounded-xl p-3 text-left transition-colors ${state}`}
+                  disabled={!!feedback || pending}
+                  className={`flex min-h-[58px] w-full items-center gap-3.5 rounded-2xl px-4 py-3 text-left transition-colors disabled:cursor-default ${box}`}
                 >
-                  <span aria-hidden className={`text-lg leading-6 ${isSel ? "text-accent" : "text-muted"}`}>{mark}</span>
-                  <span className="font-mono leading-6 text-muted">{String.fromCharCode(65 + idx)}.</span>
-                  <span className="whitespace-pre-wrap"><InlineCode text={o.text} /></span>
-                  {feedback && isRight && <span className="ml-2 text-sm text-good">✓ correct</span>}
+                  <span aria-hidden className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center text-sm ${mark}`}>
+                    {(isSel && !feedback) || isRight ? <IconCheck size={14} /> : wrongPick ? "×" : null}
+                  </span>
+                  <span className="min-w-0 whitespace-pre-wrap text-[17px] leading-snug [overflow-wrap:anywhere]"><InlineCode text={o.text} /></span>
                 </button>
                 {feedback && (
-                  <p className={`mt-1 px-3 text-sm ${isRight ? "text-good" : "text-muted"}`}><InlineCode text={feedback.notes[o.id]} /></p>
+                  <p className={`px-1 text-[14px] leading-snug [overflow-wrap:anywhere] ${isRight ? "text-accent" : "text-muted"}`}><InlineCode text={feedback.notes[o.id]} /></p>
                 )}
               </div>
             );
           })}
-        </fieldset>
+        </div>
 
         {!feedback && (
-          <div className="flex flex-wrap gap-3">
-            {multi && <button className="btn-primary" onClick={() => submit(selected)} disabled={!selected.length || pending}>Check answer{selected.length ? ` (${selected.length} selected)` : ""}</button>}
-            {!hintShown ? (
-              <button className="btn-ghost" onClick={() => setHintShown(true)}>I'm stuck</button>
-            ) : (
-              <p className="w-full rounded-xl bg-bg p-3 text-sm" role="note"><strong>Hint:</strong> <InlineCode text={q.hint} />
-                <span className="block text-muted">(Answers with a hint still count for reviews, just not for the in-a-row run.)</span></p>
+          <div className="flex flex-col gap-4">
+            {multi && (
+              <button className="btn-primary w-full" onClick={() => submit(selected)} disabled={!selected.length || pending}>
+                Check answer{selected.length ? ` · ${selected.length} selected` : ""}
+              </button>
             )}
+            {!hintShown ? (
+              <button className="self-start py-2 text-[15px] text-muted underline underline-offset-4" onClick={() => setHintShown(true)}>I’m stuck</button>
+            ) : (
+              <p role="note" className="text-[15px] leading-relaxed text-soft">
+                <span className="font-semibold text-fg">Hint.</span> <InlineCode text={q.hint} />
+                <span className="mt-1 block text-[13px] text-muted">Answers after a hint still count for reviews, just not for the in-a-row run.</span>
+              </p>
+            )}
+            <ReportProblem questionId={q.id} version={q.version} />
           </div>
         )}
-      </div>
+      </main>
 
       {feedback && (
-        <div ref={feedbackRef} tabIndex={-1} className="card space-y-3 outline-none" aria-live="polite">
-          <p className={`text-lg font-semibold ${feedback.correct ? "text-good" : "text-gentle"}`}>
-            {feedback.correct ? "Right." : "Not quite."}
-          </p>
-          <p><InlineCode text={feedback.explanation} /></p>
-          {feedback.gate?.event === "reset" && (
-            <p className="text-sm text-muted">The in-a-row count starts again. That's how the practice works, and this one will come back so you can lock it in.</p>
-          )}
-          {feedback.gate?.event === "gate-reached" && (
-            <p className="rounded-xl bg-bg p-3">🌱 {session.runTarget} in a row. Nicely done. One small step left: explain this topic in your own words.</p>
-          )}
-          <p className="text-xs text-muted">
-            Source:{" "}
-            {feedback.sources.map((s, k) => (
-              <span key={s.url}>{k > 0 && " · "}<a className="underline" href={s.url} target="_blank" rel="noreferrer">{s.title}</a></span>
-            ))}
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            {feedback.gate?.event === "gate-reached" ? (
-              <Link href={`/topics/${feedback.gate.topicId}/explain`} className="btn-primary">Explain it back</Link>
-            ) : (
-              <button className="btn-primary" onClick={next} autoFocus>Next</button>
-            )}
-            {feedback.gate?.event === "gate-reached" && <button className="btn-ghost" onClick={next}>Finish the session first</button>}
-            <ReportProblem questionId={q.id} version={q.version} />
+        <div className="fixed inset-x-0 bottom-0 z-30">
+          <div ref={sheetRef} tabIndex={-1} aria-live="polite" className="sheet mx-auto max-w-xl rounded-t-3xl bg-surface px-6 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-6 shadow-[0_-8px_30px_rgba(22,24,29,0.10)] outline-none">
+            <div className="flex items-baseline justify-between gap-4">
+              <p className={`font-serif text-[32px] leading-none ${feedback.correct ? "text-accent" : "text-gentle"}`}>{feedback.correct ? "Right." : "Not quite."}</p>
+              <ReportProblem questionId={q.id} version={q.version} compact />
+            </div>
+            <p className="mt-3 max-h-40 overflow-y-auto text-[16px] leading-relaxed text-soft [overflow-wrap:anywhere]"><InlineCode text={feedback.explanation} /></p>
+            {feedback.gate?.event === "reset" && <p className="mt-2 text-[14px] text-muted">The run starts again. This one will come back so you can lock it in.</p>}
+            {feedback.gate?.event === "gate-reached" && <p className="mt-2 text-[15px] font-medium text-fg">{session.runTarget} in a row. One small step left: explain it in your own words.</p>}
+            <p className="mt-3 text-[13px] text-muted">
+              Source:{" "}
+              {feedback.sources.map((s, k) => (
+                <span key={s.url}>{k > 0 && " · "}<a className="link" href={s.url} target="_blank" rel="noreferrer">{s.title}</a></span>
+              ))}
+            </p>
+            <div className="mt-5 flex gap-2.5">
+              {feedback.gate?.event === "gate-reached" ? (
+                <>
+                  <button className="btn-ghost" onClick={next}>Later</button>
+                  <Link href={`/topics/${feedback.gate.topicId}/explain`} className="btn-primary flex-1">Explain it back</Link>
+                </>
+              ) : (
+                <button className="btn-primary w-full" onClick={next} autoFocus>Continue</button>
+              )}
+            </div>
           </div>
         </div>
       )}
-      {!feedback && <ReportProblem questionId={q.id} version={q.version} />}
     </div>
   );
 }
 
-function Summary(props: { tally: { right: number; total: number }; gateReached: boolean; topicId?: string; onAgain: () => void; pending: boolean; hasCurrent: boolean }) {
-  const { tally } = props;
+function Summary(props: { total: number; right: number; gateReached: boolean; topicId?: string; onAgain: () => void; pending: boolean; hasCurrent: boolean }) {
+  const { total, right } = props;
   return (
-    <div className="mx-auto max-w-lg space-y-5 text-center">
-      <h1 className="text-2xl font-semibold">Session done.</h1>
-      {tally.total > 0 ? (
-        <p className="text-muted">You answered {tally.total} question{tally.total === 1 ? "" : "s"} and got {tally.right} right. Every one of them strengthens your memory, the misses included.</p>
-      ) : (
-        <p className="text-muted">Nothing is due right now. You're all caught up.</p>
-      )}
-      <div className="flex flex-wrap justify-center gap-3">
+    <main id="main" className="page flex min-h-dvh flex-col justify-center pb-16">
+      <p className="eyebrow">Session done</p>
+      <h1 className="display mt-3 text-[44px]">{total > 0 ? `${right} of ${total} right.` : "All caught up."}</h1>
+      <p className="mt-5 text-[17px] leading-relaxed text-soft">
+        {total > 0 ? "Every answer strengthens your memory, the misses included. They come back at the right time." : "Nothing is due right now."}
+      </p>
+      <div className="mt-10 flex flex-col gap-3">
         {props.gateReached && props.topicId ? (
           <Link href={`/topics/${props.topicId}/explain`} className="btn-primary">Explain it back</Link>
         ) : (
           props.hasCurrent && <button className="btn-primary" onClick={props.onAgain} disabled={props.pending}>Another round</button>
         )}
-        <Link href="/dashboard" className="btn-ghost">See your progress</Link>
+        <Link href="/today" className="btn-ghost">Done for now</Link>
       </div>
-    </div>
+    </main>
   );
 }
 
-function ReportProblem({ questionId, version }: { questionId: string; version: number }) {
+function ReportProblem({ questionId, version, compact = false }: { questionId: string; version: number; compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
   const [pending, start] = useTransition();
-  if (sent) return <span className="text-sm text-muted" role="status">Thanks, a reviewer will look at it.</span>;
-  if (!open) return <button className="text-sm text-muted underline" onClick={() => setOpen(true)}>Report a problem with this question</button>;
+  if (sent) return <span className="text-[13px] text-muted" role="status">Thanks. A reviewer will look.</span>;
+  if (!open)
+    return (
+      <button className={`text-[13px] text-muted underline underline-offset-4 ${compact ? "" : "self-start py-2"}`} onClick={() => setOpen(true)}>
+        Report a problem
+      </button>
+    );
   return (
     <form
-      className="card w-full space-y-2 text-left"
+      className={`flex flex-col gap-2 rounded-2xl border border-border bg-surface p-4 ${compact ? "fixed inset-x-4 bottom-4 z-40 mx-auto max-w-lg shadow-lg" : ""}`}
       onSubmit={(e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
@@ -219,19 +249,19 @@ function ReportProblem({ questionId, version }: { questionId: string; version: n
         });
       }}
     >
-      <label className="label" htmlFor={`reason-${questionId}`}>What's wrong?</label>
-      <select id={`reason-${questionId}`} name="reason" className="input">
+      <label className="label" htmlFor={`reason-${questionId}-${compact}`}>What’s wrong?</label>
+      <select id={`reason-${questionId}-${compact}`} name="reason" className="input">
         <option value="wrong_answer">The marked answer looks wrong</option>
         <option value="unclear">The question is unclear</option>
         <option value="outdated">Outdated for current Prometheus</option>
         <option value="typo">Typo or formatting</option>
         <option value="other">Something else</option>
       </select>
-      <label className="label" htmlFor={`msg-${questionId}`}>Details (optional)</label>
-      <textarea id={`msg-${questionId}`} name="message" className="input min-h-20" maxLength={2000} />
+      <label className="label" htmlFor={`msg-${questionId}-${compact}`}>Details (optional)</label>
+      <textarea id={`msg-${questionId}-${compact}`} name="message" className="input min-h-20" maxLength={2000} />
       <div className="flex gap-2">
-        <button className="btn-primary" disabled={pending}>Send</button>
-        <button type="button" className="btn-ghost" onClick={() => setOpen(false)}>Cancel</button>
+        <button className="btn-primary h-11 flex-1" disabled={pending}>Send</button>
+        <button type="button" className="btn-ghost h-11" onClick={() => setOpen(false)}>Cancel</button>
       </div>
     </form>
   );

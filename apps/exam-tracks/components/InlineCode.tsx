@@ -7,7 +7,7 @@ export function InlineCode({ text }: { text: string }) {
     <>
       {parts.map((p, i) =>
         p.startsWith("`") && p.endsWith("`") && p.length > 2 ? (
-          <code key={i} className="rounded bg-bg px-1 py-0.5 font-mono text-[0.9em]">{p.slice(1, -1)}</code>
+          <code key={i} className="rounded bg-track/60 px-1 py-0.5 font-mono text-[0.85em]">{p.slice(1, -1)}</code>
         ) : (
           <Fragment key={i}>{p}</Fragment>
         ),

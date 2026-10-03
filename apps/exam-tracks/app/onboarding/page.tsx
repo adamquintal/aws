@@ -9,10 +9,10 @@ export default async function Onboarding() {
   const user = await requireUser();
   const tracks = getAllTracks();
   return (
-    <form action={enroll} className="mx-auto max-w-lg space-y-6">
+    <form action={enroll} id="main" className="page flex min-h-dvh max-w-md flex-col justify-center gap-7 pb-16 pt-12">
       <div>
-        <h1 className="text-2xl font-semibold">Welcome{user.name ? `, ${user.name}` : ""}.</h1>
-        <p className="mt-1 text-muted">Two quick choices and you're in. You can change these any time.</p>
+        <h1 className="display text-[44px]">Welcome{user.name ? `, ${user.name}` : ""}.</h1>
+        <p className="mt-3 text-[17px] text-soft">Two quick choices and you're in. You can change these any time.</p>
       </div>
       <div className="space-y-2">
         <label htmlFor="name" className="label">What should we call you? (optional)</label>
@@ -21,7 +21,7 @@ export default async function Onboarding() {
       <fieldset className="space-y-2">
         <legend className="label">Choose a track</legend>
         {tracks.map((t, i) => (
-          <label key={t.id} className="card flex cursor-pointer gap-3 has-[:checked]:border-accent">
+          <label key={t.id} className="flex cursor-pointer gap-3 rounded-2xl border border-border bg-surface p-4 has-[:checked]:border-2 has-[:checked]:border-accent">
             <input type="radio" name="trackId" value={t.id} defaultChecked={i === 0} className="mt-1" />
             <span>
               <span className="font-medium">{t.title}</span>

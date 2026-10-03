@@ -10,17 +10,18 @@ export default async function SignIn({ searchParams }: { searchParams: Promise<{
   const oauth = enabledProviders.filter((p) => p.type === "oauth" || p.type === "oidc");
   const email = enabledProviders.some((p) => p.type === "email");
   return (
-    <div className="mx-auto max-w-sm space-y-6">
-      <h1 className="text-2xl font-semibold">Sign in</h1>
-      {check && <p role="status" className="card">Check your email for a sign-in link.</p>}
-      {error && <p role="alert" className="card text-gentle">{error === "passcode" ? "That email and passcode didn't match. Please try again." : "That didn't work. Please try again."}</p>}
+    <main id="main" className="page flex min-h-dvh max-w-md flex-col justify-center gap-6 pb-16">
+      <span className="font-semibold">Exam Tracks</span>
+      <h1 className="display text-[44px]">Welcome back.</h1>
+      {check && <p role="status" className="text-[15px] text-soft">Check your email for a sign-in link.</p>}
+      {error && <p role="alert" className="text-[15px] text-gentle">{error === "passcode" ? "That email and passcode didn't match. Please try again." : "That didn't work. Please try again."}</p>}
       {passcodeLoginEnabled && (
-        <form action={passcodeSignIn} className="space-y-2">
+        <form action={passcodeSignIn} className="flex flex-col gap-2">
           <label htmlFor="pc-email" className="label">Email</label>
           <input id="pc-email" name="email" type="email" required autoComplete="email" className="input" />
           <label htmlFor="passcode" className="label">Passcode</label>
           <input id="passcode" name="passcode" type="password" required autoComplete="current-password" className="input" />
-          <button className="btn-primary w-full">Sign in</button>
+          <button className="btn-primary mt-3 w-full">Sign in</button>
         </form>
       )}
       {email && (
@@ -45,6 +46,6 @@ export default async function SignIn({ searchParams }: { searchParams: Promise<{
       {!email && !oauth.length && !devLoginEnabled && !passcodeLoginEnabled && (
         <p className="text-muted">No sign-in methods are configured. See the README.</p>
       )}
-    </div>
+    </main>
   );
 }

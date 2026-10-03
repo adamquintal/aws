@@ -1,90 +1,106 @@
 import Link from "next/link";
 import { requireEnrollment } from "@/lib/session";
 import { getProgress } from "@/lib/services/progress";
-import { currentTopic } from "@/lib/services/learning";
+import { buildDailySession, currentTopic } from "@/lib/services/learning";
+import { addDays } from "@/lib/engine/dates";
+import { TabBar } from "@/components/TabBar";
+import { RunBar } from "@/components/RunBar";
+import { IconArrow, IconFlame, IconSettings } from "@/components/Icons";
 
-export const metadata = { title: "Today" };
+export const metadata = { title: "Study" };
 export const dynamic = "force-dynamic";
-
-function greeting(tz: string) {
-  const h = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hour12: false, timeZone: tz }).format(new Date()));
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
 
 export default async function Today() {
   const { user, enrollment, track } = await requireEnrollment();
-  const p = await getProgress(user.id, user.timezone, track, enrollment);
+  const [p, session] = await Promise.all([getProgress(user.id, user.timezone, track, enrollment), buildDailySession(user.id, track)]);
   const cur = currentTopic(track, p.statuses);
-  const curStatus = cur ? p.statuses.get(cur.id) : null;
-  const run = cur ? p.gates.get(cur.id)?.run ?? 0 : 0;
+  const status = cur ? p.statuses.get(cur.id) : undefined;
+  const gate = cur ? p.gates.get(cur.id) : undefined;
+  const run = gate?.run ?? 0;
+  const target = track.mastery.runTarget;
+  const domain = cur ? track.domains.find((d) => d.id === cur.domain)?.title : "";
+
+  const count = (k: string) => session.items.filter((i) => i.kind === k).length;
+  const plan = [
+    { label: "Warm-up", n: count("warmup") },
+    { label: "Reviews due", n: count("review") },
+    { label: status === "current" ? "New in this topic" : "New", n: count("learn") },
+  ].filter((r) => r.n > 0);
+  const minutes = Math.max(2, Math.round(session.items.length * 0.8));
+
+  const weekAgo = addDays(p.today, -7);
+  const base = [...p.trend].reverse().find((t) => t.day <= weekAgo) ?? p.trend[0];
+  const delta = Math.round(p.readiness.score - (base?.score ?? 0));
+
+  let cta: { href: string; label: string } | null = null;
+  if (status === "explain-back" && cur) cta = { href: `/topics/${cur.id}/explain`, label: "Explain it back" };
+  else if (status === "current" && cur && !gate?.lessonViewedAt) cta = { href: `/topics/${cur.id}`, label: "Start topic" };
+  else if (session.items.length > 0) cta = { href: "/learn", label: "Continue" };
+
+  const date = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: user.timezone }).format(new Date());
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">{greeting(user.timezone)}{user.name ? `, ${user.name}` : ""}.</h1>
-        <p className="mt-1 text-muted">
-          {p.streak.studiedToday
-            ? "You've already studied today. Anything more is a bonus."
-            : p.streak.graceUsedToday
-              ? `Your ${p.streak.current}-day streak is safe. One missed day never breaks it.`
-              : "About 10 questions, at your own pace."}
-        </p>
+    <main id="main" className="page flex min-h-dvh flex-col pt-12">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-muted">{date}</span>
+        <div className="flex items-center gap-3">
+          {p.streak.current > 0 && (
+            <span className="flex items-center gap-1.5 text-sm font-medium" title={p.streak.graceUsedToday ? "One missed day never breaks your streak" : undefined}>
+              <IconFlame size={16} className="text-accent" />{p.streak.current} {p.streak.current === 1 ? "day" : "days"}
+            </span>
+          )}
+          <Link href="/settings" aria-label="Settings" className="-mr-2.5 flex h-11 w-11 items-center justify-center text-muted"><IconSettings size={20} /></Link>
+        </div>
       </div>
 
-      <section className="card space-y-4" aria-labelledby="session-h">
-        <h2 id="session-h" className="text-lg font-semibold">Today's session</h2>
-        {curStatus === "explain-back" && cur ? (
-          <>
-            <p>You've answered {track.mastery.runTarget} in a row on <strong>{cur.title}</strong>. One last step: explain it in your own words.</p>
-            <Link href={`/topics/${cur.id}/explain`} className="btn-primary">Explain it back</Link>
-          </>
-        ) : (
-          <>
-            <ul className="space-y-1 text-sm text-muted">
-              {p.masteredCount > 0 && <li>• A short warm-up from topics you've mastered</li>}
-              {p.dueCount > 0 && <li>• {p.dueCount} review{p.dueCount === 1 ? "" : "s"} due</li>}
-              {cur && curStatus === "current" && <li>• Practice on <strong className="text-fg">{cur.title}</strong> ({run}/{track.mastery.runTarget} in a row)</li>}
-              {curStatus === "coming-soon" && <li>• The next topic ({cur?.title}) is still being written. Reviews keep you sharp meanwhile.</li>}
-            </ul>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/learn" className="btn-primary">Start session</Link>
-              {cur && curStatus === "current" && (
-                <Link href={`/topics/${cur.id}`} className="btn-ghost">{p.gates.get(cur.id)?.lessonViewedAt ? "Re-read the lesson" : "Read the lesson first"}</Link>
-              )}
+      {cur ? (
+        <>
+          <p className="eyebrow mt-14">Topic {cur.index + 1} of {track.topics.length} · {domain}</p>
+          <h1 className="display mt-3 text-[44px]">{cur.title}</h1>
+          {status === "coming-soon" ? (
+            <p className="mt-6 text-[17px] leading-relaxed text-soft">This topic is still being written. Reviews keep what you’ve learned fresh in the meantime.</p>
+          ) : (
+            <div className="mt-8 flex flex-col gap-2.5">
+              <RunBar run={status === "explain-back" ? target : run} target={target} />
+              <div className="flex justify-between text-sm text-muted">
+                <span><b className="font-semibold text-fg">{status === "explain-back" ? target : run}</b> in a row</span>
+                <span>{status === "explain-back" ? "One step left" : `${target - run} more to master`}</span>
+              </div>
             </div>
-          </>
-        )}
-      </section>
-
-      <section className="grid gap-3 sm:grid-cols-3" aria-label="At a glance">
-        <Stat label="Streak" value={`${p.streak.current} day${p.streak.current === 1 ? "" : "s"}`} />
-        <Stat label="Topics mastered" value={`${p.masteredCount} of ${p.totalTopics}`} />
-        <Stat label="Readiness" value={`${Math.round(p.readiness.score)}%`} href="/dashboard" />
-      </section>
-
-      {p.weakest.length > 0 && (
-        <section className="card" aria-labelledby="next-h">
-          <h2 id="next-h" className="font-semibold">Good next steps</h2>
-          <ul className="mt-2 space-y-1 text-sm">
-            {p.weakest.map((w) => (
-              <li key={w.topicId}>
-                <Link className="text-accent underline" href={`/topics/${w.topicId}`}>Revisit “{w.title}”</Link>
-                <span className="text-muted">. A quick re-read usually lifts this.</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+          )}
+        </>
+      ) : (
+        <>
+          <p className="eyebrow mt-14">All {track.topics.length} topics mastered</p>
+          <h1 className="display mt-3 text-[44px]">Keep it fresh.</h1>
+        </>
       )}
-    </div>
-  );
-}
 
-function Stat({ label, value, href }: { label: string; value: string; href?: string }) {
-  const body = (
-    <>
-      <div className="label">{label}</div>
-      <div className="mt-1 text-2xl font-semibold">{value}</div>
-    </>
+      {cta ? (
+        <Link href={cta.href} className="mt-10 flex h-[60px] items-center justify-between rounded-2xl bg-ink px-6 text-[17px] font-semibold text-on-ink hover:opacity-90">
+          {cta.label}
+          <span className="flex items-center gap-2 text-sm font-normal opacity-70">{cta.href === "/learn" ? `~${minutes} min` : ""}<IconArrow size={18} /></span>
+        </Link>
+      ) : (
+        <p className="mt-10 text-[17px] text-soft">You’re all caught up for today.</p>
+      )}
+
+      {plan.length > 0 && cta?.href === "/learn" && (
+        <ul className="mt-9 border-t border-border">
+          {plan.map((r) => (
+            <li key={r.label} className="row"><span>{r.label}</span><span className="text-muted">{r.n} {r.n === 1 ? "question" : "questions"}</span></li>
+          ))}
+        </ul>
+      )}
+
+      <Link href="/dashboard" className="mt-auto flex items-baseline justify-between pb-6 pt-10">
+        <span className="text-[15px]">Readiness</span>
+        <span className="flex items-baseline gap-2">
+          <span className="font-serif text-[28px]">{Math.round(p.readiness.score)}%</span>
+          {delta > 0 && <span className="text-[13px] text-accent">+{delta} this week</span>}
+        </span>
+      </Link>
+      <TabBar active="study" />
+    </main>
   );
-  return href ? <Link href={href} className="card block hover:border-accent">{body}</Link> : <div className="card">{body}</div>;
 }
