@@ -1,0 +1,621 @@
+[
+  {
+    "id": "ar-load",
+    "type": "single",
+    "stem": "How does Prometheus load alerting and recording rules?",
+    "options": [
+      {
+        "id": "a",
+        "text": "From YAML rule files listed under rule_files in prometheus.yml",
+        "correct": true,
+        "note": "Right. They reload on SIGHUP."
+      },
+      {
+        "id": "b",
+        "text": "From the Alertmanager configuration",
+        "correct": false,
+        "note": "Alertmanager handles notifications. Rules are evaluated by Prometheus."
+      },
+      {
+        "id": "c",
+        "text": "They must be typed into the web UI",
+        "correct": false,
+        "note": "There's no rule editor in the UI. Rules come from files."
+      },
+      {
+        "id": "d",
+        "text": "From labels on scraped metrics",
+        "correct": false,
+        "note": "Rules aren't defined through labels."
+      }
+    ],
+    "explanation": "To include rules in Prometheus, create a YAML file containing the rule statements and load it via the rule_files field in the configuration.",
+    "hint": "Think about which config key lists them.",
+    "difficulty": 1,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "rule_files",
+      "rule file"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#configuring-rules",
+        "title": "Recording rules › Configuring rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-group",
+    "type": "single",
+    "stem": "How are rules within a rule group evaluated?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Sequentially, at a regular interval, all with the same evaluation time",
+        "correct": true,
+        "note": "Right. The interval defaults to evaluation_interval."
+      },
+      {
+        "id": "b",
+        "text": "In parallel, each with its own random timestamp",
+        "correct": false,
+        "note": "Rules in a group run sequentially with the same evaluation time."
+      },
+      {
+        "id": "c",
+        "text": "Only when someone opens the Alerts tab",
+        "correct": false,
+        "note": "Rules are evaluated continuously on a schedule."
+      },
+      {
+        "id": "d",
+        "text": "Once at startup",
+        "correct": false,
+        "note": "They run repeatedly at the group's interval."
+      }
+    ],
+    "explanation": "Recording and alerting rules exist in a rule group. Rules within a group are run sequentially at a regular interval, with the same evaluation time. interval defaults to global.evaluation_interval.",
+    "hint": "Order and timing.",
+    "difficulty": 2,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "rule group",
+      "evaluation_interval"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#recording-rules",
+        "title": "Recording rules › Recording rules"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#rule_group",
+        "title": "Recording rules › rule_group"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-recording-why",
+    "type": "single",
+    "stem": "Why would you add a recording rule?",
+    "options": [
+      {
+        "id": "a",
+        "text": "To precompute an expensive or frequently used query, so dashboards query a cheap series",
+        "correct": true,
+        "note": "Right. Especially useful for dashboards that re-run the same query on every refresh."
+      },
+      {
+        "id": "b",
+        "text": "To record raw scrape data before relabeling",
+        "correct": false,
+        "note": "That's not what recording rules do."
+      },
+      {
+        "id": "c",
+        "text": "To send notifications",
+        "correct": false,
+        "note": "Notifications come from alerting rules via Alertmanager."
+      },
+      {
+        "id": "d",
+        "text": "To store logs",
+        "correct": false,
+        "note": "Prometheus doesn't store logs."
+      }
+    ],
+    "explanation": "Recording rules precompute frequently needed or expensive expressions and save the result as new series. Querying the precomputed result is often much faster, which is especially useful for dashboards.",
+    "hint": "Think performance.",
+    "difficulty": 1,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "recording rule"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#recording-rules",
+        "title": "Recording rules › Recording rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-record-name",
+    "type": "single",
+    "stem": "What must the record field of a recording rule be?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A valid metric name, conventionally level:metric:operations",
+        "correct": true,
+        "note": "Right. Its output is stored as series with that name."
+      },
+      {
+        "id": "b",
+        "text": "A valid label value, conventionally CamelCase",
+        "correct": false,
+        "note": "That describes alerting rule names."
+      },
+      {
+        "id": "c",
+        "text": "A URL",
+        "correct": false,
+        "note": "It's a metric name."
+      },
+      {
+        "id": "d",
+        "text": "Any string, including spaces",
+        "correct": false,
+        "note": "It must be a valid metric name."
+      }
+    ],
+    "explanation": "The names of recording rules must be valid metric names. The names of alerting rules must be valid label values.",
+    "hint": "The result becomes a time series.",
+    "difficulty": 2,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "record",
+      "level:metric:operations"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#recording-rules",
+        "title": "Recording rules › Recording rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-for",
+    "type": "single",
+    "stem": "With for: 10m on the rule shown, what happens when the expression first returns a series?",
+    "code": "- alert: HighRequestLatency\n  expr: job:request_latency_seconds:mean5m{job=\"myjob\"} > 0.5\n  for: 10m\n  labels:\n    severity: page\n  annotations:\n    summary: High request latency",
+    "codeLang": "yaml",
+    "options": [
+      {
+        "id": "a",
+        "text": "The alert becomes pending, and fires only if the condition still holds after 10 minutes of evaluations",
+        "correct": true,
+        "note": "Right. Active but not yet firing means pending."
+      },
+      {
+        "id": "b",
+        "text": "The alert fires immediately and stays firing for at least 10 minutes",
+        "correct": false,
+        "note": "That isn't what for does. It delays firing."
+      },
+      {
+        "id": "c",
+        "text": "Nothing happens until the next 10-minute boundary",
+        "correct": false,
+        "note": "The alert is pending from the first evaluation."
+      },
+      {
+        "id": "d",
+        "text": "Prometheus waits 10 minutes before evaluating the rule again",
+        "correct": false,
+        "note": "Evaluation continues at the group interval."
+      }
+    ],
+    "explanation": "The for clause makes Prometheus wait between first seeing a new output element and counting the alert as firing. Elements that are active but not yet firing are pending.",
+    "hint": "Two states come before an alert is sent.",
+    "difficulty": 2,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "for",
+      "pending",
+      "firing"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/#defining-alerting-rules",
+        "title": "Alerting rules › Defining alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-no-for",
+    "type": "single",
+    "stem": "An alerting rule has no for clause. When does it fire?",
+    "options": [
+      {
+        "id": "a",
+        "text": "On the first evaluation where the expression returns a result",
+        "correct": true,
+        "note": "Right. The default for is 0s."
+      },
+      {
+        "id": "b",
+        "text": "After the default 5 minutes",
+        "correct": false,
+        "note": "There's no 5-minute default. 5 minutes is a recommended value."
+      },
+      {
+        "id": "c",
+        "text": "Never. for is required",
+        "correct": false,
+        "note": "for is optional."
+      },
+      {
+        "id": "d",
+        "text": "After one scrape interval",
+        "correct": false,
+        "note": "It fires on the first evaluation."
+      }
+    ],
+    "explanation": "Alerting rules without the for clause become active on the first evaluation. for defaults to 0s.",
+    "hint": "What's the default value of for?",
+    "difficulty": 2,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "for",
+      "alerting rule"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/#defining-alerting-rules",
+        "title": "Alerting rules › Defining alerting rules"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#rule_group",
+        "title": "Recording rules › rule_group"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-keep-firing",
+    "type": "single",
+    "stem": "What does keep_firing_for do?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Keeps an alert firing for a set time after its condition was last met, to prevent flapping",
+        "correct": true,
+        "note": "Right. Useful for flapping alerts or brief data gaps."
+      },
+      {
+        "id": "b",
+        "text": "Delays firing until the condition has held for that long",
+        "correct": false,
+        "note": "That's for, not keep_firing_for."
+      },
+      {
+        "id": "c",
+        "text": "Repeats notifications at that interval",
+        "correct": false,
+        "note": "Repeat intervals are an Alertmanager setting."
+      },
+      {
+        "id": "d",
+        "text": "Silences the alert for that long",
+        "correct": false,
+        "note": "Silences are created in Alertmanager."
+      }
+    ],
+    "explanation": "keep_firing_for tells Prometheus to keep the alert firing for the specified duration after the firing condition was last met. This can prevent flapping and false resolutions due to missing data.",
+    "hint": "It acts at the end of an alert's life, not the start.",
+    "difficulty": 2,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "keep_firing_for",
+      "firing"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/#defining-alerting-rules",
+        "title": "Alerting rules › Defining alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-labels-annotations",
+    "type": "single",
+    "stem": "In an alerting rule, what's the difference between labels and annotations?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Labels identify and route the alert (such as severity); annotations hold longer descriptive text (summary, description, runbook)",
+        "correct": true,
+        "note": "Right. Both can be templated."
+      },
+      {
+        "id": "b",
+        "text": "Annotations are used for routing and labels for descriptions",
+        "correct": false,
+        "note": "Reversed."
+      },
+      {
+        "id": "c",
+        "text": "They're the same thing",
+        "correct": false,
+        "note": "They play different roles."
+      },
+      {
+        "id": "d",
+        "text": "Labels are only for recording rules",
+        "correct": false,
+        "note": "Alerting rules use labels too, such as severity."
+      }
+    ],
+    "explanation": "The labels clause specifies extra labels attached to the alert. The annotations clause specifies informational labels for longer information such as descriptions or runbook links.",
+    "hint": "Which one would Alertmanager use to decide who gets paged?",
+    "difficulty": 2,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "annotations",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/#defining-alerting-rules",
+        "title": "Alerting rules › Defining alerting rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-template",
+    "type": "single",
+    "stem": "Which template inserts the instance label of the alerting series into an annotation?",
+    "options": [
+      {
+        "id": "a",
+        "text": "{{ $labels.instance }}",
+        "correct": true,
+        "note": "Right. $labels holds the alert's label set."
+      },
+      {
+        "id": "b",
+        "text": "{{ instance }}",
+        "correct": false,
+        "note": "Labels are accessed through $labels."
+      },
+      {
+        "id": "c",
+        "text": "${instance}",
+        "correct": false,
+        "note": "That isn't Prometheus template syntax."
+      },
+      {
+        "id": "d",
+        "text": "{{ $value.instance }}",
+        "correct": false,
+        "note": "$value holds the numeric value, not labels."
+      }
+    ],
+    "explanation": "The $labels variable holds the alert instance's label key/value pairs, accessed as {{ $labels.<labelname> }}. {{ $value }} holds the evaluated value.",
+    "hint": "There's a variable holding all labels.",
+    "difficulty": 2,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "templating",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/#templating",
+        "title": "Alerting rules › Templating"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-alerts-series",
+    "type": "single",
+    "stem": "Which synthetic series does Prometheus store for pending and firing alerts?",
+    "options": [
+      {
+        "id": "a",
+        "text": "ALERTS{alertname=\"…\", alertstate=\"pending\" or \"firing\"}",
+        "correct": true,
+        "note": "Right. Value 1 while in that state."
+      },
+      {
+        "id": "b",
+        "text": "up{alert=\"…\"}",
+        "correct": false,
+        "note": "up is about scrape health."
+      },
+      {
+        "id": "c",
+        "text": "alertmanager_alerts",
+        "correct": false,
+        "note": "That's an Alertmanager metric, not the series Prometheus writes for its own rules."
+      },
+      {
+        "id": "d",
+        "text": "None. Alerts are only visible in Alertmanager",
+        "correct": false,
+        "note": "Prometheus also stores ALERTS series and shows an Alerts tab."
+      }
+    ],
+    "explanation": "For pending and firing alerts, Prometheus stores synthetic series ALERTS{alertname, alertstate, …} with value 1 while the alert is in that state.",
+    "hint": "The metric name is written in all capitals.",
+    "difficulty": 2,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "ALERTS",
+      "pending",
+      "firing"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/#inspecting-alerts-during-runtime",
+        "title": "Alerting rules › Inspecting alerts during runtime"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-promtool",
+    "type": "single",
+    "stem": "How can you check a rule file's syntax without starting Prometheus?",
+    "options": [
+      {
+        "id": "a",
+        "text": "promtool check rules /path/to/rules.yml",
+        "correct": true,
+        "note": "Right. It exits 0 if valid, 1 on errors."
+      },
+      {
+        "id": "b",
+        "text": "prometheus --validate",
+        "correct": false,
+        "note": "That flag doesn't exist. Use promtool."
+      },
+      {
+        "id": "c",
+        "text": "amtool check-config",
+        "correct": false,
+        "note": "amtool checks Alertmanager config, not Prometheus rules."
+      },
+      {
+        "id": "d",
+        "text": "curl /-/reload",
+        "correct": false,
+        "note": "That reloads a running server. It doesn't check offline."
+      }
+    ],
+    "explanation": "Use promtool check rules to check whether a rule file is syntactically correct without starting a Prometheus server. Use promtool test rules for unit tests.",
+    "hint": "Prometheus ships a command-line tool.",
+    "difficulty": 1,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "promtool",
+      "rule file"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#syntax-checking-rules",
+        "title": "Recording rules › Syntax-checking rules"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/",
+        "title": "Unit testing for rules"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ar-who-notifies",
+    "type": "single",
+    "stem": "Which component turns firing alerts into email, Slack or PagerDuty notifications?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Alertmanager, which Prometheus sends alerts to (configured under alerting.alertmanagers)",
+        "correct": true,
+        "note": "Right. Prometheus only evaluates rules and sends alert states."
+      },
+      {
+        "id": "b",
+        "text": "Prometheus itself, through a notifications block in the rule",
+        "correct": false,
+        "note": "Prometheus isn't a fully fledged notification solution."
+      },
+      {
+        "id": "c",
+        "text": "promtool",
+        "correct": false,
+        "note": "promtool checks and tests rules."
+      },
+      {
+        "id": "d",
+        "text": "Grafana always",
+        "correct": false,
+        "note": "The standard path is Alertmanager."
+      }
+    ],
+    "explanation": "Prometheus's alerting rules work out what's broken right now, but they aren't a notification solution. Alertmanager adds summarisation, rate limiting, silencing and routing. Prometheus is configured to send alerts to it.",
+    "hint": "Prometheus raises alerts; someone else delivers them.",
+    "difficulty": 1,
+    "tags": [
+      "rules"
+    ],
+    "uses": [
+      "alertmanager",
+      "notification"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/#sending-alert-notifications",
+        "title": "Alerting rules › Sending alert notifications"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alertmanager_config",
+        "title": "Configuration › alertmanager_config"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

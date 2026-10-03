@@ -1,0 +1,604 @@
+[
+  {
+    "id": "in-everything",
+    "type": "single",
+    "stem": "What is the short answer to \"what should I instrument?\" in the Prometheus best practices?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Instrument everything",
+        "correct": true,
+        "note": "Right. Every library, subsystem and service should have at least a few metrics."
+      },
+      {
+        "id": "b",
+        "text": "Only what you need for current alerts",
+        "correct": false,
+        "note": "The docs warn you can't know in advance which questions you'll need answered."
+      },
+      {
+        "id": "c",
+        "text": "Only CPU and memory",
+        "correct": false,
+        "note": "Those come for free. You also need application-level metrics."
+      },
+      {
+        "id": "d",
+        "text": "Nothing until there's an incident",
+        "correct": false,
+        "note": "Instrumentation added after an incident is too late for that incident."
+      }
+    ],
+    "explanation": "The short answer is to instrument everything. The Zen of Prometheus puts it as \"instrument first, ask questions later\".",
+    "hint": "One of the Zen's rules is literally about this.",
+    "difficulty": 1,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "instrumentation"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#how-to-instrument",
+        "title": "Instrumentation › How to instrument"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/#instrument-first-ask-questions-later",
+        "title": "Zen › Instrument first, ask questions later"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-online-metrics",
+    "type": "multi",
+    "stem": "Which are the key metrics for an online-serving system such as an HTTP API? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Number of queries",
+        "correct": true,
+        "note": "Right. Count the requests."
+      },
+      {
+        "id": "b",
+        "text": "Errors",
+        "correct": true,
+        "note": "Right. Count failed requests."
+      },
+      {
+        "id": "c",
+        "text": "Latency",
+        "correct": true,
+        "note": "Right. How long requests take, usually a histogram."
+      },
+      {
+        "id": "d",
+        "text": "Time of last successful run",
+        "correct": false,
+        "note": "That's the key metric for batch jobs, not online-serving systems."
+      }
+    ],
+    "explanation": "The key metrics in an online-serving system are the number of performed queries, errors and latency. Requests in progress can also be useful.",
+    "hint": "Someone is waiting for each response. What would they care about?",
+    "difficulty": 1,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "online-serving system"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#online-serving-systems",
+        "title": "Instrumentation › Online-serving systems"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-count-when",
+    "type": "single",
+    "stem": "When should an online-serving system count a query, according to the guide?",
+    "options": [
+      {
+        "id": "a",
+        "text": "When it ends, so counts line up with error and latency stats",
+        "correct": true,
+        "note": "Right. Errors and latency are only known at the end."
+      },
+      {
+        "id": "b",
+        "text": "When it starts, so slow requests are counted sooner",
+        "correct": false,
+        "note": "The guide suggests counting at the end, for consistency with errors and latency."
+      },
+      {
+        "id": "c",
+        "text": "Twice, once at start and once at end",
+        "correct": false,
+        "note": "That double-counts. Be consistent and count once."
+      },
+      {
+        "id": "d",
+        "text": "Only when it fails",
+        "correct": false,
+        "note": "You need total requests as well, to calculate ratios."
+      }
+    ],
+    "explanation": "Be consistent in whether you count queries when they start or end. When they end is suggested, as it lines up with the error and latency stats and tends to be easier to code.",
+    "hint": "What's known only after a request finishes?",
+    "difficulty": 2,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "online-serving system"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#online-serving-systems",
+        "title": "Instrumentation › Online-serving systems"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-batch-key",
+    "type": "single",
+    "stem": "What is the key metric of a batch job?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The last time it succeeded",
+        "correct": true,
+        "note": "Right. Usually a timestamp gauge, pushed to the Pushgateway."
+      },
+      {
+        "id": "b",
+        "text": "The number of requests in progress",
+        "correct": false,
+        "note": "That's an online-serving metric."
+      },
+      {
+        "id": "c",
+        "text": "Its 99th percentile latency",
+        "correct": false,
+        "note": "Not the key batch metric. Stage durations are useful, but last success matters most."
+      },
+      {
+        "id": "d",
+        "text": "Its current CPU usage",
+        "correct": false,
+        "note": "Batch jobs aren't running most of the time, so this tells you little."
+      }
+    ],
+    "explanation": "The key metric of a batch job is the last time it succeeded. Stage durations, overall runtime and last completion time are also useful.",
+    "hint": "For something that runs nightly, what do you most need to know?",
+    "difficulty": 1,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "batch job"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#batch-jobs",
+        "title": "Instrumentation › Batch jobs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-offline",
+    "type": "multi",
+    "stem": "For an offline processing pipeline with several stages, what does the guide suggest tracking per stage? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Items coming in",
+        "correct": true,
+        "note": "Right. Track what enters each stage."
+      },
+      {
+        "id": "b",
+        "text": "Items in progress",
+        "correct": true,
+        "note": "Right. Shows work piling up inside a stage."
+      },
+      {
+        "id": "c",
+        "text": "The last time something was processed",
+        "correct": true,
+        "note": "Right. It helps detect a stall."
+      },
+      {
+        "id": "d",
+        "text": "The response time a waiting user experiences",
+        "correct": false,
+        "note": "No one is waiting in offline processing, so there's no user response time."
+      }
+    ],
+    "explanation": "For each stage, track the items coming in, how many are in progress, the last time you processed something, and how many items were sent out.",
+    "hint": "No one is waiting on this system.",
+    "difficulty": 2,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "offline processing"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#offline-processing",
+        "title": "Instrumentation › Offline processing"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-heartbeat",
+    "type": "single",
+    "stem": "Why might you send a heartbeat item through an offline processing system?",
+    "options": [
+      {
+        "id": "a",
+        "text": "To measure how long items take to propagate through all stages",
+        "correct": true,
+        "note": "Right. Each stage exports the newest heartbeat timestamp it has seen."
+      },
+      {
+        "id": "b",
+        "text": "To keep the Prometheus scrape connection alive",
+        "correct": false,
+        "note": "It's a pipeline technique, unrelated to scrape connections."
+      },
+      {
+        "id": "c",
+        "text": "To reset counters at each stage",
+        "correct": false,
+        "note": "Heartbeats don't reset anything."
+      },
+      {
+        "id": "d",
+        "text": "To fill in missing metrics with zeros",
+        "correct": false,
+        "note": "Missing metrics are handled by initialising them to 0."
+      }
+    ],
+    "explanation": "A heartbeat is a dummy item passed all the way through the system with its insertion timestamp. Each stage exports the most recent heartbeat timestamp it has seen, showing propagation time.",
+    "hint": "It carries a timestamp end to end.",
+    "difficulty": 2,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "heartbeat",
+      "offline processing"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#offline-processing",
+        "title": "Instrumentation › Offline processing"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-failures",
+    "type": "single",
+    "stem": "When counting failures, what else should you track?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The total number of attempts, so the failure ratio is easy to calculate",
+        "correct": true,
+        "note": "Right. Failures alone don't tell you the rate relative to traffic."
+      },
+      {
+        "id": "b",
+        "text": "Each failing user's ID as a label",
+        "correct": false,
+        "note": "That's unbounded cardinality."
+      },
+      {
+        "id": "c",
+        "text": "Nothing. A failure counter alone is enough",
+        "correct": false,
+        "note": "Without totals you can't tell 10 failures in 20 from 10 in a million."
+      },
+      {
+        "id": "d",
+        "text": "A gauge set to 1 while failing",
+        "correct": false,
+        "note": "Counters of failures and attempts are more informative."
+      }
+    ],
+    "explanation": "Every failure should increment a counter. When reporting failures you should also have a metric for the total number of attempts, which makes the failure ratio easy to calculate.",
+    "hint": "Ratios need a denominator.",
+    "difficulty": 2,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "failure ratio",
+      "counter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#failures",
+        "title": "Instrumentation › Failures"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-logging",
+    "type": "single",
+    "stem": "What does the guide recommend for log lines?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Have a counter incremented for every line of logging code",
+        "correct": true,
+        "note": "Right. Then you can see how often an interesting message happens."
+      },
+      {
+        "id": "b",
+        "text": "Feed log text into Prometheus as label values",
+        "correct": false,
+        "note": "That's high cardinality, and Prometheus isn't a log store."
+      },
+      {
+        "id": "c",
+        "text": "Never mix logging and metrics",
+        "correct": false,
+        "note": "The guide says the opposite: pair them."
+      },
+      {
+        "id": "d",
+        "text": "Replace all logging with metrics",
+        "correct": false,
+        "note": "Logs remain valuable. Counters complement them."
+      }
+    ],
+    "explanation": "As a general rule, for every line of logging code you should also have a counter that is incremented. Exporting totals of info, error and warning lines is also useful.",
+    "hint": "If you can log it…",
+    "difficulty": 1,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "counter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#logging",
+        "title": "Instrumentation › Logging"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/#if-you-can-log-it-you-can-have-a-metric-for-it",
+        "title": "Zen › If you can log it, you can have a metric for it"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-raw-counters",
+    "type": "single",
+    "stem": "A developer wants to expose requests_per_second, calculated in the app every 10 seconds. What does the Zen of Prometheus advise?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Expose the raw counter and let Prometheus derive rates with rate()",
+        "correct": true,
+        "note": "Right. Precalculating rates throws away information."
+      },
+      {
+        "id": "b",
+        "text": "Good idea, because it saves Prometheus work",
+        "correct": false,
+        "note": "Prometheus computes rates easily, and precalculated values can't be re-windowed or aggregated correctly."
+      },
+      {
+        "id": "c",
+        "text": "Expose both and drop the counter later",
+        "correct": false,
+        "note": "The counter is the one to keep."
+      },
+      {
+        "id": "d",
+        "text": "Use a summary instead",
+        "correct": false,
+        "note": "Summaries are for distributions such as durations, not request rates."
+      }
+    ],
+    "explanation": "Counters rule and gauges suck: expose raw counters and let Prometheus derive rates with rate() and increase(). Don't precalculate rates on the target, because that throws away information.",
+    "hint": "Which side should do the maths?",
+    "difficulty": 2,
+    "tags": [
+      "instrumentation",
+      "best-practice"
+    ],
+    "uses": [
+      "counter",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/#counters-rule-and-gauges-suck",
+        "title": "Zen › Counters rule and gauges suck"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-missing",
+    "type": "single",
+    "stem": "An error counter only appears after the first error, so dashboards show \"no data\" and alerts misbehave. What's the fix?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Initialise the series to 0 up front for label values you know may exist",
+        "correct": true,
+        "note": "Right. Avoid missing metrics."
+      },
+      {
+        "id": "b",
+        "text": "Use absent() in every dashboard panel",
+        "correct": false,
+        "note": "That's a workaround. The guide's fix is to export 0 in advance."
+      },
+      {
+        "id": "c",
+        "text": "Switch the counter to a gauge",
+        "correct": false,
+        "note": "The type isn't the problem. Missing series are."
+      },
+      {
+        "id": "d",
+        "text": "Increase the scrape interval",
+        "correct": false,
+        "note": "That doesn't create missing series."
+      }
+    ],
+    "explanation": "Series that aren't present until something happens are hard to deal with. Export a default value such as 0 for any series you know may exist. Most libraries do this automatically for metrics without labels.",
+    "hint": "What value should a counter start at?",
+    "difficulty": 2,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "counter",
+      "time series"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#avoid-missing-metrics",
+        "title": "Instrumentation › Avoid missing metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-inner-loop",
+    "type": "single",
+    "stem": "When should you worry about the performance cost of updating metrics?",
+    "options": [
+      {
+        "id": "a",
+        "text": "In performance-critical code called more than about 100k times a second",
+        "correct": true,
+        "note": "Right. A counter increment costs about 12–17 ns, which only matters in very hot loops."
+      },
+      {
+        "id": "b",
+        "text": "Always. Every metric noticeably slows an application",
+        "correct": false,
+        "note": "The docs say the cost is far outweighed by the benefits in general."
+      },
+      {
+        "id": "c",
+        "text": "Never. Metrics have zero cost",
+        "correct": false,
+        "note": "There's a small cost. It just rarely matters."
+      },
+      {
+        "id": "d",
+        "text": "Only for gauges",
+        "correct": false,
+        "note": "The concern is about update frequency, not metric type."
+      }
+    ],
+    "explanation": "In general the cost of instrumentation is far outweighed by its benefits. For code that is performance-critical or called more than 100k times a second, take care how many metrics you update.",
+    "hint": "The docs give a number of calls per second.",
+    "difficulty": 2,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "instrumentation"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#inner-loops",
+        "title": "Instrumentation › Inner loops"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "in-users-care",
+    "type": "single",
+    "stem": "According to the Zen of Prometheus, what should guide what you measure and alert on?",
+    "options": [
+      {
+        "id": "a",
+        "text": "What users experience, such as latency and availability, with SLOs as a guide",
+        "correct": true,
+        "note": "Right. Internal metrics like CPU are for troubleshooting."
+      },
+      {
+        "id": "b",
+        "text": "Whatever is easiest to collect",
+        "correct": false,
+        "note": "Ease of collection isn't the criterion."
+      },
+      {
+        "id": "c",
+        "text": "Only CPU and disk saturation",
+        "correct": false,
+        "note": "Users don't directly experience CPU. Those are cause metrics for troubleshooting."
+      },
+      {
+        "id": "d",
+        "text": "Whatever the exporter exposes by default",
+        "correct": false,
+        "note": "Defaults are a start, not a guide to what matters."
+      }
+    ],
+    "explanation": "Measure what users care about: latencies and availability. RED, USE and the Four Golden Signals are known frameworks to get you started. Internal metrics are still useful for troubleshooting.",
+    "hint": "Think from the user's side of the screen.",
+    "difficulty": 2,
+    "tags": [
+      "instrumentation"
+    ],
+    "uses": [
+      "red method",
+      "four golden signals"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/#measure-what-users-care-about",
+        "title": "Zen › Measure what users care about"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

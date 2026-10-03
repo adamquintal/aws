@@ -1,0 +1,74 @@
+---
+id: obs-logs-events
+title: Logs and events vs metrics
+summary: A log is a timestamped record of something that happened, kept individually with all its detail. A metric is an aggregated number over time. They answer different questions, Prometheus handles only metrics, and good systems use both by counting events as metrics and keeping the details in logs.
+analogy: "A shop's CCTV recording versus its footfall counter. The recording (logs) shows every individual customer and what they did, which is great for investigating one incident but bulky to keep and search. The footfall counter (a metric) just says \"312 visitors today, peaking at 2 p.m.\": tiny, fast and perfect for spotting trends, but it can't tell you who walked in."
+keyPoints:
+  - A log is a timestamped text record (structured or unstructured) emitted by services, not necessarily tied to a particular request.
+  - An event is a recorded occurrence of something. In OpenTelemetry, events are a special kind of log. All events are logs, but not all logs are events.
+  - Metrics are aggregations of numeric data over time, such as error rate, CPU use and request rate. They're cheap to store and query, and ideal for dashboards and alerting.
+  - Logs keep per-event detail for investigating specific incidents. They're bulkier, and usually searched rather than aggregated.
+  - Prometheus is a metrics system, not an event logging system. The FAQ says not to feed logs into it, and suggests a log system such as Grafana Loki or OpenSearch.
+  - Bridge the two by adding a counter for every interesting log line, and exporting totals of info, warning and error lines.
+  - Structured logs (with a consistent schema) are preferred in production because they're easier to parse and correlate with traces and metrics.
+  - Logs become more useful when correlated with traces and spans, for example by carrying trace and span IDs.
+commonTrap: Trying to store individual events in Prometheus, for example one series per request with a request_id label, or log messages as label values. Prometheus aggregates numbers. Unbounded label values explode cardinality, and it isn't built to keep event detail. Count the events as metrics, and send the event records to a log system.
+explainBack:
+  prompt: Your app logs "payment failed" with the order ID and error details. How would you make that visible in Prometheus, and where does the detail go?
+  modelAnswer: I'd add a counter, such as payments_failed_total, that's incremented every time that log line is written, maybe with a small bounded label such as reason. Prometheus can then graph and alert on rate(payments_failed_total[5m]). The detail, like the order ID and full error message, stays in the log record, sent to a log system such as Loki or OpenSearch. The order ID must never be a metric label, because that's unbounded cardinality.
+introduces: [log, event, structured log, loki]
+sources:
+  - url: https://opentelemetry.io/docs/concepts/observability-primer/
+    title: OpenTelemetry › Observability primer (metrics, logs)
+    readFrom: github.com/open-telemetry/opentelemetry.io@49a4a61 content/en/docs/concepts/observability-primer.md
+  - url: https://opentelemetry.io/docs/concepts/signals/logs/
+    title: OpenTelemetry › Signals › Logs
+    readFrom: github.com/open-telemetry/opentelemetry.io@49a4a61 content/en/docs/concepts/signals/logs.md
+  - url: https://prometheus.io/docs/introduction/faq/#how-to-feed-logs-into-prometheus
+    title: Prometheus FAQ › How to feed logs into Prometheus?
+    readFrom: github.com/prometheus/docs@605cf81 docs/introduction/faq.md
+  - url: https://prometheus.io/docs/practices/instrumentation/#logging
+    title: Prometheus › Instrumentation › Logging
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/instrumentation.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Three kinds of telemetry
+
+Systems emit **telemetry**, data about their behaviour, as three main **signals**: **metrics**, **logs** and **traces**. This topic compares the first two. Traces are next.
+
+## What a log is
+
+The OpenTelemetry primer defines a **log** as a **timestamped message emitted by services or other components**. Unlike traces, logs aren't necessarily tied to a particular request. A sample (from the primer):
+
+```text
+I, [2021-02-23T13:26:23.505892 #22473]  INFO -- : [6459ffe1-ea53-4044-aaa3-bf902868f730] Started GET "/" for ::1 at 2021-02-23 13:26:23 -0800
+```
+
+- **Structured logs** have a consistent schema (typed fields, often JSON). They're preferred in production because they're easy to parse, validate and correlate.
+- **Unstructured logs** are free text: readable, but hard to analyse at scale.
+
+### And events?
+
+An **event** is a record that something specific happened: a login, a deploy, a failed payment. In OpenTelemetry's model, **events are a special type of log**: all events are logs, but not all logs are events. A log record carries a timestamp, a body and attributes, and an event adds an event name.
+
+## Metrics vs logs
+
+| | Metrics | Logs / events |
+|---|---|---|
+| What | Numbers **aggregated over time** (error rate, CPU, request rate) | **Individual** timestamped records with detail |
+| Cost | Small and fixed per series | Grows with every event |
+| Best for | Dashboards, trends, **alerting** | Investigating **one specific** incident |
+| Typical question | "Is the error rate rising?" | "What happened to order 4711?" |
+
+## Where Prometheus fits
+
+Prometheus is firmly on the **metrics** side. The FAQ's answer to "How do I feed logs into Prometheus?" is **"Don't!"**. Use a log system such as **Grafana Loki** or **OpenSearch**. Prometheus collects and processes metrics; it isn't an event logging system.
+
+## Making them work together
+
+- **Count what you log.** The instrumentation guide says every logging line should have a **counter** you increment, so you can see how often a message happens. Also export totals of info, warning and error lines, and compare them across releases.
+- **Keep the detail in logs.** IDs, messages and payloads belong in the log record, never in metric labels (that's unbounded cardinality).
+- **Correlate.** Logs are much more useful when they carry the **trace and span IDs** of the request they belong to, which leads straight into tracing.

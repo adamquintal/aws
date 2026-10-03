@@ -1,0 +1,622 @@
+[
+  {
+    "id": "am-role",
+    "type": "multi",
+    "stem": "What does Alertmanager do? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Groups related alerts into single notifications",
+        "correct": true,
+        "note": "Right. Grouping is a core feature."
+      },
+      {
+        "id": "b",
+        "text": "Routes alerts to receivers such as email, PagerDuty or Slack",
+        "correct": true,
+        "note": "Right. Through its routing tree."
+      },
+      {
+        "id": "c",
+        "text": "Handles silences and inhibition",
+        "correct": true,
+        "note": "Right. Both mute alerts, in different ways."
+      },
+      {
+        "id": "d",
+        "text": "Evaluates PromQL alerting rules",
+        "correct": false,
+        "note": "Prometheus evaluates rules. Alertmanager receives the resulting alerts."
+      }
+    ],
+    "explanation": "Alertmanager handles alerts sent by clients such as Prometheus: de-duplicating, grouping and routing them to receivers, plus silencing and inhibition.",
+    "hint": "One of these happens before alerts reach Alertmanager.",
+    "difficulty": 1,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "alertmanager",
+      "grouping",
+      "inhibition",
+      "silence"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+        "title": "Alertmanager concepts"
+      },
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/overview/",
+        "title": "Alerting overview"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-grouping",
+    "type": "single",
+    "stem": "A network partition triggers hundreds of per-instance database alerts in one cluster. Which feature turns them into a single compact notification?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Grouping, for example group_by: [cluster, alertname]",
+        "correct": true,
+        "note": "Right. That's the docs' own example."
+      },
+      {
+        "id": "b",
+        "text": "Silences",
+        "correct": false,
+        "note": "Silences mute alerts entirely for a set time. They don't summarise them."
+      },
+      {
+        "id": "c",
+        "text": "Recording rules",
+        "correct": false,
+        "note": "Recording rules precompute series in Prometheus."
+      },
+      {
+        "id": "d",
+        "text": "repeat_interval",
+        "correct": false,
+        "note": "That controls re-sending, not combining alerts."
+      }
+    ],
+    "explanation": "Grouping categorises alerts of a similar nature into a single notification. The docs configure grouping by cluster and alertname so a partition sends one notification.",
+    "hint": "Batch similar alerts together.",
+    "difficulty": 1,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "grouping",
+      "group_by"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/#grouping",
+        "title": "Alertmanager › Grouping"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-timers",
+    "type": "multi",
+    "stem": "Which pairs correctly match an Alertmanager route setting with its default? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "group_wait: 30s",
+        "correct": true,
+        "note": "Right. The wait before the first notification for a new group."
+      },
+      {
+        "id": "b",
+        "text": "group_interval: 5m",
+        "correct": true,
+        "note": "Right. The wait before sending updates about a group."
+      },
+      {
+        "id": "c",
+        "text": "repeat_interval: 4h",
+        "correct": true,
+        "note": "Right. The wait before re-sending an unchanged notification."
+      },
+      {
+        "id": "d",
+        "text": "group_wait: 5m",
+        "correct": false,
+        "note": "group_wait defaults to 30s. 5m is group_interval."
+      }
+    ],
+    "explanation": "Route defaults: group_wait 30s, group_interval 5m, repeat_interval 4h.",
+    "hint": "Seconds, minutes, hours.",
+    "difficulty": 2,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "group_wait",
+      "group_interval",
+      "repeat_interval"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/#route",
+        "title": "Configuration › route"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-group-wait",
+    "type": "single",
+    "stem": "What is group_wait for?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Waiting a short time before the first notification for a new group, so related and inhibiting alerts can arrive",
+        "correct": true,
+        "note": "Right. An alert that resolves within it sends no notification."
+      },
+      {
+        "id": "b",
+        "text": "How long a condition must hold before an alert fires",
+        "correct": false,
+        "note": "That's the for clause in a Prometheus alerting rule."
+      },
+      {
+        "id": "c",
+        "text": "How often an unchanged notification is repeated",
+        "correct": false,
+        "note": "That's repeat_interval."
+      },
+      {
+        "id": "d",
+        "text": "How long silences last",
+        "correct": false,
+        "note": "Silences have their own start and end time."
+      }
+    ],
+    "explanation": "group_wait is how long to wait before sending the first notification for a new group, allowing alerts from other rule groups or servers, and inhibiting alerts, to arrive.",
+    "hint": "It applies to the first notification only.",
+    "difficulty": 2,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "group_wait"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/#route",
+        "title": "Configuration › route"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-route-db",
+    "type": "single",
+    "stem": "Using the routing tree shown, where does an alert with labels service=\"mysql\", team=\"frontend\" go?",
+    "code": "route:\n  receiver: 'default-receiver'\n  group_by: [cluster, alertname]\n  routes:\n  - receiver: 'database-pager'\n    matchers:\n    - service=~\"mysql|cassandra\"\n  - receiver: 'frontend-pager'\n    matchers:\n    - team=\"frontend\"",
+    "codeLang": "yaml",
+    "options": [
+      {
+        "id": "a",
+        "text": "database-pager, because continue defaults to false so routing stops at the first matching child",
+        "correct": true,
+        "note": "Right. The database route is listed first and matches."
+      },
+      {
+        "id": "b",
+        "text": "frontend-pager, because team is checked before service",
+        "correct": false,
+        "note": "Children are checked in order, and the database route comes first."
+      },
+      {
+        "id": "c",
+        "text": "Both pagers",
+        "correct": false,
+        "note": "Only with continue: true would it carry on to later siblings."
+      },
+      {
+        "id": "d",
+        "text": "default-receiver",
+        "correct": false,
+        "note": "It matches a child route, so the root's receiver isn't used."
+      }
+    ],
+    "explanation": "Alerts traverse child routes in order. If continue is false (the default), matching stops after the first matching child.",
+    "hint": "Order matters, and continue is false by default.",
+    "difficulty": 3,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "routing tree",
+      "continue",
+      "matchers"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/#route",
+        "title": "Configuration › route"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-route-none",
+    "type": "single",
+    "stem": "Using the routing tree shown, where does an alert with only service=\"redis\" go?",
+    "code": "route:\n  receiver: 'default-receiver'\n  group_by: [cluster, alertname]\n  routes:\n  - receiver: 'database-pager'\n    matchers:\n    - service=~\"mysql|cassandra\"\n  - receiver: 'frontend-pager'\n    matchers:\n    - team=\"frontend\"",
+    "codeLang": "yaml",
+    "options": [
+      {
+        "id": "a",
+        "text": "default-receiver at the root route",
+        "correct": true,
+        "note": "Right. An alert matching no children is handled by the current node."
+      },
+      {
+        "id": "b",
+        "text": "Nowhere. It's dropped",
+        "correct": false,
+        "note": "The root route matches all alerts and handles unmatched ones."
+      },
+      {
+        "id": "c",
+        "text": "database-pager, because redis is a database",
+        "correct": false,
+        "note": "The matcher is the regex mysql|cassandra, which redis doesn't match."
+      },
+      {
+        "id": "d",
+        "text": "frontend-pager",
+        "correct": false,
+        "note": "It has no team=\"frontend\" label."
+      }
+    ],
+    "explanation": "Every alert enters the root route, which matches all alerts. If an alert matches no child, it's handled by the current node's settings.",
+    "hint": "Check the matchers literally.",
+    "difficulty": 2,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "routing tree",
+      "receiver"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/#route",
+        "title": "Configuration › route"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-inherit",
+    "type": "single",
+    "stem": "A child route sets only matchers and receiver. What group_by and timers does it use?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It inherits them from its parent route",
+        "correct": true,
+        "note": "Right. Most optional settings are inherited if not set."
+      },
+      {
+        "id": "b",
+        "text": "Built-in defaults, ignoring the parent",
+        "correct": false,
+        "note": "Children inherit unset values from the parent."
+      },
+      {
+        "id": "c",
+        "text": "None. Alerts on it are never grouped",
+        "correct": false,
+        "note": "Inheritance supplies group_by."
+      },
+      {
+        "id": "d",
+        "text": "The receiver's defaults",
+        "correct": false,
+        "note": "Grouping and timing live on routes, not receivers."
+      }
+    ],
+    "explanation": "Most optional route parameters (receiver, group_by, group_wait, group_interval, repeat_interval) are inherited from the parent node if not set.",
+    "hint": "It's a tree.",
+    "difficulty": 2,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "routing tree",
+      "group_by"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/#route",
+        "title": "Configuration › route"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-inhibit",
+    "type": "single",
+    "stem": "What does this inhibition rule do? source_matchers: [alertname=\"ClusterDown\"], target_matchers: [severity=\"warning\"], equal: [cluster]",
+    "options": [
+      {
+        "id": "a",
+        "text": "While ClusterDown fires for a cluster, warning alerts for that same cluster are muted",
+        "correct": true,
+        "note": "Right. The equal list requires a matching cluster label."
+      },
+      {
+        "id": "b",
+        "text": "Mutes ClusterDown whenever warnings fire",
+        "correct": false,
+        "note": "Reversed. The source mutes the targets."
+      },
+      {
+        "id": "c",
+        "text": "Mutes all warnings in every cluster permanently",
+        "correct": false,
+        "note": "Only while a matching source alert fires, and only for the same cluster."
+      },
+      {
+        "id": "d",
+        "text": "Creates a new ClusterDown alert",
+        "correct": false,
+        "note": "Inhibition only mutes. It doesn't create alerts."
+      }
+    ],
+    "explanation": "An inhibition rule mutes target alerts when a source alert exists, provided both have the same values for the labels in equal.",
+    "hint": "Source mutes target, when the equal labels agree.",
+    "difficulty": 2,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "inhibition"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/#inhibit_rule",
+        "title": "Configuration › inhibit_rule"
+      },
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/#inhibition",
+        "title": "Alertmanager › Inhibition"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-silence-vs-inhibit",
+    "type": "single",
+    "stem": "You're doing planned maintenance on a database tonight and want no pages from it for 2 hours. What's the right tool?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A silence, created in the Alertmanager web UI (or amtool), for 2 hours",
+        "correct": true,
+        "note": "Right. Silences are manual, time-limited mutes."
+      },
+      {
+        "id": "b",
+        "text": "An inhibition rule in alertmanager.yml",
+        "correct": false,
+        "note": "Inhibition is automatic, triggered by another alert firing, not a manual time window."
+      },
+      {
+        "id": "c",
+        "text": "Delete the alerting rule",
+        "correct": false,
+        "note": "That's heavy-handed and easy to forget to restore."
+      },
+      {
+        "id": "d",
+        "text": "Increase repeat_interval",
+        "correct": false,
+        "note": "That only spaces out repeats. It doesn't stop the first page."
+      }
+    ],
+    "explanation": "Silences mute alerts for a given time, based on matchers. They're configured in the Alertmanager web interface. Inhibition mutes alerts while other alerts fire.",
+    "hint": "Manual and time-boxed, or automatic and alert-driven?",
+    "difficulty": 2,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "silence",
+      "inhibition"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/#silences",
+        "title": "Alertmanager › Silences"
+      },
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/#inhibition",
+        "title": "Alertmanager › Inhibition"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-ha",
+    "type": "single",
+    "stem": "You run three Alertmanagers for high availability. How should Prometheus be configured?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Point Prometheus at all three Alertmanager instances directly",
+        "correct": true,
+        "note": "Right. The clustered Alertmanagers de-duplicate between themselves."
+      },
+      {
+        "id": "b",
+        "text": "Put a load balancer in front and point Prometheus at it",
+        "correct": false,
+        "note": "The docs say not to load-balance between Prometheus and its Alertmanagers."
+      },
+      {
+        "id": "c",
+        "text": "Point it at one; the others are standby",
+        "correct": false,
+        "note": "Prometheus should send to every instance."
+      },
+      {
+        "id": "d",
+        "text": "Use a Pushgateway between them",
+        "correct": false,
+        "note": "The Pushgateway isn't part of the alerting path."
+      }
+    ],
+    "explanation": "It's important not to load balance traffic between Prometheus and its Alertmanagers. Point Prometheus at a list of all Alertmanagers. The cluster gossips silences and notification state.",
+    "hint": "The docs explicitly warn against a load balancer here.",
+    "difficulty": 2,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "alertmanager cluster",
+      "high availability"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/alertmanager/#high-availability",
+        "title": "Alertmanager › High Availability"
+      },
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/high_availability/",
+        "title": "Alertmanager › High Availability"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-receiver",
+    "type": "single",
+    "stem": "In Alertmanager configuration, what is a receiver?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A named set of notification integrations, such as email_configs or slack_configs",
+        "correct": true,
+        "note": "Right. Routes point alerts at receivers by name."
+      },
+      {
+        "id": "b",
+        "text": "The Prometheus server that sends alerts",
+        "correct": false,
+        "note": "Prometheus is the alert sender, not a receiver in this sense."
+      },
+      {
+        "id": "c",
+        "text": "A matcher on alert labels",
+        "correct": false,
+        "note": "Matchers select routes. Receivers deliver notifications."
+      },
+      {
+        "id": "d",
+        "text": "A silence",
+        "correct": false,
+        "note": "Silences mute alerts."
+      }
+    ],
+    "explanation": "A receiver is a named configuration of one or more notification integrations, for example email, PagerDuty, Slack or webhook.",
+    "hint": "Where do notifications actually go?",
+    "difficulty": 1,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "receiver"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/#receiver",
+        "title": "Configuration › receiver"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "am-amtool",
+    "type": "single",
+    "stem": "How can you validate an Alertmanager configuration file?",
+    "options": [
+      {
+        "id": "a",
+        "text": "amtool check-config alertmanager.yml",
+        "correct": true,
+        "note": "Right. No running server is needed."
+      },
+      {
+        "id": "b",
+        "text": "promtool check rules alertmanager.yml",
+        "correct": false,
+        "note": "promtool checks Prometheus rule files."
+      },
+      {
+        "id": "c",
+        "text": "curl -X POST /-/reload on Prometheus",
+        "correct": false,
+        "note": "That reloads Prometheus, not Alertmanager config."
+      },
+      {
+        "id": "d",
+        "text": "It can't be validated before starting",
+        "correct": false,
+        "note": "amtool validates it."
+      }
+    ],
+    "explanation": "You can use amtool check-config to validate an Alertmanager configuration file. You don't need a running Alertmanager server.",
+    "hint": "Alertmanager ships its own command-line tool.",
+    "difficulty": 2,
+    "tags": [
+      "alertmanager"
+    ],
+    "uses": [
+      "amtool"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/alerting/latest/configuration/#verification",
+        "title": "Configuration › Verification (amtool)"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

@@ -1,0 +1,511 @@
+[
+  {
+    "id": "tr-trace",
+    "type": "single",
+    "stem": "What does a distributed trace record?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The path taken by a single request as it propagates through multiple services",
+        "correct": true,
+        "note": "Right. That's the primer's definition."
+      },
+      {
+        "id": "b",
+        "text": "An aggregated error rate across all requests",
+        "correct": false,
+        "note": "That's a metric."
+      },
+      {
+        "id": "c",
+        "text": "Every log line from one server",
+        "correct": false,
+        "note": "That's a log stream, not a trace."
+      },
+      {
+        "id": "d",
+        "text": "CPU usage over time",
+        "correct": false,
+        "note": "That's a metric."
+      }
+    ],
+    "explanation": "A distributed trace, more commonly called a trace, records the path taken by a single request as it propagates through multiple services.",
+    "hint": "One request, many services.",
+    "difficulty": 1,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "trace"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#distributed-traces",
+        "title": "OpenTelemetry primer › Distributed traces"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-span",
+    "type": "single",
+    "stem": "What is a span?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A single unit of work or operation within a trace",
+        "correct": true,
+        "note": "Right. Spans are the building blocks of traces."
+      },
+      {
+        "id": "b",
+        "text": "The total time range of a dashboard",
+        "correct": false,
+        "note": "Not in tracing terms."
+      },
+      {
+        "id": "c",
+        "text": "A group of related alerts",
+        "correct": false,
+        "note": "That's Alertmanager grouping."
+      },
+      {
+        "id": "d",
+        "text": "A metric label",
+        "correct": false,
+        "note": "Spans are tracing data, not labels."
+      }
+    ],
+    "explanation": "A span represents a single unit of work or operation. Spans track specific operations that a request makes.",
+    "hint": "Building block of a trace.",
+    "difficulty": 1,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "span",
+      "trace"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#spans",
+        "title": "OpenTelemetry primer › Spans"
+      },
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/traces/#spans",
+        "title": "OpenTelemetry › Traces › Spans"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-root",
+    "type": "single",
+    "stem": "In a trace, what does the root span represent?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The request from start to finish; spans beneath it show the steps",
+        "correct": true,
+        "note": "Right. It's the first span and has no parent."
+      },
+      {
+        "id": "b",
+        "text": "The slowest operation in the trace",
+        "correct": false,
+        "note": "The root isn't defined by speed."
+      },
+      {
+        "id": "c",
+        "text": "The database call",
+        "correct": false,
+        "note": "A database call is usually a child span."
+      },
+      {
+        "id": "d",
+        "text": "The last span to finish",
+        "correct": false,
+        "note": "Root means the top of the hierarchy, not last in time."
+      }
+    ],
+    "explanation": "A trace is made of one or more spans. The first span is the root span. Each root span represents a request from start to finish, and spans underneath give more detail.",
+    "hint": "Top of the tree.",
+    "difficulty": 1,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "root span",
+      "span"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#distributed-traces",
+        "title": "OpenTelemetry primer › Distributed traces"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-span-contents",
+    "type": "multi",
+    "stem": "Which of these does a span include? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "A name",
+        "correct": true,
+        "note": "Right. It describes the operation."
+      },
+      {
+        "id": "b",
+        "text": "Start and end timestamps",
+        "correct": true,
+        "note": "Right. They show how long it took."
+      },
+      {
+        "id": "c",
+        "text": "Attributes (key-value metadata)",
+        "correct": true,
+        "note": "Right. For example http.route."
+      },
+      {
+        "id": "d",
+        "text": "A PromQL expression",
+        "correct": false,
+        "note": "PromQL is Prometheus's query language. It isn't part of a span."
+      }
+    ],
+    "explanation": "A span includes a name, parent span ID (empty for root spans), start and end timestamps, span context, attributes, span events, span links and span status.",
+    "hint": "One option belongs to a different tool.",
+    "difficulty": 1,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "span",
+      "span attributes"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/traces/#spans",
+        "title": "OpenTelemetry › Traces › Spans"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-trace-id",
+    "type": "single",
+    "stem": "How do tracing systems know which spans belong to the same trace?",
+    "options": [
+      {
+        "id": "a",
+        "text": "All spans in a trace share the same trace ID in their span context, with parent IDs giving the hierarchy",
+        "correct": true,
+        "note": "Right. That's what makes separate spans one trace."
+      },
+      {
+        "id": "b",
+        "text": "They were recorded on the same server",
+        "correct": false,
+        "note": "A trace spans many services and servers."
+      },
+      {
+        "id": "c",
+        "text": "They have the same name",
+        "correct": false,
+        "note": "Spans in a trace usually have different names."
+      },
+      {
+        "id": "d",
+        "text": "They occurred within the same minute",
+        "correct": false,
+        "note": "Timing alone can't connect spans reliably."
+      }
+    ],
+    "explanation": "Span context contains the trace ID of the trace the span belongs to, plus the span's own ID. Spans sharing a trace_id, with parent_id hierarchy, form a trace.",
+    "hint": "There's an identifier in the span context.",
+    "difficulty": 2,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "trace id",
+      "span context"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/traces/#span-context",
+        "title": "OpenTelemetry › Traces › Span Context"
+      },
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/traces/",
+        "title": "OpenTelemetry › Traces"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-propagation",
+    "type": "single",
+    "stem": "What is context propagation in distributed tracing?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Passing span context (including the trace ID) between services, so their spans join the same trace",
+        "correct": true,
+        "note": "Right. It's the core concept that makes distributed tracing work."
+      },
+      {
+        "id": "b",
+        "text": "Copying metrics to long-term storage",
+        "correct": false,
+        "note": "That's remote write."
+      },
+      {
+        "id": "c",
+        "text": "Spreading alerts to multiple receivers",
+        "correct": false,
+        "note": "That's Alertmanager routing."
+      },
+      {
+        "id": "d",
+        "text": "Replicating logs between servers",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "Context propagation is the core concept that enables distributed tracing. It lets spans be correlated and assembled into a trace regardless of where they're generated.",
+    "hint": "Something must travel with the request.",
+    "difficulty": 2,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "context propagation",
+      "trace id"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/traces/#context-propagation",
+        "title": "OpenTelemetry › Traces › Context Propagation"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-status",
+    "type": "single",
+    "stem": "A span completes without any error and the developer didn't set a status. What is its status?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Unset, which means it completed without an error",
+        "correct": true,
+        "note": "Right. Ok is only for spans explicitly marked successful."
+      },
+      {
+        "id": "b",
+        "text": "Ok, set automatically",
+        "correct": false,
+        "note": "Ok must be set explicitly. The default is Unset."
+      },
+      {
+        "id": "c",
+        "text": "Error",
+        "correct": false,
+        "note": "No error occurred."
+      },
+      {
+        "id": "d",
+        "text": "Pending",
+        "correct": false,
+        "note": "Pending is an alert state, not a span status."
+      }
+    ],
+    "explanation": "Span status is Unset, Error or Ok. The default is Unset, meaning the operation completed without error. Ok means a developer explicitly marked it successful.",
+    "hint": "The default value is the answer.",
+    "difficulty": 2,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "span status"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/traces/#span-status",
+        "title": "OpenTelemetry › Traces › Span Status"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-kind",
+    "type": "single",
+    "stem": "An outgoing HTTP request from your service to another service is typically which span kind?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Client",
+        "correct": true,
+        "note": "Right. A synchronous outgoing remote call."
+      },
+      {
+        "id": "b",
+        "text": "Server",
+        "correct": false,
+        "note": "Server spans represent incoming calls."
+      },
+      {
+        "id": "c",
+        "text": "Consumer",
+        "correct": false,
+        "note": "Consumer spans process queued jobs."
+      },
+      {
+        "id": "d",
+        "text": "Internal",
+        "correct": false,
+        "note": "Internal spans don't cross a process boundary."
+      }
+    ],
+    "explanation": "A client span represents a synchronous outgoing remote call, such as an outgoing HTTP request or database call. A server span represents an incoming one.",
+    "hint": "Outgoing or incoming?",
+    "difficulty": 2,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "span kind"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/traces/#span-kind",
+        "title": "OpenTelemetry › Traces › Span Kind"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-why",
+    "type": "single",
+    "stem": "Which problem is distributed tracing especially good at solving?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Finding which service or step made one specific request slow in a distributed system",
+        "correct": true,
+        "note": "Right. Traces break down what happens within a request."
+      },
+      {
+        "id": "b",
+        "text": "Calculating a 30-day availability percentage",
+        "correct": false,
+        "note": "That's a metrics job."
+      },
+      {
+        "id": "c",
+        "text": "Storing application logs cheaply",
+        "correct": false,
+        "note": "Traces aren't a log store."
+      },
+      {
+        "id": "d",
+        "text": "Discovering scrape targets",
+        "correct": false,
+        "note": "That's service discovery."
+      }
+    ],
+    "explanation": "Distributed tracing lets you observe requests as they propagate through distributed systems. It makes finding the root cause of performance problems far less daunting.",
+    "hint": "One request's journey.",
+    "difficulty": 1,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "trace"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#understanding-distributed-tracing",
+        "title": "OpenTelemetry primer › Understanding distributed tracing"
+      },
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#distributed-traces",
+        "title": "OpenTelemetry primer › Distributed traces"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "tr-exemplar",
+    "type": "single",
+    "stem": "How can Prometheus metrics be linked to traces?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Through exemplars, which can attach a trace ID to a metric sample in the OpenMetrics format",
+        "correct": true,
+        "note": "Right. From a latency spike you can jump to an example trace."
+      },
+      {
+        "id": "b",
+        "text": "Prometheus stores full traces alongside metrics",
+        "correct": false,
+        "note": "Prometheus doesn't store traces."
+      },
+      {
+        "id": "c",
+        "text": "By adding a trace_id label to every series",
+        "correct": false,
+        "note": "That's unbounded cardinality."
+      },
+      {
+        "id": "d",
+        "text": "Traces are scraped from /metrics",
+        "correct": false,
+        "note": "/metrics serves metrics, not traces."
+      }
+    ],
+    "explanation": "Using the OpenMetrics format allows exposing and querying exemplars. An exemplar is a point-in-time snapshot related to a metric, and may carry a trace ID for use with a tracing system.",
+    "hint": "An OpenMetrics feature from the exposition format topic.",
+    "difficulty": 3,
+    "tags": [
+      "tracing"
+    ],
+    "uses": [
+      "exemplar",
+      "openmetrics",
+      "trace id"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exposition_formats/#exemplars-experimental",
+        "title": "Prometheus › Exposition formats › Exemplars"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

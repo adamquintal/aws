@@ -1,0 +1,115 @@
+---
+id: alert-alertmanager
+title: "Alertmanager: routing, grouping, inhibition, silences"
+summary: Alertmanager receives alerts from Prometheus and decides what people actually get. It de-duplicates, groups related alerts into one notification, routes them through a tree to the right receiver, mutes alerts with inhibition and silences, and repeats or resolves notifications on a schedule.
+analogy: "Alertmanager is a hospital switchboard during a busy night. Fifty calls about the same burst pipe become one message to the plumber (grouping). Calls go to the right department based on what they're about (routing). If the whole building has lost power, nobody needs separate calls about every dark room (inhibition). And while maintenance works on a ward, its alarms are on hold for a set time (silences)."
+keyPoints:
+  - "Alerting is split in two: Prometheus evaluates alerting rules and sends alerts, and Alertmanager manages them and sends notifications."
+  - Alertmanager de-duplicates, groups and routes alerts to receivers (email, PagerDuty, Slack, OpsGenie, webhooks…), and handles silences and inhibition.
+  - Grouping (group_by) combines alerts of a similar nature, such as the same cluster and alertname, into one notification.
+  - "Timing defaults: group_wait 30s (wait before the first notification for a new group), group_interval 5m (between updates to a group), repeat_interval 4h (before re-sending an unchanged notification)."
+  - Routing is a tree. Every alert enters the root route (which matches everything) and walks child routes using matchers. With continue false (the default) it stops at the first matching child, and children inherit settings they don't set.
+  - Inhibition mutes target alerts while a matching source alert is firing, if the labels listed in equal match. For example, ClusterDown mutes all alerts for that cluster.
+  - Silences mute matching alerts for a set time. They're created in the Alertmanager web UI (or with amtool), not in the config file.
+  - For HA, cluster several Alertmanagers (they gossip silences and notification state) and point Prometheus at all of them. Never put a load balancer in between.
+  - Validate the config with amtool check-config.
+commonTrap: Confusing inhibition with silences. Inhibition is automatic, defined in the config, and driven by another alert firing ("if ClusterDown is firing, mute the rest of that cluster's alerts"). A silence is a manual, time-limited mute created in the web UI or with amtool, for example during planned maintenance. A second trap is load-balancing Prometheus to an Alertmanager cluster. Prometheus must be given every Alertmanager instance.
+explainBack:
+  prompt: A network partition causes 300 "cannot reach database" alerts across one cluster. Describe how Alertmanager features turn that into something a human can handle.
+  modelAnswer: Grouping by cluster and alertname combines the 300 alerts into one notification that still lists the affected instances. group_wait holds the first notification about 30 seconds so related alerts arrive together. group_interval batches later changes into updates, and repeat_interval avoids re-sending the same notification more than every few hours. If a higher-level alert such as ClusterUnreachable is firing, an inhibition rule with equal on cluster can mute the lower-level alerts entirely. Routing sends what's left to the right team's receiver.
+introduces: [grouping, group_by, group_wait, group_interval, repeat_interval, routing tree, receiver, matchers, continue, inhibition, silence, amtool, alertmanager cluster]
+versionNotes:
+  - match and match_re (and source_match/target_match in inhibit rules) are deprecated in favour of matchers, source_matchers and target_matchers. Prometheus 3.x only talks to Alertmanager using API v2.
+sources:
+  - url: https://prometheus.io/docs/alerting/latest/overview/
+    title: Alerting overview
+    readFrom: github.com/prometheus/alertmanager@61ba43d docs/overview.md
+  - url: https://prometheus.io/docs/alerting/latest/alertmanager/
+    title: Alertmanager concepts (grouping, inhibition, silences, HA)
+    readFrom: github.com/prometheus/alertmanager@61ba43d docs/alertmanager.md
+  - url: https://prometheus.io/docs/alerting/latest/configuration/
+    title: Alertmanager configuration (route, inhibit_rule, receiver)
+    readFrom: github.com/prometheus/alertmanager@61ba43d docs/configuration.md
+  - url: https://prometheus.io/docs/alerting/latest/high_availability/
+    title: Alertmanager high availability
+    readFrom: github.com/prometheus/alertmanager@61ba43d docs/high_availability.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Two halves of alerting
+
+1. **Prometheus** evaluates alerting rules and **sends alerts** to Alertmanager.
+2. **Alertmanager** **manages** them: de-duplicating, grouping, routing, silencing and inhibiting, then sending **notifications** through **receivers** such as email, PagerDuty, Slack, OpsGenie or webhooks.
+
+Alertmanager has its own YAML config, `alertmanager.yml`, loaded with `--config.file`.
+
+## Grouping
+
+During a big outage, hundreds of alerts can fire at once. **Grouping** combines alerts of a similar nature into **one notification** that still lists everything affected. The docs' example: a network partition makes half of many service instances lose their database. Group by `cluster` and `alertname`, and that's a single page.
+
+Three timers shape a group's notifications:
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `group_wait` | **30s** | Wait before the **first** notification for a new group, so related alerts (and inhibiting ones) can arrive. An alert that resolves within it sends nothing. |
+| `group_interval` | **5m** | Wait before sending an **update** when the group changes (new or resolved alerts) |
+| `repeat_interval` | **4h** | Wait before **re-sending** a notification that hasn't changed |
+
+## Routing
+
+Routes form a **tree**. This is the docs' example:
+
+```yaml
+route:
+  receiver: 'default-receiver'
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  group_by: [cluster, alertname]
+  routes:
+  - receiver: 'database-pager'
+    group_wait: 10s
+    matchers:
+    - service=~"mysql|cassandra"
+  - receiver: 'frontend-pager'
+    group_by: [product, environment]
+    matchers:
+    - team="frontend"
+```
+
+- Every alert enters at the **root route**, which must match all alerts.
+- It walks the child routes, matching on labels with **`matchers`**.
+- With **`continue: false`** (the default), it **stops at the first matching child**. With `continue: true` it keeps checking later siblings.
+- An alert that matches no child is handled by the current node, so here unmatched alerts go to `default-receiver`.
+- Children **inherit** `receiver`, `group_by` and the timers from their parent unless they override them.
+
+## Inhibition
+
+**Inhibition** mutes some alerts *while other alerts are firing*:
+
+```yaml
+inhibit_rules:
+  - source_matchers: [ alertname="ClusterDown" ]
+    target_matchers: [ severity="warning" ]
+    equal: [ cluster ]
+```
+
+While a `ClusterDown` alert fires, warning alerts **for the same cluster** (the `equal` labels must match) are muted. That saves hundreds of pages about symptoms of one root problem. Inhibition is defined in the config file.
+
+## Silences
+
+A **silence** mutes alerts that match its matchers **for a set period**, for example during planned maintenance. Silences are created in the **Alertmanager web UI** (or with `amtool`), not in the config file. Matching alerts send no notifications until the silence expires.
+
+## High availability
+
+Run several Alertmanagers as a **cluster**, using the `--cluster-*` flags. They gossip silences and notification state, and prefer sending a duplicate to missing an alert.
+
+**Point Prometheus at every Alertmanager instance. Don't load-balance between them.** Each instance receives alerts directly and they de-duplicate between themselves.
+
+## Checking the config
+
+```bash
+amtool check-config alertmanager.yml
+```

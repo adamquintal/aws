@@ -1,0 +1,72 @@
+---
+id: alert-basics
+title: What makes a good alert
+summary: Page people only for symptoms users feel, such as high latency, errors or stale data, and only when a human needs to act. Keep alerts few, simple and tolerant of small blips. Use dashboards, not pages, to track down causes.
+analogy: "A good alert is a smoke alarm, not a weather report. It goes off when there's actual fire in the house and someone needs to act now. A thermometer reading 28 °C in the kitchen is useful information for later, but it shouldn't wake you at 3 a.m."
+keyPoints:
+  - Keep alerting simple, alert on symptoms, have good dashboards for finding causes, and avoid pages where there's nothing to do.
+  - Aim for as few alerts as possible, tied to end-user pain rather than every possible cause.
+  - Alerts should be urgent, important, actionable and real. Alert fatigue is real.
+  - Page on symptoms (user-facing impact). Cause-based alerts, such as high CPU, go to dashboards or tickets, not pages.
+  - "Online serving: alert on latency and error rates as high up the stack as possible, and page on latency at only one point."
+  - "Offline processing: alert on how long data takes to get through the system. Batch jobs: alert if there's been no success in about two full run periods."
+  - Allow slack for small blips. Use a for duration (rule of thumb at least 5 minutes) so one failed scrape doesn't fire an alert.
+  - Monitor the monitoring (metamonitoring), ideally with an end-to-end blackbox test, and at minimum alert on target health using up.
+  - Alert names are conventionally CamelCase, such as InstanceDown.
+commonTrap: Paging on causes rather than symptoms, for example a page for high CPU on a database while users notice nothing. The docs say to page on what users experience (latency, errors, freshness). Cause-based signals belong on dashboards and in ticket queues, where they help diagnosis without causing alert fatigue.
+explainBack:
+  prompt: A nightly batch job runs every 4 hours and takes about an hour. When should it page someone, and why that threshold?
+  modelAnswer: It should page only if the job hasn't succeeded recently enough to cause user-visible problems. The docs suggest allowing at least two full runs. For a job that runs every 4 hours and takes an hour, that's about 10 hours since the last success. A single failed run shouldn't need a human, because the next run may succeed. If one failure can't be tolerated, run the job more often rather than alerting on every failure.
+introduces: [symptom-based alert, cause-based alert, paging, alert fatigue, metamonitoring, for duration, camelcase alert names]
+sources:
+  - url: https://prometheus.io/docs/practices/alerting/
+    title: Best practices › Alerting
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/alerting.md
+  - url: https://prometheus.io/docs/practices/the_zen/#alerts-should-be-urgent-important-actionable-and-real
+    title: The Zen of Prometheus › alerting rules of thumb
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/the_zen.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## The philosophy in one line
+
+The alerting guide sums it up: **keep alerting simple, alert on symptoms, have good dashboards to pinpoint causes, and avoid pages where there is nothing to do.**
+
+The Zen of Prometheus adds: alerts should be **urgent, important, actionable and real**, and **don't over-alert, because alert fatigue is real**.
+
+## Symptoms page, causes don't
+
+| | Symptom-based | Cause-based |
+|---|---|---|
+| Example | "Checkout latency p99 > 2s", "5% of requests failing" | "Database CPU at 95%", "one replica down" |
+| Users feel it? | Yes | Not necessarily |
+| Where it goes | **A page**, waking someone | Dashboards and ticket queues, handled at leisure |
+
+You still collect cause metrics, and they're how you debug, but they shouldn't wake anyone unless users are affected.
+
+## What to alert on, by service type
+
+- **Online serving:** alert on **latency and error rates, as high up the stack as possible**. Page on latency at **one point** only. If a lower component is slow but users are fine, don't page. Page on **user-visible errors**. Add separate pages only for invisible failures that are serious, such as losing money.
+- **Offline processing:** the key metric is **how long data takes to get through**. Page when that delay hurts users.
+- **Batch jobs:** page if the job **hasn't succeeded recently enough** to cause problems. Allow **at least two full runs**: a job every 4 hours taking 1 hour gets a threshold of about **10 hours**. If you can't tolerate one failed run, run it more often.
+- **Capacity:** nearing capacity isn't user pain yet, but often needs a human soon, so it's worth an alert.
+
+## Tolerate blips
+
+Allow slack for small blips. Prometheus alerting rules have a **`for` duration**: the condition must stay true that long before the alert fires. Without it, one failed scrape could page someone. The Zen's rule of thumb is **at least 5 minutes** unless you have a reason otherwise. The next topic covers the syntax.
+
+## Watch the watchers
+
+**Metamonitoring** means alerting when Prometheus, Alertmanager, the Pushgateway and the rest of the monitoring stack aren't working. As always, prefer symptoms: an end-to-end check that an alert really travels from the Pushgateway to Prometheus to Alertmanager to your inbox beats separate alerts on each piece. External **blackbox** monitoring also catches problems your internal monitoring can't see.
+
+At the very least, alert on whether your targets are present and healthy. Prometheus generates `up` for every target for exactly this:
+
+```promql
+up == 0
+```
+
+## Naming
+
+Alert names can contain any characters, but the community convention is **CamelCase**: `InstanceDown`, `HighRequestLatency`.

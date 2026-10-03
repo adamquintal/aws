@@ -1,0 +1,558 @@
+[
+  {
+    "id": "cl-what",
+    "type": "single",
+    "stem": "What does a Prometheus client library do when Prometheus scrapes your application?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Sends the current state of all tracked metrics over HTTP",
+        "correct": true,
+        "note": "Right. The library serves the current values of every registered metric."
+      },
+      {
+        "id": "b",
+        "text": "Pushes every individual event to Prometheus as it happens",
+        "correct": false,
+        "note": "Client libraries hold aggregated values, such as counter totals, and serve them on request. They don't stream events."
+      },
+      {
+        "id": "c",
+        "text": "Writes metrics to a log file for Prometheus to read",
+        "correct": false,
+        "note": "Prometheus scrapes an HTTP endpoint. It doesn't read log files."
+      },
+      {
+        "id": "d",
+        "text": "Queries the Prometheus server for alert rules",
+        "correct": false,
+        "note": "That's not what client libraries do."
+      }
+    ],
+    "explanation": "When Prometheus scrapes your instance's HTTP endpoint, the client library sends the current state of all tracked metrics to the server.",
+    "hint": "Pull model: what's in the response to a scrape?",
+    "difficulty": 1,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "client library",
+      "scrape"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/clientlibs/",
+        "title": "Client libraries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-official",
+    "type": "multi",
+    "stem": "Which of these are official Prometheus client libraries? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Go",
+        "correct": true,
+        "note": "Right. client_golang is official."
+      },
+      {
+        "id": "b",
+        "text": "Python",
+        "correct": true,
+        "note": "Right. client_python is official."
+      },
+      {
+        "id": "c",
+        "text": "Java/Scala",
+        "correct": true,
+        "note": "Right. client_java is official."
+      },
+      {
+        "id": "d",
+        "text": "PHP",
+        "correct": false,
+        "note": "PHP is listed under unofficial third-party libraries."
+      }
+    ],
+    "explanation": "Official libraries: Go, Java or Scala, Node.js, Python, Ruby and Rust. PHP, C++, .NET and others are third-party.",
+    "hint": "One of these is listed among the third-party libraries.",
+    "difficulty": 2,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "client library"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/clientlibs/",
+        "title": "Client libraries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-no-lib",
+    "type": "single",
+    "stem": "There is no client library for your language. What do the docs suggest?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Implement one of the supported exposition formats yourself",
+        "correct": true,
+        "note": "Right. The text format is simple enough to write by hand."
+      },
+      {
+        "id": "b",
+        "text": "You can't monitor that application with Prometheus",
+        "correct": false,
+        "note": "You can. Expose the format yourself, or use an exporter."
+      },
+      {
+        "id": "c",
+        "text": "Use the Pushgateway for everything",
+        "correct": false,
+        "note": "The Pushgateway is for batch jobs, not a replacement for exposing metrics."
+      },
+      {
+        "id": "d",
+        "text": "Write metrics to a database Prometheus reads",
+        "correct": false,
+        "note": "Prometheus doesn't read from arbitrary databases."
+      }
+    ],
+    "explanation": "If no client library is available for your language, or you want to avoid dependencies, you may implement one of the supported exposition formats yourself.",
+    "hint": "Think back to the exposition format topic.",
+    "difficulty": 1,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "exposition format",
+      "client library"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/clientlibs/",
+        "title": "Client libraries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-counter-inc",
+    "type": "single",
+    "stem": "In a client library, what happens if you call inc(-5) on a counter?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It's rejected, because counter increments must be ≥ 0",
+        "correct": true,
+        "note": "Right. Libraries must check that v ≥ 0, since counters never decrease."
+      },
+      {
+        "id": "b",
+        "text": "The counter goes down by 5",
+        "correct": false,
+        "note": "Counters must never decrease."
+      },
+      {
+        "id": "c",
+        "text": "The counter resets to 0",
+        "correct": false,
+        "note": "A reset only happens on restart, not through a negative increment."
+      },
+      {
+        "id": "d",
+        "text": "It's converted to inc(5)",
+        "correct": false,
+        "note": "There's no silent conversion. Negative values are rejected."
+      }
+    ],
+    "explanation": "A counter must have inc() and inc(double v), and the library must check that v ≥ 0. Counters must not allow the value to decrease.",
+    "hint": "What's the defining rule of a counter?",
+    "difficulty": 2,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "counter",
+      "inc"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#counter",
+        "title": "Writing client libraries › Counter"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-gauge-methods",
+    "type": "multi",
+    "stem": "Which methods must a client library gauge provide? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "inc()",
+        "correct": true,
+        "note": "Right. Gauges can go up."
+      },
+      {
+        "id": "b",
+        "text": "dec()",
+        "correct": true,
+        "note": "Right. Gauges can go down."
+      },
+      {
+        "id": "c",
+        "text": "set(v)",
+        "correct": true,
+        "note": "Right. Gauges can be set to any value."
+      },
+      {
+        "id": "d",
+        "text": "observe(v)",
+        "correct": false,
+        "note": "observe() belongs to summaries and histograms."
+      }
+    ],
+    "explanation": "A gauge must have inc(), inc(v), dec(), dec(v) and set(v), and should have set_to_current_time().",
+    "hint": "Gauges go up, down, or to a value. Which method records an observation instead?",
+    "difficulty": 2,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "gauge",
+      "inc",
+      "observe"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#gauge",
+        "title": "Writing client libraries › Gauge"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-set-current-time",
+    "type": "single",
+    "stem": "Which gauge method is handy for a batch job's \"last success\" metric?",
+    "options": [
+      {
+        "id": "a",
+        "text": "set_to_current_time()",
+        "correct": true,
+        "note": "Right. It sets the gauge to the current Unix time in seconds, a timestamp metric."
+      },
+      {
+        "id": "b",
+        "text": "inc()",
+        "correct": false,
+        "note": "Incrementing doesn't record when something happened."
+      },
+      {
+        "id": "c",
+        "text": "observe()",
+        "correct": false,
+        "note": "Gauges don't have observe(). That's for summaries and histograms."
+      },
+      {
+        "id": "d",
+        "text": "labels()",
+        "correct": false,
+        "note": "labels() selects a child series. It doesn't set a time."
+      }
+    ],
+    "explanation": "A gauge should have set_to_current_time(), which sets it to the current Unix time in seconds, which fits the timestamps-not-time-since practice.",
+    "hint": "You want the time of the last success.",
+    "difficulty": 2,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "set_to_current_time",
+      "gauge",
+      "unix timestamp"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#gauge",
+        "title": "Writing client libraries › Gauge"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-summary-default",
+    "type": "single",
+    "stem": "By default, what does a client library summary expose?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Only _count and _sum, with no quantiles",
+        "correct": true,
+        "note": "Right. Quantiles must be optional, and no quantiles is the default."
+      },
+      {
+        "id": "b",
+        "text": "The 0.5, 0.9 and 0.99 quantiles",
+        "correct": false,
+        "note": "Quantiles are optional. By default a summary only has _count and _sum."
+      },
+      {
+        "id": "c",
+        "text": "Buckets with an le label",
+        "correct": false,
+        "note": "Buckets are histograms."
+      },
+      {
+        "id": "d",
+        "text": "Nothing until quantiles are configured",
+        "correct": false,
+        "note": "_count and _sum are useful by themselves and are exposed by default."
+      }
+    ],
+    "explanation": "A summary must allow having no quantiles, since _count and _sum alone are useful, and this must be the default. Quantiles can't be aggregated and tend to be slow.",
+    "hint": "The guidelines say the two basic series are useful on their own.",
+    "difficulty": 3,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "summary",
+      "quantile"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#summary",
+        "title": "Writing client libraries › Summary"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-reserved-labels",
+    "type": "multi",
+    "stem": "Which user-set label names must client libraries forbid? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "le on a histogram",
+        "correct": true,
+        "note": "Right. le is used internally for buckets."
+      },
+      {
+        "id": "b",
+        "text": "quantile on a summary",
+        "correct": true,
+        "note": "Right. quantile is used internally for summary quantiles."
+      },
+      {
+        "id": "c",
+        "text": "method on a counter",
+        "correct": false,
+        "note": "method is a perfectly normal label name."
+      },
+      {
+        "id": "d",
+        "text": "job on a gauge",
+        "correct": false,
+        "note": "Libraries don't forbid it outright, though Prometheus sets job at scrape time."
+      }
+    ],
+    "explanation": "A histogram must not allow le as a user-set label, and a summary must not allow quantile, because these designate buckets and quantiles internally.",
+    "hint": "Which label names did histograms and summaries use in the exposition format?",
+    "difficulty": 2,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "le",
+      "quantile",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#histogram",
+        "title": "Writing client libraries › Histogram"
+      },
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#summary",
+        "title": "Writing client libraries › Summary"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-dynamic-names",
+    "type": "single",
+    "stem": "Your code creates metrics named requests_total_user_42, requests_total_user_43 and so on. What do the client library guidelines say?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Generated metric names are a sign you should be using labels instead",
+        "correct": true,
+        "note": "Right. Better still, avoid unbounded values such as user IDs entirely."
+      },
+      {
+        "id": "b",
+        "text": "This is the recommended way to track per-user data",
+        "correct": false,
+        "note": "Dynamic names are explicitly discouraged."
+      },
+      {
+        "id": "c",
+        "text": "It's fine as long as each name has a help string",
+        "correct": false,
+        "note": "Help strings don't fix the naming problem."
+      },
+      {
+        "id": "d",
+        "text": "Client libraries automatically convert them into labels",
+        "correct": false,
+        "note": "Libraries don't do that conversion."
+      }
+    ],
+    "explanation": "Dynamic or generated metric names must be discouraged, except when proxying from other systems. They're a sign you should be using labels instead.",
+    "hint": "Where should varying values go?",
+    "difficulty": 2,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "label",
+      "cardinality"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#metric-names",
+        "title": "Writing client libraries › Metric names"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-process-metrics",
+    "type": "multi",
+    "stem": "Which metrics do client libraries typically export by default without any work from you? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "process_cpu_seconds_total",
+        "correct": true,
+        "note": "Right. A standard process metric."
+      },
+      {
+        "id": "b",
+        "text": "process_resident_memory_bytes",
+        "correct": true,
+        "note": "Right. A standard process metric."
+      },
+      {
+        "id": "c",
+        "text": "process_start_time_seconds",
+        "correct": true,
+        "note": "Right. A standard process metric (a timestamp)."
+      },
+      {
+        "id": "d",
+        "text": "http_requests_total",
+        "correct": false,
+        "note": "Request counts are application-specific. You add them yourself."
+      }
+    ],
+    "explanation": "Client libraries should offer the standard process metrics (prefix process_) registered by default, plus runtime metrics such as go_*.",
+    "hint": "Which ones describe the process itself rather than your application's work?",
+    "difficulty": 1,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "process metrics"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#process-metrics",
+        "title": "Writing client libraries › Process metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "cl-labels-child",
+    "type": "single",
+    "stem": "How do you increment a labelled counter for method=\"GET\" and code=\"200\" in a typical client library?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Call labels(\"GET\", \"200\") to get a child, then call inc() on it",
+        "correct": true,
+        "note": "Right. labels() returns a child for that label combination, which you can cache."
+      },
+      {
+        "id": "b",
+        "text": "Create a new metric named requests_GET_200",
+        "correct": false,
+        "note": "That's the dynamic naming the guidelines discourage."
+      },
+      {
+        "id": "c",
+        "text": "Call inc(\"GET\", \"200\")",
+        "correct": false,
+        "note": "inc() takes an optional amount, not label values."
+      },
+      {
+        "id": "d",
+        "text": "Labels can only be added by Prometheus at scrape time",
+        "correct": false,
+        "note": "Instrumented code can define its own labels."
+      }
+    ],
+    "explanation": "The general way to access a labelled dimension is a labels() method that returns a child, on which you call .inc(), .dec() or .observe(). The child should be cacheable.",
+    "hint": "Labels select a child series first.",
+    "difficulty": 2,
+    "tags": [
+      "client-libs"
+    ],
+    "uses": [
+      "labels()",
+      "label",
+      "inc"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_clientlibs/#labels",
+        "title": "Writing client libraries › Labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

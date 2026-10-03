@@ -1,0 +1,507 @@
+[
+  {
+    "id": "le-log-def",
+    "type": "single",
+    "stem": "Which description best matches a log?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A timestamped message emitted by a service, not necessarily tied to a particular request",
+        "correct": true,
+        "note": "Right. That's how the OpenTelemetry primer defines a log."
+      },
+      {
+        "id": "b",
+        "text": "A numeric aggregation over time, such as error rate",
+        "correct": false,
+        "note": "That describes a metric."
+      },
+      {
+        "id": "c",
+        "text": "The path of one request through many services",
+        "correct": false,
+        "note": "That describes a trace."
+      },
+      {
+        "id": "d",
+        "text": "A single unit of work within a request",
+        "correct": false,
+        "note": "That describes a span."
+      }
+    ],
+    "explanation": "A log is a timestamped message emitted by services or other components. Unlike traces, logs aren't necessarily associated with any particular user request or transaction.",
+    "hint": "Logs have the oldest history of the three signals.",
+    "difficulty": 1,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "log"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#logs",
+        "title": "OpenTelemetry › Observability primer › Logs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-metric-def",
+    "type": "single",
+    "stem": "Which description best matches a metric?",
+    "options": [
+      {
+        "id": "a",
+        "text": "An aggregation over a period of time of numeric data, such as request rate or CPU use",
+        "correct": true,
+        "note": "Right. That's the primer's definition."
+      },
+      {
+        "id": "b",
+        "text": "A free-text line written for each request",
+        "correct": false,
+        "note": "That describes a log line."
+      },
+      {
+        "id": "c",
+        "text": "A record of every function call",
+        "correct": false,
+        "note": "That's closer to profiling or detailed tracing."
+      },
+      {
+        "id": "d",
+        "text": "A screenshot of a dashboard",
+        "correct": false,
+        "note": "A dashboard displays metrics. It isn't one."
+      }
+    ],
+    "explanation": "Metrics are aggregations over a period of time of numeric data about your infrastructure or application, such as error rate, CPU utilisation and request rate.",
+    "hint": "Numbers, aggregated.",
+    "difficulty": 1,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "metric"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics",
+        "title": "OpenTelemetry › Observability primer › Reliability and metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-events",
+    "type": "single",
+    "stem": "How does OpenTelemetry describe the relationship between logs and events?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Events are a special type of log: all events are logs, but not all logs are events",
+        "correct": true,
+        "note": "Right. An event is a log record with an event name."
+      },
+      {
+        "id": "b",
+        "text": "Events and logs are completely unrelated signals",
+        "correct": false,
+        "note": "In OpenTelemetry, events are a kind of log."
+      },
+      {
+        "id": "c",
+        "text": "All logs are events, but not all events are logs",
+        "correct": false,
+        "note": "Reversed."
+      },
+      {
+        "id": "d",
+        "text": "Events are a kind of metric",
+        "correct": false,
+        "note": "Events are modelled as log records."
+      }
+    ],
+    "explanation": "Logs are anything you send through a Logging Provider, and events are a special type of log. Not all logs are events, but all events are logs.",
+    "hint": "Think of a subset.",
+    "difficulty": 2,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "event",
+      "log"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/logs/",
+        "title": "OpenTelemetry › Signals › Logs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-which",
+    "type": "single",
+    "stem": "Which question is best answered with logs rather than metrics?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Exactly what happened to order #4711 when its payment failed at 14:02?",
+        "correct": true,
+        "note": "Right. Per-event detail is what logs keep."
+      },
+      {
+        "id": "b",
+        "text": "Is the payment error rate higher than an hour ago?",
+        "correct": false,
+        "note": "That's a trend over many events, which is a metric question."
+      },
+      {
+        "id": "c",
+        "text": "How many requests per second is the API serving?",
+        "correct": false,
+        "note": "That's a rate, a classic metric."
+      },
+      {
+        "id": "d",
+        "text": "Should we page someone because errors exceed 5%?",
+        "correct": false,
+        "note": "Alerting on a ratio is a metric job."
+      }
+    ],
+    "explanation": "Metrics aggregate numeric data over time. Logs record individual timestamped events with their details, useful for investigating specific incidents.",
+    "hint": "One specific item, or a trend?",
+    "difficulty": 1,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "log",
+      "metric"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/",
+        "title": "OpenTelemetry › Observability primer"
+      },
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#logs",
+        "title": "OpenTelemetry › Observability primer › Logs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-prom-logs",
+    "type": "single",
+    "stem": "What does the Prometheus FAQ say about feeding logs into Prometheus?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Don't. Use a log system such as Grafana Loki or OpenSearch",
+        "correct": true,
+        "note": "Right. Prometheus is a metrics system, not an event logging system."
+      },
+      {
+        "id": "b",
+        "text": "Push them through the Pushgateway",
+        "correct": false,
+        "note": "The Pushgateway is for batch job metrics."
+      },
+      {
+        "id": "c",
+        "text": "Store each line as a label value",
+        "correct": false,
+        "note": "That's unbounded cardinality, and still not a log store."
+      },
+      {
+        "id": "d",
+        "text": "Use remote write to send logs in",
+        "correct": false,
+        "note": "Remote write carries samples, not logs."
+      }
+    ],
+    "explanation": "Short answer: Don't! Use something like Grafana Loki or OpenSearch instead. Prometheus is a system to collect and process metrics, not an event logging system.",
+    "hint": "The FAQ answer is one word.",
+    "difficulty": 1,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "log",
+      "loki"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#how-to-feed-logs-into-prometheus",
+        "title": "Prometheus FAQ › How to feed logs into Prometheus?"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-count",
+    "type": "single",
+    "stem": "How do the Prometheus docs suggest connecting logging and metrics in your code?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Increment a counter for every line of logging code",
+        "correct": true,
+        "note": "Right. Then you can see how often a message is happening."
+      },
+      {
+        "id": "b",
+        "text": "Expose each log message as a metric label",
+        "correct": false,
+        "note": "That's unbounded cardinality."
+      },
+      {
+        "id": "c",
+        "text": "Replace logging entirely with metrics",
+        "correct": false,
+        "note": "Logs are still valuable for detail."
+      },
+      {
+        "id": "d",
+        "text": "Log every metric value once a second",
+        "correct": false,
+        "note": "That's backwards and wasteful."
+      }
+    ],
+    "explanation": "As a general rule, for every line of logging code you should also have a counter that is incremented. Totals of info, error and warning lines are also useful.",
+    "hint": "Metrics count, logs describe.",
+    "difficulty": 1,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "counter",
+      "log"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#logging",
+        "title": "Instrumentation › Logging"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-request-id",
+    "type": "single",
+    "stem": "A developer proposes a metric with a request_id label so each request is visible in Prometheus. What's the problem?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Unbounded label values explode cardinality. Per-request detail belongs in logs or traces",
+        "correct": true,
+        "note": "Right. Count requests in a metric and keep the IDs elsewhere."
+      },
+      {
+        "id": "b",
+        "text": "Prometheus labels can't contain dashes",
+        "correct": false,
+        "note": "Label values can contain any UTF-8 characters."
+      },
+      {
+        "id": "c",
+        "text": "Request IDs must be stored as gauges",
+        "correct": false,
+        "note": "The type isn't the issue. Cardinality is."
+      },
+      {
+        "id": "d",
+        "text": "There's no problem. That's best practice",
+        "correct": false,
+        "note": "It's a classic anti-pattern."
+      }
+    ],
+    "explanation": "Every unique label combination is a new series. Avoid unbounded values such as user IDs. Prometheus isn't an event logging system, so per-event detail goes to logs.",
+    "hint": "Recall cardinality.",
+    "difficulty": 2,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "cardinality",
+      "label",
+      "log"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/introduction/faq/#how-to-feed-logs-into-prometheus",
+        "title": "Prometheus FAQ › How to feed logs into Prometheus?"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#labels",
+        "title": "Naming › Labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-structured",
+    "type": "single",
+    "stem": "Why are structured logs preferred in production?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Their consistent schema makes them easy to parse, validate and correlate with traces and metrics",
+        "correct": true,
+        "note": "Right. OpenTelemetry recommends them for production."
+      },
+      {
+        "id": "b",
+        "text": "They're always smaller than unstructured logs",
+        "correct": false,
+        "note": "Size isn't the reason given."
+      },
+      {
+        "id": "c",
+        "text": "Prometheus can scrape them directly",
+        "correct": false,
+        "note": "Prometheus doesn't ingest logs."
+      },
+      {
+        "id": "d",
+        "text": "Any JSON log is automatically structured",
+        "correct": false,
+        "note": "The docs warn JSON alone may only be semistructured without a stable schema."
+      }
+    ],
+    "explanation": "Structured logs are preferred in production because their stable schema makes them straightforward to validate, parse, correlate with traces and metrics, and analyse at scale.",
+    "hint": "Think of a downstream parser.",
+    "difficulty": 2,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "structured log"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/signals/logs/",
+        "title": "OpenTelemetry › Signals › Logs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-signals",
+    "type": "multi",
+    "stem": "Which are the three main telemetry signals described in the OpenTelemetry primer? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Metrics",
+        "correct": true,
+        "note": "Right. Aggregated numeric data over time."
+      },
+      {
+        "id": "b",
+        "text": "Logs",
+        "correct": true,
+        "note": "Right. Timestamped records of what happened."
+      },
+      {
+        "id": "c",
+        "text": "Traces",
+        "correct": true,
+        "note": "Right. The path of a request through services."
+      },
+      {
+        "id": "d",
+        "text": "Dashboards",
+        "correct": false,
+        "note": "Dashboards display telemetry. They aren't a signal."
+      }
+    ],
+    "explanation": "Telemetry is data emitted from a system and its behaviour. It can come in the form of traces, metrics and logs.",
+    "hint": "Data the system emits, not ways to view it.",
+    "difficulty": 1,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "metric",
+      "log"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability-and-metrics",
+        "title": "OpenTelemetry › Observability primer › Reliability and metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "le-correlate",
+    "type": "single",
+    "stem": "What makes logs much more useful for tracking code execution across a request?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Including them in, or correlating them with, a trace and span",
+        "correct": true,
+        "note": "Right. The primer says logs lack context on their own."
+      },
+      {
+        "id": "b",
+        "text": "Writing them in upper case",
+        "correct": false,
+        "note": "Formatting doesn't add context."
+      },
+      {
+        "id": "c",
+        "text": "Storing them in Prometheus",
+        "correct": false,
+        "note": "Prometheus doesn't store logs."
+      },
+      {
+        "id": "d",
+        "text": "Removing timestamps",
+        "correct": false,
+        "note": "Timestamps are essential."
+      }
+    ],
+    "explanation": "Logs aren't enough for tracking code execution, as they usually lack context such as where they were called from. They become far more useful as part of a span, or correlated with a trace and span.",
+    "hint": "This leads into the next topic.",
+    "difficulty": 2,
+    "tags": [
+      "logs-events"
+    ],
+    "uses": [
+      "log"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#logs",
+        "title": "OpenTelemetry › Observability primer › Logs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

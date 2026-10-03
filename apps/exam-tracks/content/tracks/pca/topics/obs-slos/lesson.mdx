@@ -1,0 +1,86 @@
+---
+id: obs-slos
+title: SLIs, SLOs and SLAs
+summary: An SLI measures how your service behaves from the user's point of view. An SLO is the target you set for it. An SLA is a contract built on top of it. With Prometheus you compute SLIs from metrics, such as the share of requests served within 300 ms, and alert when you're in danger of missing the SLO.
+analogy: "A train company. The SLI is the measurement: the share of trains arriving within 5 minutes of schedule. The SLO is the internal goal: 95% of trains on time. The SLA is the promise on the ticket: if you're more than an hour late, you get a refund. Keep the SLO stricter than the SLA so you notice trouble before you owe refunds."
+keyPoints:
+  - An SLI (service level indicator) is a measurement of a service's behaviour. A good SLI measures from the user's perspective, such as how quickly a page loads.
+  - An SLO (service level objective) attaches one or more SLIs to business value as a target, and communicates reliability to the organisation and other teams.
+  - "An SLA (service level agreement) is an agreement, often contractual, with consequences if it's missed. (This is general industry usage. The cited docs don't define SLA.)"
+  - "SLIs are usually ratios of good events to all events: requests within a latency threshold, or requests that didn't error."
+  - "Prometheus docs example: an SLO to serve 95% of requests within 300 ms. With a classic histogram, the SLI is the le=\"0.3\" bucket rate divided by the _count rate."
+  - Put a bucket boundary exactly at your SLO threshold for a classic histogram, or use native histograms with histogram_fraction, which can estimate any threshold.
+  - Alert on symptoms that cause user pain, such as high latency and errors, which is exactly what SLIs measure.
+commonTrap: Picking SLIs that measure the machine instead of the user, such as CPU usage. High CPU might not hurt anyone, and users can suffer while CPU looks fine. Another trap is mixing up the terms. The SLI is the measurement, the SLO is the target, and the SLA is the contract with consequences.
+explainBack:
+  prompt: Your team's goal is that 95% of checkout requests finish within 300 ms. Name the SLI, the SLO and how you'd compute the SLI in PromQL from a classic histogram.
+  modelAnswer: The SLI is the fraction of checkout requests that finish within 300 ms, measured from the user's side. The SLO is the target that this fraction stays at or above 95%. With a classic histogram that has a bucket boundary at 0.3 seconds, divide the per-second rate of the le="0.3" bucket by the rate of the _count series, summing both by job, for example over 5m. If the result drops below 0.95 we're missing the SLO, which is a symptom worth alerting on.
+introduces: [sli, slo, sla, error budget]
+sources:
+  - url: https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics
+    title: OpenTelemetry › Observability primer › Reliability and metrics
+    readFrom: github.com/open-telemetry/opentelemetry.io@49a4a61 content/en/docs/concepts/observability-primer.md
+  - url: https://prometheus.io/docs/practices/histograms/
+    title: Prometheus › Histograms and summaries
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/histograms.md
+  - url: https://prometheus.io/docs/practices/alerting/
+    title: Prometheus › Alerting practices
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/alerting.md
+versionNotes:
+  - "SLA and error budget are general industry terms, explained in our own words. No cited official source defines them."
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Three letters, three jobs
+
+| Term | What it is | Example |
+|---|---|---|
+| **SLI**, service level indicator | A **measurement** of how the service behaves, ideally from the user's perspective | Share of page loads under 300 ms |
+| **SLO**, service level objective | A **target** for one or more SLIs, tied to business value and shared with other teams | 95% of page loads under 300 ms |
+| **SLA**, service level agreement | A **promise**, often contractual, with consequences if it's broken | Credits back if availability drops below 99.5% in a month |
+
+The OpenTelemetry primer defines SLI and SLO. SLA is the common industry term for the external agreement. We explain it in our own words because the cited docs don't define it.
+
+A practical rule: set your **SLO stricter than your SLA**, so an alert fires before you've broken a promise. The gap between "perfect" and your SLO is sometimes called an **error budget**. With a 95% target, 5% of requests are allowed to be slow before you've missed it.
+
+## Measure what users feel
+
+A good SLI measures the service **from the user's perspective**. That matches the Prometheus alerting advice: alert on **symptoms associated with end-user pain**, such as high latency and user-visible errors, rather than on every possible cause. CPU at 90% isn't an SLI. "2% of checkouts failed" is.
+
+Most SLIs are **ratios** of good events to all events:
+
+- **Latency:** requests served within a threshold ÷ all requests.
+- **Errors (availability):** requests that didn't fail ÷ all requests.
+
+## Computing an SLI in Prometheus
+
+The Prometheus histogram docs use this example: **an SLO to serve 95% of requests within 300 ms**. With a classic histogram that has a bucket boundary at 0.3 (base units, seconds):
+
+```promql
+  sum by (job) (rate(http_request_duration_seconds_bucket{le="0.3"}[5m]))
+/
+  sum by (job) (rate(http_request_duration_seconds_count[5m]))
+```
+
+The result is the fraction of requests that finished within 300 ms. Below 0.95 means you're missing the SLO.
+
+Two catches from the docs:
+
+- That expression **needs a bucket boundary at exactly 0.3**. Without one there's no interpolation and **no result**. If only some instances have the bucket, you get an incomplete result with no warning.
+- With **native histograms**, `histogram_fraction(0, 0.3, sum by (job) (rate(http_request_duration_seconds[5m])))` estimates the same fraction for any threshold. That's useful if your SLO changes, or if you want to ask "could we keep a stricter SLO?"
+
+An error-rate SLI works the same way with counters, where both series are rates of requests:
+
+```promql
+  sum(rate(http_requests_total{status!~"5.."}[5m]))
+/
+  sum(rate(http_requests_total[5m]))
+```
+
+(An illustration using a typical request counter.)
+
+## From SLI to alert
+
+Put the SLI into an alerting rule, such as "fraction under 300 ms has been below 0.95 for 10 minutes", and you're alerting on a user-facing symptom. That's simple, actionable and tied to what the business cares about.

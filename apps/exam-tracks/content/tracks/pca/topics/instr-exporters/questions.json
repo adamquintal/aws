@@ -1,0 +1,559 @@
+[
+  {
+    "id": "ex-when",
+    "type": "single",
+    "stem": "When do you use an exporter instead of a client library?",
+    "options": [
+      {
+        "id": "a",
+        "text": "When you can't instrument the system directly, such as HAProxy or Linux kernel stats",
+        "correct": true,
+        "note": "Right. Exporters translate existing metrics from third-party systems."
+      },
+      {
+        "id": "b",
+        "text": "Whenever you write a new application in Go",
+        "correct": false,
+        "note": "For your own code, use a client library."
+      },
+      {
+        "id": "c",
+        "text": "Only for batch jobs",
+        "correct": false,
+        "note": "Batch jobs typically push to the Pushgateway. Exporters are for third-party systems."
+      },
+      {
+        "id": "d",
+        "text": "To store metrics long-term",
+        "correct": false,
+        "note": "That's remote storage, not an exporter."
+      }
+    ],
+    "explanation": "Exporters help export existing metrics from third-party systems as Prometheus metrics, which is useful when it isn't feasible to instrument a system directly (for example HAProxy or Linux system stats).",
+    "hint": "Who owns the code?",
+    "difficulty": 1,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "exporter",
+      "client library"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exporters/",
+        "title": "Exporters and integrations"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-node",
+    "type": "single",
+    "stem": "Which exporter exposes Linux host metrics such as CPU, memory and filesystems, prefixed node_?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Node Exporter",
+        "correct": true,
+        "note": "Right. It listens on port 9100 by default."
+      },
+      {
+        "id": "b",
+        "text": "Blackbox exporter",
+        "correct": false,
+        "note": "Blackbox probes endpoints from the outside."
+      },
+      {
+        "id": "c",
+        "text": "JMX exporter",
+        "correct": false,
+        "note": "JMX exporter covers JVM applications."
+      },
+      {
+        "id": "d",
+        "text": "Pushgateway",
+        "correct": false,
+        "note": "The Pushgateway isn't an exporter of host metrics."
+      }
+    ],
+    "explanation": "The Node Exporter exposes a wide variety of system metrics prefixed with node_, such as node_cpu_seconds_total, on port 9100.",
+    "hint": "The name hints at machines (nodes).",
+    "difficulty": 1,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "node exporter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/guides/node-exporter/",
+        "title": "Guide › Node Exporter"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-jmx",
+    "type": "single",
+    "stem": "Which exporter does the documentation point to for JVM-based applications such as Kafka and Cassandra?",
+    "options": [
+      {
+        "id": "a",
+        "text": "JMX exporter",
+        "correct": true,
+        "note": "Right. It exports from a wide variety of JVM-based applications."
+      },
+      {
+        "id": "b",
+        "text": "Node Exporter",
+        "correct": false,
+        "note": "Node Exporter covers host metrics, not JVM app internals."
+      },
+      {
+        "id": "c",
+        "text": "SNMP exporter",
+        "correct": false,
+        "note": "SNMP is for network devices."
+      },
+      {
+        "id": "d",
+        "text": "Blackbox exporter",
+        "correct": false,
+        "note": "Blackbox probes endpoints externally."
+      }
+    ],
+    "explanation": "The JMX exporter can export from a wide variety of JVM-based applications, for example Kafka and Cassandra.",
+    "hint": "Java Management Extensions.",
+    "difficulty": 1,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "jmx exporter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/exporters/",
+        "title": "Exporters and integrations"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-one-per",
+    "type": "single",
+    "stem": "How should exporters normally be deployed?",
+    "options": [
+      {
+        "id": "a",
+        "text": "One exporter per application instance, running beside it",
+        "correct": true,
+        "note": "Right. For example, one haproxy_exporter for every HAProxy."
+      },
+      {
+        "id": "b",
+        "text": "One central exporter that connects to every instance",
+        "correct": false,
+        "note": "That's discouraged (with a few exceptions). Run one per instance."
+      },
+      {
+        "id": "c",
+        "text": "Inside the Prometheus server process",
+        "correct": false,
+        "note": "Exporters are separate processes."
+      },
+      {
+        "id": "d",
+        "text": "One per data centre",
+        "correct": false,
+        "note": "The guidance is per application instance."
+      }
+    ],
+    "explanation": "Each exporter should monitor exactly one application instance, preferably on the same machine. For every HAProxy you run, you run a haproxy_exporter.",
+    "hint": "Mirror what direct instrumentation would give you.",
+    "difficulty": 2,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "exporter",
+      "instance"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#deployment",
+        "title": "Writing exporters › Deployment"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-multitarget",
+    "type": "multi",
+    "stem": "Which exporters are standard exceptions to \"run one beside each instance\", using the multi-target pattern? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Blackbox exporter",
+        "correct": true,
+        "note": "Right. It measures from outside, such as website reachability."
+      },
+      {
+        "id": "b",
+        "text": "SNMP exporter",
+        "correct": true,
+        "note": "Right. Network devices can't run your code."
+      },
+      {
+        "id": "c",
+        "text": "IPMI exporter",
+        "correct": true,
+        "note": "Right. The hardware is a black box."
+      },
+      {
+        "id": "d",
+        "text": "Node Exporter",
+        "correct": false,
+        "note": "Node Exporter runs on each machine it monitors."
+      }
+    ],
+    "explanation": "The SNMP, Blackbox and IPMI exporters are the main examples where running beside the target is nonsensical. Prometheus still does service discovery and passes the target to scrape.",
+    "hint": "Which ones can't, or shouldn't, run on the target?",
+    "difficulty": 2,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "multi-target exporter",
+      "blackbox exporter",
+      "snmp exporter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#deployment",
+        "title": "Writing exporters › Deployment"
+      },
+      {
+        "url": "https://prometheus.io/docs/guides/multi-target-exporter/",
+        "title": "Guide › Multi-target exporter pattern"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-mt-how",
+    "type": "single",
+    "stem": "In the multi-target exporter pattern, how does the exporter know which target to query?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Prometheus passes the target (and a module) as parameters in its scrape request, usually via relabeling",
+        "correct": true,
+        "note": "Right. The exporter starts the query when the request arrives."
+      },
+      {
+        "id": "b",
+        "text": "The exporter runs its own service discovery",
+        "correct": false,
+        "note": "Service discovery stays in Prometheus."
+      },
+      {
+        "id": "c",
+        "text": "The exporter scans the network on a timer",
+        "correct": false,
+        "note": "Scrapes are synchronous, with no timers."
+      },
+      {
+        "id": "d",
+        "text": "Each target pushes to the exporter",
+        "correct": false,
+        "note": "The exporter queries targets over the network when asked."
+      }
+    ],
+    "explanation": "In the multi-target pattern, the exporter gets the targets and a query config string as parameters of Prometheus's GET request, then scrapes the target.",
+    "hint": "Prometheus tells it, in the URL.",
+    "difficulty": 3,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "multi-target exporter",
+      "relabeling"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/guides/multi-target-exporter/",
+        "title": "Guide › Multi-target exporter pattern"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-sync",
+    "type": "single",
+    "stem": "An exporter fetches data from its application every 30 seconds on a background timer and serves the cached values. What does the guide say?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Avoid it. Scrapes should be synchronous, fetching only when Prometheus scrapes",
+        "correct": true,
+        "note": "Right. Caching is acceptable only for very expensive metrics (over a minute), noted in HELP."
+      },
+      {
+        "id": "b",
+        "text": "That's the recommended design",
+        "correct": false,
+        "note": "The guide says exporters shouldn't scrape on their own timers."
+      },
+      {
+        "id": "c",
+        "text": "It's fine as long as it adds timestamps",
+        "correct": false,
+        "note": "Exporters shouldn't set timestamps either."
+      },
+      {
+        "id": "d",
+        "text": "It's required to stay under the 10s timeout",
+        "correct": false,
+        "note": "Only metrics taking over a minute justify caching."
+      }
+    ],
+    "explanation": "Metrics should only be pulled from the application when Prometheus scrapes them. Exporters should not perform scrapes on their own timers. All scrapes should be synchronous.",
+    "hint": "Who decides when data is collected?",
+    "difficulty": 2,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "exporter",
+      "scrape"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#scheduling",
+        "title": "Writing exporters › Scheduling"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-target-labels",
+    "type": "single",
+    "stem": "You want every metric from your exporter to carry region=\"eu-west\". Where should that label come from?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Prometheus's scrape config or service discovery (a target label)",
+        "correct": true,
+        "note": "Right. It describes your infrastructure, not the application."
+      },
+      {
+        "id": "b",
+        "text": "Hard-coded in the exporter on every metric",
+        "correct": false,
+        "note": "The guide says: if you want the same label on all metrics, stop."
+      },
+      {
+        "id": "c",
+        "text": "A recording rule only",
+        "correct": false,
+        "note": "It's normally attached at scrape time through config or relabeling."
+      },
+      {
+        "id": "d",
+        "text": "The exporter's HELP strings",
+        "correct": false,
+        "note": "HELP strings don't create labels."
+      }
+    ],
+    "explanation": "Labels such as region and cluster come from your infrastructure setup. It's not for an application to say where it fits in your label taxonomy. They belong in Prometheus's scrape configs.",
+    "hint": "Whose label taxonomy is it?",
+    "difficulty": 2,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "target labels",
+      "scrape_config"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#target-labels-not-static-scraped-labels",
+        "title": "Writing exporters › Target labels, not static scraped labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-types",
+    "type": "single",
+    "stem": "A source system has a \"counter\" that can be decremented. How should an exporter expose it?",
+    "options": [
+      {
+        "id": "a",
+        "text": "As untyped, because a value that can go down isn't a Prometheus counter",
+        "correct": true,
+        "note": "Right. The guide suggests untyped over a misleading gauge."
+      },
+      {
+        "id": "b",
+        "text": "As a counter anyway",
+        "correct": false,
+        "note": "Prometheus counters must never decrease, so rate() would misread drops as resets."
+      },
+      {
+        "id": "c",
+        "text": "As a histogram",
+        "correct": false,
+        "note": "It's a single value, not a distribution."
+      },
+      {
+        "id": "d",
+        "text": "It can't be exposed at all",
+        "correct": false,
+        "note": "It can, as untyped."
+      }
+    ],
+    "explanation": "Counters can't go down. If a counter from another system can be decremented, it isn't a counter. UNTYPED is probably the best type there, as GAUGE could mislead.",
+    "hint": "What's the one rule every Prometheus counter follows?",
+    "difficulty": 2,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "untyped",
+      "counter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#types",
+        "title": "Writing exporters › Types"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-failed",
+    "type": "multi",
+    "stem": "Which are the two documented patterns for an exporter when the application it monitors doesn't respond? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Return an HTTP 5xx error for the scrape",
+        "correct": true,
+        "note": "Right. up then works as usual, but you can't tell exporter-down from app-down."
+      },
+      {
+        "id": "b",
+        "text": "Expose a myexporter_up gauge (such as haproxy_up) of 0 or 1",
+        "correct": true,
+        "note": "Right. Better when some metrics are still useful."
+      },
+      {
+        "id": "c",
+        "text": "Return the last known values with old timestamps",
+        "correct": false,
+        "note": "Exporters shouldn't set timestamps or fake data."
+      },
+      {
+        "id": "d",
+        "text": "Silently return an empty 200 response",
+        "correct": false,
+        "note": "That hides the failure."
+      }
+    ],
+    "explanation": "Two patterns for failed scrapes: return a 5xx error, or have a myexporter_up variable (such as haproxy_up) that's 0 or 1 depending on whether the scrape worked.",
+    "hint": "One uses HTTP status, the other a metric.",
+    "difficulty": 2,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "exporter",
+      "up"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#failed-scrapes",
+        "title": "Writing exporters › Failed scrapes"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ex-duplicates",
+    "type": "multi",
+    "stem": "Which metrics should an exporter generally avoid adding? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "Machine CPU and memory stats exposed by the application (the Node Exporter covers them)",
+        "correct": true,
+        "note": "Right. Drop them to avoid duplication."
+      },
+      {
+        "id": "b",
+        "text": "A counter of how many times it has been scraped",
+        "correct": true,
+        "note": "Right. Prometheus already generates scrape metrics."
+      },
+      {
+        "id": "c",
+        "text": "The application's own request count",
+        "correct": false,
+        "note": "That's exactly what the exporter is for."
+      },
+      {
+        "id": "d",
+        "text": "A gauge of how long the scrape took, such as jmx_scrape_duration_seconds",
+        "correct": false,
+        "note": "This one is acceptable. The guide gives it as an example."
+      }
+    ],
+    "explanation": "Machine metrics should be dropped because the Node Exporter provides them. Scrape meta-metrics like scrape counters duplicate Prometheus's automatic metrics. A scrape duration gauge is fine.",
+    "hint": "Which ones does something else already provide?",
+    "difficulty": 3,
+    "tags": [
+      "exporters"
+    ],
+    "uses": [
+      "node exporter",
+      "exporter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#machine-and-process-metrics",
+        "title": "Writing exporters › Machine and process metrics"
+      },
+      {
+        "url": "https://prometheus.io/docs/instrumenting/writing_exporters/#metrics-about-the-scrape-itself",
+        "title": "Writing exporters › Metrics about the scrape itself"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

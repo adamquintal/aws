@@ -1,0 +1,559 @@
+[
+  {
+    "id": "db-browser",
+    "type": "single",
+    "stem": "What is Prometheus's built-in expression browser mainly for?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Ad-hoc queries and debugging",
+        "correct": true,
+        "note": "Right. For lasting dashboards, use Grafana."
+      },
+      {
+        "id": "b",
+        "text": "Long-term executive dashboards",
+        "correct": false,
+        "note": "The docs point to Grafana (or console templates) for graphs and dashboards."
+      },
+      {
+        "id": "c",
+        "text": "Configuring alert routing",
+        "correct": false,
+        "note": "Routing is configured in Alertmanager."
+      },
+      {
+        "id": "d",
+        "text": "Editing prometheus.yml",
+        "correct": false,
+        "note": "The UI doesn't edit configuration."
+      }
+    ],
+    "explanation": "The expression browser at /graph lets you enter any expression and see the result as a table or graph. It's primarily useful for ad-hoc queries and debugging.",
+    "hint": "Quick questions versus permanent displays.",
+    "difficulty": 1,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "expression browser"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/browser/",
+        "title": "Expression browser"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-table-graph",
+    "type": "single",
+    "stem": "In the Prometheus UI, which tab runs an instant query and which runs a range query?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Table is an instant query; Graph is a range query",
+        "correct": true,
+        "note": "Right. Graph evaluates the expression at many steps over time."
+      },
+      {
+        "id": "b",
+        "text": "Table is a range query; Graph is an instant query",
+        "correct": false,
+        "note": "Reversed."
+      },
+      {
+        "id": "c",
+        "text": "Both run range queries",
+        "correct": false,
+        "note": "Table shows one value per series at a single time."
+      },
+      {
+        "id": "d",
+        "text": "Both run instant queries",
+        "correct": false,
+        "note": "A graph over time needs a range query."
+      }
+    ],
+    "explanation": "In the Prometheus UI, the Table tab is for instant queries and the Graph tab is for range queries.",
+    "hint": "Which one shows values over time?",
+    "difficulty": 2,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "instant query",
+      "range query",
+      "expression browser"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+        "title": "Querying basics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-grafana-port",
+    "type": "single",
+    "stem": "By default, which port does Grafana listen on?",
+    "options": [
+      {
+        "id": "a",
+        "text": "3000",
+        "correct": true,
+        "note": "Right. http://localhost:3000, default login admin/admin."
+      },
+      {
+        "id": "b",
+        "text": "9090",
+        "correct": false,
+        "note": "9090 is Prometheus's default port."
+      },
+      {
+        "id": "c",
+        "text": "9093",
+        "correct": false,
+        "note": "9093 is commonly Alertmanager."
+      },
+      {
+        "id": "d",
+        "text": "9100",
+        "correct": false,
+        "note": "9100 is the Node Exporter."
+      }
+    ],
+    "explanation": "By default, Grafana listens on http://localhost:3000. The default login is admin/admin.",
+    "hint": "Not one of the 9xxx Prometheus ports.",
+    "difficulty": 1,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "grafana"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/#using",
+        "title": "Grafana › Using"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-datasource",
+    "type": "single",
+    "stem": "What do you configure in Grafana so it can query Prometheus?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A Prometheus data source with the server URL, such as http://localhost:9090/",
+        "correct": true,
+        "note": "Right. Then Save & Test."
+      },
+      {
+        "id": "b",
+        "text": "A scrape config pointing Grafana at your applications",
+        "correct": false,
+        "note": "Prometheus scrapes. Grafana queries Prometheus."
+      },
+      {
+        "id": "c",
+        "text": "A remote write endpoint",
+        "correct": false,
+        "note": "Grafana reads through the Prometheus HTTP API, not remote write."
+      },
+      {
+        "id": "d",
+        "text": "An Alertmanager receiver",
+        "correct": false,
+        "note": "Receivers are for notifications."
+      }
+    ],
+    "explanation": "To create a Prometheus data source in Grafana: add a data source, select Prometheus, set the server URL (for example http://localhost:9090/), then Save & Test.",
+    "hint": "Grafana needs to know where Prometheus is.",
+    "difficulty": 1,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "data source",
+      "grafana"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/#creating-a-prometheus-data-source",
+        "title": "Grafana › Creating a Prometheus data source"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-legend",
+    "type": "single",
+    "stem": "A panel query returns series with method and status labels. Which Grafana legend format shows them as \"GET - 200\"?",
+    "options": [
+      {
+        "id": "a",
+        "text": "{{method}} - {{status}}",
+        "correct": true,
+        "note": "Right. That's the docs' own example."
+      },
+      {
+        "id": "b",
+        "text": "$method - $status",
+        "correct": false,
+        "note": "Grafana's Prometheus legend format uses double curly braces."
+      },
+      {
+        "id": "c",
+        "text": "{{ $labels.method }} - {{ $labels.status }}",
+        "correct": false,
+        "note": "That's Prometheus alert templating, not Grafana legend format."
+      },
+      {
+        "id": "d",
+        "text": "method - status",
+        "correct": false,
+        "note": "That would print the literal words."
+      }
+    ],
+    "explanation": "To format legend names, use the Legend format input, for example {{method}} - {{status}}.",
+    "hint": "Label names in double curly braces.",
+    "difficulty": 2,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "legend format",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/#creating-a-prometheus-graph",
+        "title": "Grafana › Creating a Prometheus graph"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-rate-interval",
+    "type": "single",
+    "stem": "What does the Grafana documentation linked from the Prometheus docs recommend using inside rate() and increase() in panels (Grafana 7.2+)?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The $__rate_interval variable",
+        "correct": true,
+        "note": "Right. It picks a sensible window for the panel's resolution."
+      },
+      {
+        "id": "b",
+        "text": "Always [1s]",
+        "correct": false,
+        "note": "Too short. It would often contain fewer than two samples."
+      },
+      {
+        "id": "c",
+        "text": "irate() instead of rate() everywhere",
+        "correct": false,
+        "note": "That isn't the recommendation."
+      },
+      {
+        "id": "d",
+        "text": "No range at all",
+        "correct": false,
+        "note": "rate() requires a range vector."
+      }
+    ],
+    "explanation": "In Grafana 7.2 and later, the $__rate_interval variable is recommended for use in the rate and increase functions.",
+    "hint": "Grafana provides a variable for this.",
+    "difficulty": 2,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "$__rate_interval",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/#creating-a-prometheus-graph",
+        "title": "Grafana › Creating a Prometheus graph"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-raw-counter",
+    "type": "single",
+    "stem": "A dashboard panel shows http_requests_total as an ever-rising line. What's the better query for a traffic panel?",
+    "options": [
+      {
+        "id": "a",
+        "text": "rate(http_requests_total[5m]), summed as needed",
+        "correct": true,
+        "note": "Right. Show the per-second rate, not the cumulative total."
+      },
+      {
+        "id": "b",
+        "text": "http_requests_total offset 5m",
+        "correct": false,
+        "note": "That's the same rising total, just shifted back in time."
+      },
+      {
+        "id": "c",
+        "text": "max_over_time(http_requests_total[5m])",
+        "correct": false,
+        "note": "Still the cumulative value, not traffic."
+      },
+      {
+        "id": "d",
+        "text": "deriv(http_requests_total[5m])",
+        "correct": false,
+        "note": "deriv is for gauges and ignores counter resets."
+      }
+    ],
+    "explanation": "Raw counters are rarely useful. Use rate() to get the per-second rate at which they increase.",
+    "hint": "Recall the counters topic.",
+    "difficulty": 1,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "rate",
+      "counter",
+      "dashboard"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/functions/#rate",
+        "title": "Functions › rate()"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/instrumentation/#counter-vs-gauge-summary-vs-histogram",
+        "title": "Instrumentation › Counter vs. gauge"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-table-first",
+    "type": "single",
+    "stem": "You're exploring an unfamiliar metric and might build a dashboard from it. What do the docs advise?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Start in the table view until the result is reasonable (hundreds, not thousands, of series), then graph",
+        "correct": true,
+        "note": "Right. Graphing a huge result can time out or overload the server or browser."
+      },
+      {
+        "id": "b",
+        "text": "Always graph immediately with a 30-day range",
+        "correct": false,
+        "note": "That's the fastest way to overload things."
+      },
+      {
+        "id": "c",
+        "text": "Query only with {__name__=~\".+\"}",
+        "correct": false,
+        "note": "That selects every series in the database."
+      },
+      {
+        "id": "d",
+        "text": "Avoid aggregating, so you see raw data",
+        "correct": false,
+        "note": "Filtering and aggregating is exactly what keeps results manageable."
+      }
+    ],
+    "explanation": "When building queries over unknown data, start in the tabular view until the result set is reasonable (hundreds, not thousands, of series). Only switch to graph mode once you've filtered or aggregated enough.",
+    "hint": "Look before you graph.",
+    "difficulty": 2,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "expression browser",
+      "cardinality"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#avoiding-slow-queries-and-overloads",
+        "title": "Querying basics › Avoiding slow queries and overloads"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-recording",
+    "type": "single",
+    "stem": "A dashboard viewed by 50 people runs an expensive query on every refresh. What helps most?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A recording rule that precomputes the expression, with the panel querying the recorded series",
+        "correct": true,
+        "note": "Right. Recording rules are especially useful for dashboards."
+      },
+      {
+        "id": "b",
+        "text": "Increasing scrape_interval",
+        "correct": false,
+        "note": "That reduces data resolution but doesn't remove the query cost."
+      },
+      {
+        "id": "c",
+        "text": "Switching the panel to irate()",
+        "correct": false,
+        "note": "That doesn't make an expensive query cheap."
+      },
+      {
+        "id": "d",
+        "text": "Moving the query into Alertmanager",
+        "correct": false,
+        "note": "Alertmanager doesn't serve dashboard queries."
+      }
+    ],
+    "explanation": "Recording rules precompute frequently needed or expensive expressions. This is especially useful for dashboards, which query the same expression every time they refresh.",
+    "hint": "Compute once, read many times.",
+    "difficulty": 2,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "recording rule",
+      "dashboard"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#recording-rules",
+        "title": "Recording rules"
+      },
+      {
+        "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/#avoiding-slow-queries-and-overloads",
+        "title": "Querying basics › Avoiding slow queries and overloads"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-import",
+    "type": "single",
+    "stem": "Where can you find pre-built Grafana dashboards for common systems?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The shared dashboard collection on grafana.com, imported via Dashboards → Import",
+        "correct": true,
+        "note": "Right. Filter by the Prometheus data source and fix the datasource entries."
+      },
+      {
+        "id": "b",
+        "text": "Built into every exporter's /metrics page",
+        "correct": false,
+        "note": "Exporters expose metrics, not dashboards."
+      },
+      {
+        "id": "c",
+        "text": "In Alertmanager's web UI",
+        "correct": false,
+        "note": "Alertmanager doesn't host dashboards."
+      },
+      {
+        "id": "d",
+        "text": "Prometheus generates them automatically",
+        "correct": false,
+        "note": "It doesn't."
+      }
+    ],
+    "explanation": "Grafana.com maintains a collection of shared dashboards that can be downloaded and imported into your Grafana.",
+    "hint": "The vendor's website hosts a library.",
+    "difficulty": 1,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "grafana",
+      "dashboard"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/grafana/#importing-pre-built-dashboards-from-grafanacom",
+        "title": "Grafana › Importing pre-built dashboards"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "db-consoles",
+    "type": "single",
+    "stem": "What changed for console templates in Prometheus 3.0?",
+    "options": [
+      {
+        "id": "a",
+        "text": "They're no longer bundled, so you supply your own via --web.console.templates and --web.console.libraries",
+        "correct": true,
+        "note": "Right. The docs suggest newcomers try Grafana first anyway."
+      },
+      {
+        "id": "b",
+        "text": "They became the default dashboard UI",
+        "correct": false,
+        "note": "The opposite. They were unbundled."
+      },
+      {
+        "id": "c",
+        "text": "They now require Grafana",
+        "correct": false,
+        "note": "They're served by Prometheus, unrelated to Grafana."
+      },
+      {
+        "id": "d",
+        "text": "Nothing changed",
+        "correct": false,
+        "note": "3.0 stopped bundling them."
+      }
+    ],
+    "explanation": "Starting with Prometheus 3.0, console templates and libraries are no longer bundled. To use them you provide your own via the --web.console.templates and --web.console.libraries flags.",
+    "hint": "Check the caution at the top of the console templates page.",
+    "difficulty": 3,
+    "tags": [
+      "dashboarding"
+    ],
+    "uses": [
+      "console templates"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/visualization/consoles/",
+        "title": "Console templates"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

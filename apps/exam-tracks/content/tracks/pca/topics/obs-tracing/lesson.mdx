@@ -1,0 +1,84 @@
+---
+id: obs-tracing
+title: Traces and spans
+summary: A trace follows one request as it travels through many services. It's made of spans, each one a timed unit of work, linked parent to child by IDs. Traces answer "where did this request spend its time?", which metrics and logs alone can't. Prometheus links to them through exemplars.
+analogy: "A trace is a parcel's tracking history. The whole journey from warehouse to doorstep is the trace. Each stop (sorting centre, van, depot) is a span with its own arrival and departure times. All the stops share one tracking number (the trace ID), and each knows which stop came before it (the parent span)."
+keyPoints:
+  - A distributed trace (a trace) records the path of a single request as it passes through multiple services.
+  - A trace is made of one or more spans. The first is the root span, which covers the request from start to finish, and child spans show the steps within it.
+  - "A span is a single unit of work. It has a name, start and end timestamps, attributes (key-value metadata), span events (timestamped messages), links and a status."
+  - Every span carries a span context (trace ID, span ID, trace flags and trace state). All spans in a trace share the trace ID, and parent IDs give the hierarchy.
+  - Context propagation passes the span context between services, which is what lets spans from different services be assembled into one trace.
+  - "Span status is Unset (the default, meaning completed without error), Error, or Ok (explicitly marked successful)."
+  - Span kinds are Client, Server, Internal, Producer and Consumer. The default is Internal.
+  - Traces are often shown as waterfall diagrams, revealing which step a request spent its time in.
+  - Prometheus doesn't store traces. OpenMetrics exemplars can attach a trace ID to a metric sample, linking a latency spike to an example trace.
+commonTrap: Thinking traces replace metrics, or that Prometheus stores traces. Metrics tell you that the 99th percentile latency jumped. A trace shows you why for one specific request, by revealing which service or span was slow. Traces are stored in a tracing backend, and Prometheus can only point to them through exemplars carrying trace IDs.
+explainBack:
+  prompt: A user's page load took 4 seconds. Explain how a trace would help find the cause, using the words trace, root span, child span and trace ID.
+  modelAnswer: The page load is one trace. Every span created while serving it shares the same trace ID, passed between services by context propagation. The root span covers the whole request, about 4 seconds. Child spans cover each step, such as the API gateway, the backend service and the database query, each with its own start and end time. Viewing them as a waterfall shows which child span took most of the 4 seconds, say a 3.5-second database query, so you know exactly where to look.
+introduces: [trace, span, root span, trace id, span context, context propagation, span attributes, span status, span kind, exemplar]
+sources:
+  - url: https://opentelemetry.io/docs/concepts/observability-primer/#understanding-distributed-tracing
+    title: OpenTelemetry › Observability primer › Understanding distributed tracing
+    readFrom: github.com/open-telemetry/opentelemetry.io@49a4a61 content/en/docs/concepts/observability-primer.md
+  - url: https://opentelemetry.io/docs/concepts/signals/traces/
+    title: OpenTelemetry › Signals › Traces
+    readFrom: github.com/open-telemetry/opentelemetry.io@49a4a61 content/en/docs/concepts/signals/traces.md
+  - url: https://prometheus.io/docs/instrumenting/exposition_formats/#exemplars-experimental
+    title: Prometheus › Exposition formats › Exemplars
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/exposition_formats.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Why tracing
+
+In a microservice or serverless system, one click can touch a gateway, several services and a database. When it's slow, metrics show *that* latency rose and logs show scattered messages, but neither shows the **path of that one request**. **Distributed tracing** does. It's especially valuable for problems that are hard to reproduce locally.
+
+## Traces and spans
+
+- A **trace** records the path of a **single request** as it travels through multiple services.
+- A trace is made of **spans**. Each span is **a single unit of work**: an HTTP handler, a database query, a function call.
+- The first span is the **root span**, covering the request start to finish. **Child spans** beneath it show the steps.
+
+The OpenTelemetry primer's example: a page load passes through an API gateway, a backend service and a database. Each step is a span, and together they form one trace.
+
+Tracing backends usually draw this as a **waterfall**, with nested bars showing which step took the time:
+
+```text
+GET /checkout ████████████████████████████████  4.0s   (root span)
+  api-gateway  ██                                 0.1s
+  cart-service    ████████████████████████████    3.8s
+    db.query        ███████████████████████       3.4s   ← there it is
+```
+
+(An illustration, not real output.)
+
+## What's inside a span
+
+From the OpenTelemetry docs, a span includes:
+
+| Part | Meaning |
+|---|---|
+| Name | What the operation is, such as `/v1/sys/health` |
+| Parent span ID | Which span it's nested under (empty for the root) |
+| Start and end timestamps | How long it took |
+| **Span context** | **Trace ID** (shared by every span in the trace), span ID, trace flags, trace state |
+| **Attributes** | Key-value metadata, such as `http.route`, `http.response.status_code` |
+| **Span events** | Timestamped, structured messages within the span |
+| **Links** | References to spans in other traces |
+| **Status** | `Unset` (default, completed without error), `Error`, or `Ok` (explicitly marked successful) |
+
+**Span kind** hints how spans connect: **Client** (outgoing call), **Server** (incoming call), **Internal** (inside one process, the default), **Producer** (creates a queued job) and **Consumer** (processes it later).
+
+## Context propagation
+
+How do spans from different services end up in the same trace? **Context propagation** passes the span context, carrying the trace ID, along with each request, for example in HTTP headers. Every service creates its spans under the same trace ID and the right parent, so the backend can assemble the whole trace.
+
+## Where Prometheus fits
+
+Prometheus is a metrics system and **doesn't store traces**. The bridge is **exemplars**: in the OpenMetrics format, a metric sample, such as a slow histogram bucket observation, can carry an exemplar with a **trace ID**. From a latency spike on a graph you can jump to an example trace in your tracing backend. (Exemplar storage is an experimental Prometheus feature that has to be enabled.)
+
+The three signals work together. **Metrics** tell you something is wrong, **traces** show where, and **logs**, ideally carrying trace and span IDs, show the details.

@@ -1,0 +1,100 @@
+---
+id: instr-naming
+title: Naming metrics and labels
+summary: Good names tell you what a metric measures, in which unit, and whether it's a counter, without opening any docs. Use an application prefix, base units, a plural unit suffix and _total for counters, and put variations in labels, never in the name.
+analogy: "Metric names are like well-labelled jars in a pantry. \"flour_kilograms\" tells you what's inside and how it's measured. You wouldn't have separate jars named \"flour_monday\" and \"flour_tuesday\". You'd have one jar and write the day on a tag (a label)."
+keyPoints:
+  - Start with a single-word application prefix (namespace), such as prometheus_, process_ or http_.
+  - "Use one unit and one quantity per metric, in base units: seconds, bytes, meters, celsius, grams, volts. Percentages are ratios from 0 to 1."
+  - Add a plural unit suffix (_seconds, _bytes). Accumulating counts end in _total, after the unit if there is one (process_cpu_seconds_total).
+  - "Special suffixes: _info for build and metadata pseudo-metrics, _timestamp_seconds for timestamps."
+  - A metric should mean the same thing across all its labels. Either sum() or avg() over all dimensions should make sense.
+  - Don't put label names into metric names (no http_requests_get_total). Use a label instead.
+  - Never generate metric names procedurally. That's what labels are for (with bounded values).
+  - "Recording rules use level:metric:operations, such as job:http_requests:rate5m. Strip _total when taking a rate, and use _per_ with ratio for divisions."
+commonTrap: Using non-base units such as milliseconds or megabytes, for example http_request_duration_ms. Prometheus conventions use seconds and bytes, so every query and dashboard can combine metrics consistently. A related trap is mixing different quantities in one metric, such as queue capacity and current queue length, so that sum() across labels is meaningless.
+explainBack:
+  prompt: Name a counter of total bytes sent by a web server called "shop", and explain each part of the name you chose.
+  modelAnswer: shop_http_response_bytes_total, or similar. shop_ is the single-word application prefix. http_response describes what's being measured. bytes is the base unit, plural, as the unit suffix. _total marks an accumulating counter and comes after the unit. Variations such as HTTP method or status code would be labels, not parts of the name.
+introduces: [namespace prefix, base units, unit suffix, _total, _info, level:metric:operations]
+sources:
+  - url: https://prometheus.io/docs/practices/naming/
+    title: Best practices › Metric and label naming
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/naming.md
+  - url: https://prometheus.io/docs/practices/naming/#base-units
+    title: Metric and label naming › Base units
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/naming.md
+  - url: https://prometheus.io/docs/practices/rules/#naming
+    title: Best practices › Recording rules › Naming
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/rules.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Anatomy of a good metric name
+
+```text
+http_request_duration_seconds        a histogram of request durations
+process_cpu_seconds_total            a counter with a unit
+http_requests_total                  a counter without a unit
+node_memory_usage_bytes              a gauge in bytes
+foobar_build_info                    a metadata pseudo-metric
+data_pipeline_last_record_processed_timestamp_seconds
+```
+
+(All examples from the naming guide.) Read left to right, a name is:
+
+1. **Application prefix**, one word: `prometheus_`, `process_`, `http_`. Client libraries sometimes call this the *namespace*.
+2. **What's measured**: `request_duration`, `cpu`.
+3. **Unit, plural**: `seconds`, `bytes`.
+4. **`_total`** if it's an accumulating count. It goes **after** the unit: `process_cpu_seconds_total`.
+
+### Base units
+
+Prometheus has no units built in, so everyone sticks to **base units**:
+
+| Family | Base unit | Notes |
+|---|---|---|
+| Time | seconds | not milliseconds |
+| Data | bytes | even where bits are common |
+| Length | meters | |
+| Temperature | celsius | kelvin only where absolute temperature matters |
+| Percent | ratio (0–1) | suffix `_ratio`, typical name `A_per_B` |
+| Mass | grams | not kilograms |
+| Energy / power | joules | export a joules counter; `rate()` gives watts |
+
+### One meaning per metric
+
+A metric should measure **the same logical thing across all its labels**. The test: **`sum()` or `avg()` across every dimension should make sense**. Capacities of several queues in one metric is fine. Capacity *and* current length in one metric is not, so split it.
+
+## Labels, not names
+
+Use labels to tell apart characteristics of the thing being measured:
+
+```text
+api_http_requests_total{operation="create|update|delete"}
+api_request_duration_seconds{stage="extract|transform|load"}
+```
+
+- **Don't put label names in metric names.** Avoid `http_requests_get_total` and use a `method` label. Otherwise the name stops making sense once that label is aggregated away.
+- **Never generate names procedurally.** Dynamic names are a sign you should be using labels.
+- **Keep label values bounded.** Every combination is a new series.
+
+## Names for recording rules
+
+Recording rules follow **`level:metric:operations`**, which is why colons are reserved for them:
+
+```yaml
+- record: instance_path:requests:rate5m
+  expr: rate(requests_total{job="myjob"}[5m])
+
+- record: path:requests:rate5m
+  expr: sum without (instance)(instance_path:requests:rate5m{job="myjob"})
+```
+
+(From the recording rules guide.)
+
+- **level**: the labels left in the output (`instance_path`, `path`, `job`).
+- **metric**: unchanged, except `_total` is stripped after `rate()`.
+- **operations**: newest first (`rate5m`, `ratio_rate5m`, `mean5m`). Divisions name both metrics with `_per_` and use the operation `ratio`, as in `job:request_failures_per_requests:ratio_rate5m`.

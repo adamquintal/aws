@@ -1,0 +1,105 @@
+---
+id: instr-exporters
+title: Exporters
+summary: An exporter translates metrics from a system you can't instrument directly, such as Linux, HAProxy, MySQL or a network device, into the Prometheus format. Good exporters run one per instance beside the application, fetch data only when scraped, and leave target labels and discovery to Prometheus.
+analogy: "An exporter is an interpreter standing next to someone who speaks another language. Prometheus asks a question in its language, and the interpreter asks the application in its own, then translates the answer on the spot. A good interpreter doesn't invent answers ahead of time or decide where everyone sits at the table. That's Prometheus's job."
+keyPoints:
+  - Exporters expose metrics for systems you can't instrument directly, such as HAProxy or Linux stats. Some are official (in the Prometheus GitHub org) and many are community-maintained.
+  - "Examples: Node Exporter for host metrics (port 9100, node_* metrics), Blackbox exporter for probing endpoints, SNMP exporter for network devices, JMX exporter for JVM apps such as Kafka and Cassandra."
+  - Deploy one exporter per application instance, running beside it. Discovery is done by Prometheus, not by exporters.
+  - Exceptions use the multi-target pattern (Blackbox, SNMP, IPMI). The exporter runs elsewhere and Prometheus passes the target as a URL parameter.
+  - Scrapes are synchronous. Fetch data only when Prometheus scrapes, don't run your own timers, and don't set timestamps.
+  - Target labels such as region or cluster belong in Prometheus's scrape config, not the exporter.
+  - Match types to Prometheus types. When unsure, use untyped, and a "counter" that can decrease isn't a counter.
+  - "On failed scrapes, either return a 5xx (so up becomes 0) or expose a myexporter_up gauge (such as haproxy_up)."
+  - Don't duplicate machine metrics (Node Exporter covers them) or scrape meta-metrics that Prometheus already generates.
+commonTrap: Running one central exporter that talks to many application instances, or building service discovery into the exporter. The guidance is one exporter per instance, beside it, with discovery done in Prometheus. The exceptions are the multi-target exporters, such as Blackbox and SNMP, where running beside the target is impossible or beside the point.
+explainBack:
+  prompt: Why does the Blackbox exporter work differently from the Node Exporter, and how does Prometheus tell it what to probe?
+  modelAnswer: The Node Exporter runs on each machine and exposes that machine's own stats, so it's one exporter per instance, scraped like any target. The Blackbox exporter probes things from the outside, such as checking a website's reachability and latency. You can't, or don't want to, run it on the target, so one Blackbox exporter serves many targets (the multi-target pattern). Prometheus still does service discovery, then uses relabeling to pass each target as a URL parameter in its scrape request, and the exporter probes it when asked.
+introduces: [node exporter, blackbox exporter, snmp exporter, jmx exporter, multi-target exporter, target labels]
+sources:
+  - url: https://prometheus.io/docs/instrumenting/exporters/
+    title: Instrumenting › Exporters and integrations
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/exporters.md
+  - url: https://prometheus.io/docs/instrumenting/writing_exporters/
+    title: Instrumenting › Writing exporters
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/writing_exporters.md
+  - url: https://prometheus.io/docs/guides/node-exporter/
+    title: Guide › Monitoring Linux host metrics with the Node Exporter
+    readFrom: github.com/prometheus/docs@605cf81 docs/guides/node-exporter.md
+  - url: https://prometheus.io/docs/guides/multi-target-exporter/
+    title: Guide › The multi-target exporter pattern
+    readFrom: github.com/prometheus/docs@605cf81 docs/guides/multi-target-exporter.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## When you need an exporter
+
+Client libraries work when you own the code. When you don't (the Linux kernel, HAProxy, MySQL, a network switch), you run an **exporter**. It fetches the system's stats in whatever form they come and exposes them as Prometheus metrics on `/metrics`.
+
+Some exporters are **official** (maintained in the Prometheus GitHub organisation), and many more are community-maintained. Familiar ones:
+
+| Exporter | What it covers |
+|---|---|
+| **Node Exporter** | Linux and Unix host metrics such as CPU, memory, disk and network. Port **9100**, metrics prefixed `node_`. |
+| **Blackbox exporter** | Probes endpoints over HTTP, DNS, TCP or ICMP from the outside |
+| **SNMP exporter** | Network devices speaking SNMP |
+| **JMX exporter** | JVM applications, for example Kafka and Cassandra |
+| **HAProxy, MySQL exporters** | Their respective systems |
+
+Scraping the Node Exporter (from the official guide):
+
+```yaml
+scrape_configs:
+- job_name: node
+  static_configs:
+  - targets: ['localhost:9100']
+```
+
+## How good exporters behave
+
+### One per instance, beside it
+
+Each exporter should monitor **exactly one application instance, running next to it**. That's one `haproxy_exporter` for every HAProxy. It mirrors what direct instrumentation would give you, and it means **service discovery stays in Prometheus**.
+
+### The multi-target exception
+
+Some exporters can't sensibly run beside their target:
+
+- **SNMP and IPMI**: the devices are black boxes you can't run code on.
+- **Blackbox**: you specifically want to measure from *outside*, for example a website's reachability.
+
+These use the **multi-target exporter pattern**. One exporter queries many targets over the network. Prometheus still discovers the targets, then passes each one (and a module) as **URL parameters** in the scrape request, usually set up with relabeling. The exporter starts its probe when the request arrives.
+
+### Synchronous scrapes, no timestamps
+
+Pull metrics from the application **only when Prometheus scrapes**, with no background timers. So **don't set timestamps** on samples; Prometheus assigns them. (If you think you need timestamps, the guide suggests you probably want the Pushgateway.) Mind the **10-second default scrape timeout**. Anything very slow (over a minute) may be cached, noted in the HELP string.
+
+### Leave labels to Prometheus
+
+If you want the same label on every metric (`region`, `cluster`), **stop**. Those are **target labels**, and they belong in Prometheus's scrape config and service discovery. Different teams may label the same application differently.
+
+### Types and help
+
+- Map source metrics to Prometheus types, usually counters and gauges. **If unsure, use untyped.**
+- A "counter" from another system that can go **down** isn't a counter. Use untyped rather than a misleading gauge.
+- Put the original metric's name and any transformation rule in the HELP string.
+
+### Failed scrapes
+
+Two patterns when the application doesn't respond:
+
+1. Return an HTTP **5xx**. Prometheus's own `up` then shows 0, but you can't tell "exporter down" from "app down".
+2. Expose a **`myexporter_up`** gauge (such as `haproxy_up`) of 0 or 1. This is better when some metrics, like process stats, are still useful.
+
+### Don't duplicate
+
+- Drop machine metrics such as CPU and memory that the application also exposes, because the Node Exporter covers them.
+- Don't add scrape counters or scrape-duration histograms. Prometheus already records `up`, `scrape_duration_seconds` and the rest. A gauge such as `jmx_scrape_duration_seconds` is fine.
+
+### Ports
+
+Each exporter has its own default port, tracked on the Prometheus wiki's **default port allocations** page, so many can run on one machine.

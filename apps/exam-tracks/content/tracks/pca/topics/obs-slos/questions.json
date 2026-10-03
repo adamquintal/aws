@@ -1,0 +1,517 @@
+[
+  {
+    "id": "slo-sli",
+    "type": "single",
+    "stem": "What is an SLI?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A measurement of a service's behaviour, ideally from the user's perspective",
+        "correct": true,
+        "note": "Right. For example, how fast a page loads."
+      },
+      {
+        "id": "b",
+        "text": "A contract with penalties for downtime",
+        "correct": false,
+        "note": "That describes an SLA."
+      },
+      {
+        "id": "c",
+        "text": "A target percentage the team commits to",
+        "correct": false,
+        "note": "That's an SLO."
+      },
+      {
+        "id": "d",
+        "text": "A type of Prometheus metric",
+        "correct": false,
+        "note": "The metric types are counter, gauge, histogram and summary."
+      }
+    ],
+    "explanation": "SLI, or service level indicator, represents a measurement of a service's behaviour. A good SLI measures the service from the perspective of its users.",
+    "hint": "I is for indicator: a measurement.",
+    "difficulty": 1,
+    "tags": [
+      "slo"
+    ],
+    "uses": [
+      "sli"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "title": "OpenTelemetry primer › Reliability and metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-slo",
+    "type": "single",
+    "stem": "What is an SLO?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A target for one or more SLIs, tied to business value and used to communicate reliability",
+        "correct": true,
+        "note": "Right. For example, 95% of requests within 300 ms."
+      },
+      {
+        "id": "b",
+        "text": "The raw measurement of request latency",
+        "correct": false,
+        "note": "That's the SLI."
+      },
+      {
+        "id": "c",
+        "text": "A legal agreement with customers",
+        "correct": false,
+        "note": "That's an SLA."
+      },
+      {
+        "id": "d",
+        "text": "A Prometheus recording rule",
+        "correct": false,
+        "note": "Recording rules can help compute SLIs, but they aren't SLOs."
+      }
+    ],
+    "explanation": "SLO, or service level objective, communicates reliability to an organisation or other teams by attaching one or more SLIs to business value.",
+    "hint": "O is for objective: a target.",
+    "difficulty": 1,
+    "tags": [
+      "slo"
+    ],
+    "uses": [
+      "slo",
+      "sli"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "title": "OpenTelemetry primer › Reliability and metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-sla",
+    "type": "single",
+    "stem": "Which describes an SLA, in common industry usage?",
+    "options": [
+      {
+        "id": "a",
+        "text": "An agreement, often contractual, with consequences such as credits if the promised level isn't met",
+        "correct": true,
+        "note": "Right. The cited docs don't define SLA, so this is general usage."
+      },
+      {
+        "id": "b",
+        "text": "An internal measurement of error rate",
+        "correct": false,
+        "note": "That's an SLI."
+      },
+      {
+        "id": "c",
+        "text": "An internal engineering target",
+        "correct": false,
+        "note": "That's an SLO. An SLA is the external promise."
+      },
+      {
+        "id": "d",
+        "text": "An Alertmanager silence",
+        "correct": false,
+        "note": "Unrelated."
+      }
+    ],
+    "explanation": "SLA, or service level agreement, is the general industry term for an external promise with consequences. The cited official docs define SLI and SLO but not SLA.",
+    "hint": "A is for agreement.",
+    "difficulty": 1,
+    "tags": [
+      "slo"
+    ],
+    "uses": [
+      "sla",
+      "slo"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "title": "OpenTelemetry primer › Reliability and metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-strict",
+    "type": "single",
+    "stem": "Your SLA promises 99.5% availability. How should your internal SLO compare?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Stricter, such as 99.9%, so you're alerted before the SLA is breached",
+        "correct": true,
+        "note": "Right. The margin gives time to react."
+      },
+      {
+        "id": "b",
+        "text": "Looser, such as 99%, to avoid noisy alerts",
+        "correct": false,
+        "note": "Then you'd break the SLA before your SLO even complained."
+      },
+      {
+        "id": "c",
+        "text": "Exactly the same, 99.5%",
+        "correct": false,
+        "note": "No margin. You'd only notice at the moment you owe credits."
+      },
+      {
+        "id": "d",
+        "text": "SLOs and SLAs shouldn't be related",
+        "correct": false,
+        "note": "The SLO should protect the SLA."
+      }
+    ],
+    "explanation": "SLAs are external promises with consequences. Keeping the internal objective stricter means problems surface before the promise is broken. (General practice, in our own words.)",
+    "hint": "You want warning before you owe anything.",
+    "difficulty": 2,
+    "tags": [
+      "slo"
+    ],
+    "uses": [
+      "sla",
+      "slo"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "title": "OpenTelemetry primer › Reliability and metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-good-sli",
+    "type": "single",
+    "stem": "Which is the best SLI for a web shop's checkout?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The fraction of checkout requests that succeed within 300 ms",
+        "correct": true,
+        "note": "Right. It measures what users experience."
+      },
+      {
+        "id": "b",
+        "text": "CPU usage of the checkout servers",
+        "correct": false,
+        "note": "CPU is a cause-level signal. Users can suffer while CPU looks fine."
+      },
+      {
+        "id": "c",
+        "text": "Number of pods running",
+        "correct": false,
+        "note": "Internal capacity, not user experience."
+      },
+      {
+        "id": "d",
+        "text": "Disk free on the database host",
+        "correct": false,
+        "note": "Possibly a cause, not a user-facing measure."
+      }
+    ],
+    "explanation": "A good SLI measures the service from the users' perspective. Prometheus alerting practice likewise says to alert on symptoms associated with end-user pain, such as latency and errors.",
+    "hint": "What would a customer notice?",
+    "difficulty": 2,
+    "tags": [
+      "slo"
+    ],
+    "uses": [
+      "sli",
+      "symptom-based alert"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "title": "OpenTelemetry primer › Reliability and metrics"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Prometheus › Alerting practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-ratio",
+    "type": "single",
+    "stem": "The SLO is \"95% of requests served within 300 ms\". Using a classic histogram with a 0.3 bucket, which expression gives the SLI?",
+    "code": "sum by (job) (rate(http_request_duration_seconds_bucket{le=\"0.3\"}[5m]))\n/\nsum by (job) (rate(http_request_duration_seconds_count[5m]))",
+    "codeLang": "promql",
+    "options": [
+      {
+        "id": "a",
+        "text": "The rate of the `le=\"0.3\"` bucket divided by the rate of `_count`, both summed by job",
+        "correct": true,
+        "note": "Right. That's the fraction of requests at or under 300 ms."
+      },
+      {
+        "id": "b",
+        "text": "`histogram_quantile(0.95, ...)`",
+        "correct": false,
+        "note": "That gives the 95th percentile latency, not the fraction under 300 ms. It's useful, but it's a different question."
+      },
+      {
+        "id": "c",
+        "text": "The rate of `_sum` divided by the rate of `_count`",
+        "correct": false,
+        "note": "That's the average duration."
+      },
+      {
+        "id": "d",
+        "text": "The rate of the `le=\"+Inf\"` bucket alone",
+        "correct": false,
+        "note": "That counts all requests, with no threshold."
+      }
+    ],
+    "explanation": "The histograms page shows this expression for the 95%-within-300ms SLO: sum by (job) of rate(..._bucket{le=\"0.3\"}[5m]) divided by sum by (job) of rate(..._count[5m]).",
+    "hint": "Good events divided by all events.",
+    "difficulty": 3,
+    "tags": [
+      "slo",
+      "promql"
+    ],
+    "uses": [
+      "sli",
+      "le",
+      "rate",
+      "bucket",
+      "histogram_quantile"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Prometheus › Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-no-bucket",
+    "type": "single",
+    "stem": "Your classic histogram has buckets at 0.25 and 0.5 but none at 0.3. What does the `le=\"0.3\"` SLI expression return?",
+    "options": [
+      {
+        "id": "a",
+        "text": "No result, because classic bucket selection doesn't interpolate",
+        "correct": true,
+        "note": "Right. You need a bucket boundary exactly at the threshold."
+      },
+      {
+        "id": "b",
+        "text": "An interpolated estimate",
+        "correct": false,
+        "note": "Interpolation applies to histogram_quantile and histogram_fraction, not to selecting a bucket label."
+      },
+      {
+        "id": "c",
+        "text": "The value of the 0.25 bucket",
+        "correct": false,
+        "note": "The label value must match exactly."
+      },
+      {
+        "id": "d",
+        "text": "An error message",
+        "correct": false,
+        "note": "It quietly returns nothing."
+      }
+    ],
+    "explanation": "The histograms page notes that the expression strictly requires a bucket boundary at 0.3. Without one, no interpolation is applied and no result is returned.",
+    "hint": "A label matcher matches exact values.",
+    "difficulty": 3,
+    "tags": [
+      "slo",
+      "promql"
+    ],
+    "uses": [
+      "le",
+      "bucket",
+      "sli"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Prometheus › Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-native",
+    "type": "single",
+    "stem": "Why do the Prometheus docs suggest native histograms make changing an SLO threshold easier?",
+    "options": [
+      {
+        "id": "a",
+        "text": "`histogram_fraction` can estimate the fraction under any threshold, with no fixed bucket needed at that value",
+        "correct": true,
+        "note": "Right. Changing the threshold doesn't mean changing instrumentation."
+      },
+      {
+        "id": "b",
+        "text": "Native histograms store every raw observation",
+        "correct": false,
+        "note": "They still use buckets, just dynamic exponential ones."
+      },
+      {
+        "id": "c",
+        "text": "Native histograms automatically create SLO alerts",
+        "correct": false,
+        "note": "No automatic alerts are created."
+      },
+      {
+        "id": "d",
+        "text": "Classic histograms can't be used for SLOs",
+        "correct": false,
+        "note": "They can, if a bucket boundary sits at the threshold."
+      }
+    ],
+    "explanation": "With native histograms, histogram_fraction(0, 0.3, ...) estimates the fraction by interpolation. You gain the freedom to change range boundaries at will, which helps if your SLO changes.",
+    "hint": "Recall histogram_fraction from the histograms topic.",
+    "difficulty": 3,
+    "tags": [
+      "slo",
+      "promql"
+    ],
+    "uses": [
+      "native histogram",
+      "histogram_fraction",
+      "slo"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/histograms/",
+        "title": "Prometheus › Histograms and summaries"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-budget",
+    "type": "single",
+    "stem": "With an SLO of 99% of requests succeeding, what is the error budget?",
+    "options": [
+      {
+        "id": "a",
+        "text": "1% of requests may fail before the SLO is missed",
+        "correct": true,
+        "note": "Right. The budget is the gap between 100% and the target."
+      },
+      {
+        "id": "b",
+        "text": "99% of requests may fail",
+        "correct": false,
+        "note": "That inverts it."
+      },
+      {
+        "id": "c",
+        "text": "Zero failures allowed",
+        "correct": false,
+        "note": "That would be a 100% target."
+      },
+      {
+        "id": "d",
+        "text": "The money set aside for SLA credits",
+        "correct": false,
+        "note": "The term is about allowed unreliability, not money."
+      }
+    ],
+    "explanation": "An error budget, a general industry term explained in our own words, is the amount of unreliability an SLO allows: 100% minus the target.",
+    "hint": "100 minus the target.",
+    "difficulty": 2,
+    "tags": [
+      "slo"
+    ],
+    "uses": [
+      "error budget",
+      "slo"
+    ],
+    "sources": [
+      {
+        "url": "https://opentelemetry.io/docs/concepts/observability-primer/#reliability--metrics",
+        "title": "OpenTelemetry primer › Reliability and metrics"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "slo-alert",
+    "type": "single",
+    "stem": "Which alert best follows SLO-based, symptom-first alerting?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The fraction of requests under 300 ms has been below 0.95 for 10 minutes",
+        "correct": true,
+        "note": "Right. A user-facing symptom, with slack for blips."
+      },
+      {
+        "id": "b",
+        "text": "Any single pod restarted",
+        "correct": false,
+        "note": "That's a cause, and often no user notices."
+      },
+      {
+        "id": "c",
+        "text": "CPU above 80% on any node",
+        "correct": false,
+        "note": "That's a cause-level signal."
+      },
+      {
+        "id": "d",
+        "text": "Every 5xx error triggers a page",
+        "correct": false,
+        "note": "There's no slack for small blips. That's noisy."
+      }
+    ],
+    "explanation": "Prometheus alerting practice: alert on symptoms associated with end-user pain, such as latency and errors, as high in the stack as possible, and allow slack for small blips.",
+    "hint": "Symptom plus a for duration.",
+    "difficulty": 2,
+    "tags": [
+      "slo",
+      "alerting"
+    ],
+    "uses": [
+      "slo",
+      "symptom-based alert",
+      "for duration"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Prometheus › Alerting practices"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

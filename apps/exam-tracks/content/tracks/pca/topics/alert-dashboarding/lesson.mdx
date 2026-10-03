@@ -1,0 +1,84 @@
+---
+id: alert-dashboarding
+title: Dashboards with Grafana and the expression browser
+summary: Prometheus's built-in expression browser is for ad-hoc queries and debugging. Real dashboards are usually built in Grafana, which queries Prometheus with PromQL as a data source. Good dashboards use rates, keep series counts sane, and lean on recording rules for expensive panels.
+analogy: "The expression browser is a mechanic's diagnostic plug: perfect for poking at one problem right now. A Grafana dashboard is the car's dashboard: the same few gauges you glance at every day, laid out so problems jump out without anyone typing a query."
+keyPoints:
+  - The expression browser (/graph, the Prometheus UI) shows any expression as a table (an instant query) or a graph (a range query). It's mainly for ad-hoc queries and debugging.
+  - Grafana is the usual dashboarding tool. It has included a Prometheus data source since Grafana 2.5.0 (2015).
+  - Set up a Prometheus data source in Grafana with the server URL, such as http://localhost:9090. Grafana listens on port 3000 by default (default login admin/admin).
+  - A panel is a PromQL query. The legend format uses label templates, for example {{method}} - {{status}}.
+  - Grafana's $__rate_interval variable is recommended inside rate() and increase().
+  - Pre-built dashboards can be imported from grafana.com.
+  - Start new queries in the table view to check result size (hundreds of series, not thousands) before graphing.
+  - Use recording rules for expensive expressions that dashboards refresh repeatedly.
+  - Console templates (Go templates served by Prometheus) are no longer bundled since 3.0. Perses is another dashboard option.
+commonTrap: Graphing a raw counter, such as http_requests_total, on a dashboard and reading the ever-rising line as traffic. Dashboards should show rate(http_requests_total[5m]) or similar. Also, opening a dashboard on an unfiltered selector can return thousands of series and overload the browser and server. Filter and aggregate first.
+explainBack:
+  prompt: You're building a Grafana panel for requests per second by HTTP status code. Write the query you'd use, and explain the legend format and why a recording rule might help.
+  modelAnswer: I'd use sum by (code) (rate(http_requests_total[$__rate_interval])). That takes the per-second rate of the counter per series, using Grafana's recommended rate interval variable, then sums by status code. I'd set the legend format to {{code}} so each line is labelled with its status code. If many dashboards show this or it's expensive to compute, a recording rule like code:http_requests:rate5m precomputes it, so each dashboard refresh queries a cheap stored series instead of recalculating.
+introduces: [expression browser, dashboard, data source, legend format, $__rate_interval, console templates, perses]
+versionNotes:
+  - Prometheus 3.0 stopped bundling console templates and libraries. They now need the --web.console.templates and --web.console.libraries flags and your own files. Perses is newly documented as an alternative to Grafana.
+sources:
+  - url: https://prometheus.io/docs/visualization/browser/
+    title: Visualization › Expression browser
+    readFrom: github.com/prometheus/docs@605cf81 docs/visualization/browser.md
+  - url: https://prometheus.io/docs/visualization/grafana/
+    title: Visualization › Grafana support for Prometheus
+    readFrom: github.com/prometheus/docs@605cf81 docs/visualization/grafana.md
+  - url: https://prometheus.io/docs/prometheus/latest/querying/basics/#avoiding-slow-queries-and-overloads
+    title: Querying basics › Avoiding slow queries and overloads
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/querying/basics.md
+  - url: https://prometheus.io/docs/visualization/consoles/
+    title: Visualization › Console templates
+    readFrom: github.com/prometheus/docs@605cf81 docs/visualization/consoles.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## The expression browser
+
+Every Prometheus server has a built-in UI at `/graph` (the **expression browser**). Type any PromQL expression and see:
+
+- **Table**: an **instant query**, one value per series right now.
+- **Graph**: a **range query**, values over time.
+
+The docs position it for **ad-hoc queries and debugging**. For lasting dashboards, use Grafana.
+
+## Grafana
+
+**Grafana** is the standard way to build dashboards on Prometheus data. It has shipped a Prometheus data source since **Grafana 2.5.0** (2015).
+
+Getting started, per the docs:
+
+1. Grafana listens on **`http://localhost:3000`**, and the default login is `admin` / `admin`.
+2. Add a **data source** of type Prometheus with your server's URL, such as `http://localhost:9090/`, then Save & Test.
+3. Add a panel, choose the Prometheus data source and enter a **PromQL query**.
+4. Name series with the **legend format**, using label templates:
+
+```text
+{{method}} - {{status}}
+```
+
+5. Inside `rate()` and `increase()`, Grafana recommends its **`$__rate_interval`** variable rather than a hard-coded window.
+
+You can also **import pre-built dashboards** from grafana.com (filtered to the Prometheus data source), pointing their `datasource` entries at your own data source.
+
+## Building panels that hold up
+
+A typical request-rate panel:
+
+```promql
+sum by (code) (rate(http_requests_total[$__rate_interval]))
+```
+
+- **Graph rates, not raw counters.** A raw counter only climbs.
+- **Check the size first.** The querying docs advise building new queries in the **table view** until the result is reasonable (hundreds, not thousands, of series), and only then graphing.
+- **Precompute heavy panels.** If an expression is slow, or many dashboards re-run it on every refresh, store it with a **recording rule** and query that.
+
+## Other options
+
+- **Console templates** are Go templates served by Prometheus itself. Since Prometheus 3.0 they're **no longer bundled**, and you supply your own with `--web.console.templates` and `--web.console.libraries`. The docs suggest newcomers start with Grafana.
+- **Perses** is an open-source, dashboards-as-code tool with native Prometheus support, documented as an alternative.

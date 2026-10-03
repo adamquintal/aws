@@ -1,0 +1,565 @@
+[
+  {
+    "id": "nm-best",
+    "type": "single",
+    "stem": "Which name best follows Prometheus naming conventions for a counter of HTTP requests in an app called \"shop\"?",
+    "options": [
+      {
+        "id": "a",
+        "text": "shop_http_requests_total",
+        "correct": true,
+        "note": "Right. Application prefix, what's measured, and _total for an accumulating count."
+      },
+      {
+        "id": "b",
+        "text": "ShopHttpRequests",
+        "correct": false,
+        "note": "Metric names use snake_case and need a _total suffix for counters."
+      },
+      {
+        "id": "c",
+        "text": "shop_http_requests_count",
+        "correct": false,
+        "note": "Counters end in _total. _count is used by histograms and summaries."
+      },
+      {
+        "id": "d",
+        "text": "http_requests_shop_get_total",
+        "correct": false,
+        "note": "The prefix goes first, and HTTP method belongs in a label, not the name."
+      }
+    ],
+    "explanation": "A metric name should have a single-word application prefix and an accumulating count ends in _total, as in http_requests_total.",
+    "hint": "Prefix first, counter suffix last.",
+    "difficulty": 1,
+    "tags": [
+      "naming"
+    ],
+    "uses": [
+      "namespace prefix",
+      "_total",
+      "counter"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#metric-names",
+        "title": "Naming › Metric names"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-total-order",
+    "type": "single",
+    "stem": "A counter tracks CPU time in seconds. Which name is correct?",
+    "options": [
+      {
+        "id": "a",
+        "text": "process_cpu_seconds_total",
+        "correct": true,
+        "note": "Right. The unit comes before _total."
+      },
+      {
+        "id": "b",
+        "text": "process_cpu_total_seconds",
+        "correct": false,
+        "note": "_total comes after the unit, not before it."
+      },
+      {
+        "id": "c",
+        "text": "process_cpu_ms_total",
+        "correct": false,
+        "note": "Use base units: seconds, not milliseconds."
+      },
+      {
+        "id": "d",
+        "text": "process_cpu_second_total",
+        "correct": false,
+        "note": "Unit suffixes are plural: seconds."
+      }
+    ],
+    "explanation": "Metric names should have a plural unit suffix. An accumulating count has _total in addition to the unit, as in process_cpu_seconds_total.",
+    "hint": "The docs' example for an accumulating count with a unit.",
+    "difficulty": 2,
+    "tags": [
+      "naming"
+    ],
+    "uses": [
+      "_total",
+      "unit suffix"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#metric-names",
+        "title": "Naming › Metric names"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-base-units",
+    "type": "multi",
+    "stem": "Which of these are the recommended base units? Select all that apply.",
+    "options": [
+      {
+        "id": "a",
+        "text": "seconds for time",
+        "correct": true,
+        "note": "Right. Not milliseconds."
+      },
+      {
+        "id": "b",
+        "text": "bytes for data size",
+        "correct": true,
+        "note": "Right. Even where bits would be more common."
+      },
+      {
+        "id": "c",
+        "text": "a ratio from 0 to 1 for percentages",
+        "correct": true,
+        "note": "Right. Not 0 to 100."
+      },
+      {
+        "id": "d",
+        "text": "kilograms for mass",
+        "correct": false,
+        "note": "The base unit is grams, to avoid issues with the kilo prefix."
+      }
+    ],
+    "explanation": "Base units: seconds, celsius, meters, bytes (not bits), ratio (0 to 1) for percentages, volts, amperes, joules, grams.",
+    "hint": "One of these uses a prefixed unit.",
+    "difficulty": 2,
+    "tags": [
+      "naming"
+    ],
+    "uses": [
+      "base units"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#base-units",
+        "title": "Naming › Base units"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-bad-unit",
+    "type": "single",
+    "stem": "What's wrong with the metric name http_request_duration_milliseconds?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It uses milliseconds instead of the base unit, seconds",
+        "correct": true,
+        "note": "Right. http_request_duration_seconds is the convention."
+      },
+      {
+        "id": "b",
+        "text": "Durations must not have a unit suffix",
+        "correct": false,
+        "note": "They should have one. Use the base unit."
+      },
+      {
+        "id": "c",
+        "text": "It's missing _total",
+        "correct": false,
+        "note": "A duration histogram isn't an accumulating count named with _total."
+      },
+      {
+        "id": "d",
+        "text": "Nothing. Any unit is fine as long as it's in the name",
+        "correct": false,
+        "note": "The conventions ask for base units for consistency."
+      }
+    ],
+    "explanation": "Metric names should use base units, such as seconds, bytes and meters, not milliseconds, megabytes or kilometers.",
+    "hint": "Think base units.",
+    "difficulty": 1,
+    "tags": [
+      "naming"
+    ],
+    "uses": [
+      "base units",
+      "unit suffix"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#metric-names",
+        "title": "Naming › Metric names"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#base-units",
+        "title": "Naming › Base units"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-info",
+    "type": "single",
+    "stem": "What does the _info suffix conventionally indicate, as in foobar_build_info?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A pseudo-metric that carries metadata (such as version) about the running binary",
+        "correct": true,
+        "note": "Right. The useful information is in its labels."
+      },
+      {
+        "id": "b",
+        "text": "An informational log level",
+        "correct": false,
+        "note": "It's a metric naming convention, unrelated to log levels."
+      },
+      {
+        "id": "c",
+        "text": "A metric with no unit",
+        "correct": false,
+        "note": "Unitless counters use _total. _info is specifically metadata."
+      },
+      {
+        "id": "d",
+        "text": "A deprecated metric",
+        "correct": false,
+        "note": "_info doesn't signal deprecation."
+      }
+    ],
+    "explanation": "foobar_build_info is the docs' example for a pseudo-metric that provides metadata about the running binary.",
+    "hint": "Look at what such metrics usually carry in their labels.",
+    "difficulty": 2,
+    "tags": [
+      "naming"
+    ],
+    "uses": [
+      "_info"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#metric-names",
+        "title": "Naming › Metric names"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-sum-avg",
+    "type": "single",
+    "stem": "What rule of thumb tells you whether a metric mixes different things?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Either sum() or avg() over all its dimensions should be meaningful",
+        "correct": true,
+        "note": "Right. If neither makes sense, split it into several metrics."
+      },
+      {
+        "id": "b",
+        "text": "It should never have more than three labels",
+        "correct": false,
+        "note": "There's no fixed label count rule."
+      },
+      {
+        "id": "c",
+        "text": "Its name must be shorter than 30 characters",
+        "correct": false,
+        "note": "Length isn't the test."
+      },
+      {
+        "id": "d",
+        "text": "All its values must be integers",
+        "correct": false,
+        "note": "Values are floats. That isn't the criterion."
+      }
+    ],
+    "explanation": "Either the sum() or the avg() over all dimensions of a metric should be meaningful. If not, split the data into multiple metrics.",
+    "hint": "Imagine aggregating across all labels.",
+    "difficulty": 2,
+    "tags": [
+      "naming"
+    ],
+    "uses": [
+      "sum",
+      "avg",
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#metric-names",
+        "title": "Naming › Metric names"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-queue",
+    "type": "single",
+    "stem": "Which design follows the naming guide for queue metrics?",
+    "options": [
+      {
+        "id": "a",
+        "text": "queue_capacity{queue=\"…\"} and a separate queue_length{queue=\"…\"}",
+        "correct": true,
+        "note": "Right. Each metric measures one thing across its labels."
+      },
+      {
+        "id": "b",
+        "text": "One metric queue_stats with a type=\"capacity|length\" label",
+        "correct": false,
+        "note": "Mixing capacity and current length means sum() and avg() across labels are meaningless."
+      },
+      {
+        "id": "c",
+        "text": "queue_a_capacity, queue_b_capacity, queue_c_capacity",
+        "correct": false,
+        "note": "Queue names belong in a label, not the metric name."
+      },
+      {
+        "id": "d",
+        "text": "A single gauge holding capacity minus length",
+        "correct": false,
+        "note": "That loses information. Expose both and compute in PromQL."
+      }
+    ],
+    "explanation": "Having the capacity of various queues in one metric is good. Mixing the capacity of a queue with the current number of elements in it is not.",
+    "hint": "One logical thing per metric; variations in labels.",
+    "difficulty": 3,
+    "tags": [
+      "naming"
+    ],
+    "uses": [
+      "label",
+      "gauge"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#metric-names",
+        "title": "Naming › Metric names"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#labels",
+        "title": "Naming › Labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-labels-in-name",
+    "type": "single",
+    "stem": "Why shouldn't you put label names into metric names, as in api_http_requests_post_total?",
+    "options": [
+      {
+        "id": "a",
+        "text": "It's redundant, and confusing once the label is aggregated away",
+        "correct": true,
+        "note": "Right. Use api_http_requests_total{method=\"post\"} instead."
+      },
+      {
+        "id": "b",
+        "text": "Metric names can't contain the word post",
+        "correct": false,
+        "note": "There's no such reserved word."
+      },
+      {
+        "id": "c",
+        "text": "It makes the metric a gauge",
+        "correct": false,
+        "note": "Names don't change the type."
+      },
+      {
+        "id": "d",
+        "text": "Prometheus rejects names with more than four parts",
+        "correct": false,
+        "note": "There's no such limit."
+      }
+    ],
+    "explanation": "Don't put label names in the metric name. This introduces redundancy and causes confusion if the respective labels are aggregated away.",
+    "hint": "What happens to the name after sum without (method)?",
+    "difficulty": 2,
+    "tags": [
+      "naming"
+    ],
+    "uses": [
+      "label"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/naming/#labels",
+        "title": "Naming › Labels"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-rule-format",
+    "type": "single",
+    "stem": "What is the general form of a recording rule name?",
+    "options": [
+      {
+        "id": "a",
+        "text": "level:metric:operations",
+        "correct": true,
+        "note": "Right. For example job:http_requests:rate5m."
+      },
+      {
+        "id": "b",
+        "text": "metric_level_operations",
+        "correct": false,
+        "note": "Recording rules use colons as separators."
+      },
+      {
+        "id": "c",
+        "text": "operations:metric:level",
+        "correct": false,
+        "note": "The order is level, then metric, then operations."
+      },
+      {
+        "id": "d",
+        "text": "rule_<metric>_total",
+        "correct": false,
+        "note": "That isn't the convention."
+      }
+    ],
+    "explanation": "Recording rules should have the general form level:metric:operations: aggregation level, the unchanged metric name, then the operations applied, newest first.",
+    "hint": "Colons are reserved for recording rules.",
+    "difficulty": 1,
+    "tags": [
+      "naming",
+      "rules"
+    ],
+    "uses": [
+      "level:metric:operations",
+      "recording rule"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/rules/#naming",
+        "title": "Recording rules › Naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-rule-strip",
+    "type": "single",
+    "stem": "You record rate(requests_total[5m]) aggregated per path. Which recording rule name follows the convention?",
+    "options": [
+      {
+        "id": "a",
+        "text": "path:requests:rate5m",
+        "correct": true,
+        "note": "Right. _total is stripped because a rate is no longer a counter."
+      },
+      {
+        "id": "b",
+        "text": "path:requests_total:rate5m",
+        "correct": false,
+        "note": "Strip _total off counters when using rate() or irate()."
+      },
+      {
+        "id": "c",
+        "text": "requests:path:rate5m",
+        "correct": false,
+        "note": "The level comes first."
+      },
+      {
+        "id": "d",
+        "text": "path_requests_rate5m",
+        "correct": false,
+        "note": "Recording rules use colons between level, metric and operations."
+      }
+    ],
+    "explanation": "The metric part should be unchanged other than stripping _total off counters when using rate() or irate(). The docs' example is path:requests:rate5m.",
+    "hint": "After rate(), is it still a total?",
+    "difficulty": 2,
+    "tags": [
+      "naming",
+      "rules"
+    ],
+    "uses": [
+      "level:metric:operations",
+      "rate"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/rules/#naming",
+        "title": "Recording rules › Naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "nm-rule-ratio",
+    "type": "single",
+    "stem": "How should a recording rule computing failures divided by requests per job be named?",
+    "options": [
+      {
+        "id": "a",
+        "text": "job:request_failures_per_requests:ratio_rate5m",
+        "correct": true,
+        "note": "Right. Divisions use _per_ between the metrics and the operation ratio."
+      },
+      {
+        "id": "b",
+        "text": "job:request_failures/requests:rate5m",
+        "correct": false,
+        "note": "Use _per_, not a slash."
+      },
+      {
+        "id": "c",
+        "text": "job:request_failure_ratio_total",
+        "correct": false,
+        "note": "Not a counter, and it doesn't follow level:metric:operations."
+      },
+      {
+        "id": "d",
+        "text": "ratio:request_failures:job",
+        "correct": false,
+        "note": "The order is level:metric:operations."
+      }
+    ],
+    "explanation": "When taking a ratio by division, separate the metrics with _per_ and call the operation ratio. The docs' example is job:request_failures_per_requests:ratio_rate5m.",
+    "hint": "The docs give this exact example.",
+    "difficulty": 3,
+    "tags": [
+      "naming",
+      "rules"
+    ],
+    "uses": [
+      "level:metric:operations"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/rules/#naming",
+        "title": "Recording rules › Naming"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/rules/#examples",
+        "title": "Recording rules › Examples"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]

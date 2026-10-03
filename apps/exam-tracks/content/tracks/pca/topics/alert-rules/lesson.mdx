@@ -1,0 +1,130 @@
+---
+id: alert-rules
+title: Alerting and recording rules
+summary: Rules live in YAML rule files loaded with rule_files, grouped into rule groups that Prometheus evaluates on a schedule. A recording rule saves a query's result as a new series. An alerting rule turns a query into alerts that go pending, then firing, and are sent to Alertmanager.
+analogy: "A rule group is a checklist a night guard runs every few minutes. A recording rule is writing a reading in the logbook so nobody has to recalculate it later. An alerting rule is \"if the door's been open for more than 10 minutes, call the front desk\". The door first counts as suspicious (pending), and only after 10 minutes does it become a real call (firing)."
+keyPoints:
+  - Rule files are YAML, listed under rule_files in prometheus.yml, and reloaded with SIGHUP (only applied if all rule files are valid).
+  - Rules sit in groups. Rules in a group run sequentially, at the group's interval (default evaluation_interval), with the same evaluation time.
+  - "Recording rule: record (a valid metric name) plus expr. Use it to precompute expensive or frequently used queries, especially for dashboards."
+  - "Alerting rule: alert (name), expr, optional for, keep_firing_for, labels (such as severity) and annotations (summary, description, runbook links)."
+  - Every series the expr returns becomes an active alert for that label set. With for, it's pending until the condition has held that long, then firing. Without for, it fires on the first evaluation.
+  - keep_firing_for keeps an alert firing for a while after the condition clears, which prevents flapping.
+  - Templates in labels and annotations use {{ $labels.instance }}, {{ $value }} and $externalLabels.
+  - Active alerts also appear as the series ALERTS{alertname, alertstate="pending|firing"}, and in the UI's Alerts tab.
+  - "Check syntax with promtool check rules file.yml. Unit test rules with promtool test rules test.yml."
+  - Prometheus sends alerts to Alertmanager, configured under alerting.alertmanagers (static or discovered).
+commonTrap: Thinking for makes an alert fire for at least that long, or that an alert without for waits a scrape interval. for is how long the condition must keep holding before the alert moves from pending to firing. Without it, the alert fires on the very first evaluation where expr returns a result. A second trap is expecting Prometheus to send email or Slack messages. It only sends alerts to Alertmanager.
+explainBack:
+  prompt: Walk through what happens, evaluation by evaluation, with an InstanceDown rule (expr up == 0, for 5m) when a target goes down and comes back after 3 minutes.
+  modelAnswer: At the first evaluation where up == 0 returns the target's series, the alert becomes active in the pending state for that instance's labels. It shows in the Alerts tab and as ALERTS{alertstate="pending"}. Prometheus checks again at each evaluation. Because the target comes back after 3 minutes, before the 5-minute for duration is reached, the expression stops returning the series and the pending alert goes away. It never fires, and nothing is sent to Alertmanager. If it had stayed down past 5 minutes, it would have moved to firing and been sent to Alertmanager.
+introduces: [rule file, rule group, rule_files, record, expr, for, keep_firing_for, annotations, pending, firing, ALERTS, promtool, templating]
+versionNotes:
+  - keep_firing_for was added in Prometheus 2.42 (2023), after the exam curriculum was written. Group-level labels, limit and query_offset are also newer options.
+sources:
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/
+    title: Configuration › Defining recording rules (rule files, groups, syntax)
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/recording_rules.md
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+    title: Configuration › Alerting rules
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/alerting_rules.md
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/unit_testing_rules/
+    title: Configuration › Unit testing for rules
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/unit_testing_rules.md
+  - url: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alertmanager_config
+    title: Configuration › alertmanager_config
+    readFrom: github.com/prometheus/prometheus@5ba0e86 docs/configuration/configuration.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Rule files and groups
+
+Rules live in YAML files that `prometheus.yml` loads with `rule_files`:
+
+```yaml
+rule_files:
+  - "rules/*.yml"
+```
+
+Like the main config, rule files reload on `SIGHUP`, and changes only apply if **all** rule files are valid.
+
+Inside a file, rules are organised into **groups**:
+
+```yaml
+groups:
+  - name: example
+    interval: 1m          # optional, defaults to global evaluation_interval
+    rules:
+      - record: code:prometheus_http_requests_total:sum
+        expr: sum by (code) (prometheus_http_requests_total)
+```
+
+Rules in a group run **one after another, at the same evaluation time**, every `interval`.
+
+## Recording rules
+
+A recording rule evaluates `expr` every cycle and stores the result as new series named by `record`, which must be a valid metric name. That makes repeated queries much faster, which is especially useful for **dashboards** that re-run the same query on every refresh. Names follow `level:metric:operations` (see the naming topic).
+
+## Alerting rules
+
+From the official docs:
+
+```yaml
+groups:
+- name: example
+  rules:
+  - alert: InstanceDown
+    expr: up == 0
+    for: 5m
+    labels:
+      severity: page
+    annotations:
+      summary: "Instance {{ $labels.instance }} down"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes."
+```
+
+| Field | Meaning |
+|---|---|
+| `alert` | The alert's name (CamelCase by convention) |
+| `expr` | PromQL. **Every series it returns is an active alert** for that label set. |
+| `for` | How long the condition must keep holding before the alert **fires**. Until then it's **pending**. Default 0s, which fires on the first evaluation. |
+| `keep_firing_for` | Keep firing for this long after the condition clears, to avoid flapping. Default 0s. |
+| `labels` | Extra labels such as `severity`. They overwrite conflicting ones and can be templated. |
+| `annotations` | Longer, informational text: summary, description, runbook URL. Can be templated. |
+
+### Templating
+
+- `{{ $labels.instance }}` gives a label value of the alerting series.
+- `{{ $value }}` gives the expression's value.
+- `$externalLabels` gives the configured external labels.
+
+## Inspecting alerts
+
+- The **Alerts** tab in the Prometheus UI shows every pending and firing alert with its labels.
+- Prometheus also writes synthetic series you can query:
+
+```text
+ALERTS{alertname="InstanceDown", alertstate="pending"|"firing", ...}   1
+```
+
+## Testing rules
+
+```bash
+promtool check rules /path/to/example.rules.yml   # syntax check, exit code 0 if valid
+promtool test rules test.yml                      # unit tests with input series and expected alerts
+```
+
+## Getting alerts out
+
+Prometheus's rules are good at working out **what's broken right now**, but Prometheus isn't a notification system. It sends alert states to **Alertmanager**, which handles grouping, rate limiting, silences and routing:
+
+```yaml
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+```
+
+Alertmanagers can be listed statically or found through service discovery.

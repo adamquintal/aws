@@ -1,0 +1,76 @@
+---
+id: instr-instrumentation
+title: What and how to instrument
+summary: Instrument everything, and choose metrics by the kind of service. Online-serving systems track requests, errors and latency. Offline processing tracks items through each stage. Batch jobs track when they last succeeded. Expose raw counters and let PromQL do the maths.
+analogy: "Instrumenting a service is like fitting gauges to a car before the road trip, not after the breakdown. You don't know which reading you'll need when the warning light comes on, so you fit the speedometer, fuel gauge and temperature gauge up front. They're cheap, and they save you guessing at the roadside."
+keyPoints:
+  - Instrument everything. Every library, subsystem and service should have at least a few metrics.
+  - "Online-serving systems (someone is waiting): track queries, errors and latency, plus requests in progress. Count requests when they end."
+  - "Offline processing: for each stage, track items in, in progress, out, and the last time something was processed. A heartbeat item can show end-to-end delay."
+  - "Batch jobs: the key metric is the last time the job succeeded. Also stage durations and the last completion. Push them to the Pushgateway."
+  - Count every failure, and also count total attempts so the failure ratio is easy to calculate.
+  - "For every interesting log line, have a counter. If you can log it, you can have a metric for it."
+  - Expose raw counters and let Prometheus compute rates. Don't precalculate rates or aggregations in the application.
+  - Initialise metrics you know will exist with 0, so series aren't missing until something happens.
+  - Instrumentation is cheap (a Java counter increment is about 12–17 ns). Only take care in code called more than about 100k times a second.
+commonTrap: Precomputing a rate (such as requests per second) or an average inside the application and exposing that as a gauge. The Zen of Prometheus calls this throwing away information. Expose the raw counter (http_requests_total) and use rate() in PromQL, where you can change the window and aggregate correctly later.
+explainBack:
+  prompt: You're adding metrics to a new HTTP API service. Which metrics would you add first, and why should requests be counted when they finish rather than when they start?
+  modelAnswer: It's an online-serving system, so the key metrics are the number of requests, the number of errors and request latency (a histogram), plus a gauge for requests in progress. Every failure should increment an error counter, alongside a total so the error ratio is easy. Counting a request when it ends means the request count lines up with the error and latency measurements, which are only known at the end, and it tends to be simpler to code.
+introduces: [instrumentation, online-serving system, offline processing, heartbeat, failure ratio, red method, four golden signals, use method]
+sources:
+  - url: https://prometheus.io/docs/practices/instrumentation/
+    title: Best practices › Instrumentation
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/instrumentation.md
+  - url: https://prometheus.io/docs/practices/the_zen/
+    title: Best practices › The Zen of Prometheus
+    readFrom: github.com/prometheus/docs@605cf81 docs/practices/the_zen.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## Instrument everything
+
+The instrumentation guide's short answer is to **instrument everything**. The Zen of Prometheus says it as **"Instrument first, ask questions later"**: during development you can't know which questions you'll need to answer during an incident. A metric without labels is cheap, so spread them generously.
+
+Define metrics in the same file where you use them. That makes it easy to go from an alert to a dashboard to the code.
+
+## The three types of services
+
+| Type | What it is | Key metrics |
+|---|---|---|
+| **Online-serving** | Someone is waiting for an immediate response (HTTP, database queries) | queries, **errors**, **latency**, requests in progress |
+| **Offline processing** | No one waits; work is often batched and staged | per stage: items in, in progress, out, last processed time |
+| **Batch jobs** | Don't run continuously, so they're hard to scrape | **last success timestamp**, stage durations, last completion, records processed |
+
+Some details from the guide:
+
+- **Online-serving:** monitor both the client and server side, because differences between them are valuable for debugging. Count queries **when they end**, so counts line up with errors and latency.
+- **Offline processing:** a **heartbeat** is a dummy item carrying its insertion timestamp through every stage. It shows how long items take to propagate, not just whether one stage is stalled.
+- **Batch jobs:** push the gauges to the Pushgateway. A long-running batch job can also be scraped. A job that runs more often than about every 15 minutes is probably better as a daemon.
+
+## Subsystems worth covering
+
+- **Libraries** should come instrumented with no configuration. For anything that touches the network, disk or IPC, track query count, errors and latency.
+- **Logging:** for every logging line, increment a counter, and export totals of info, warning and error lines.
+- **Failures:** increment a counter on every failure, and also track **total attempts**, so the failure ratio is easy to calculate.
+- **Thread pools:** queued requests, threads in use and total threads, tasks processed and how long they took.
+- **Caches:** total queries, hits and latency, plus the same for the system behind the cache.
+
+## Habits that keep metrics useful
+
+```promql
+# Expose the raw counter in code…
+http_requests_total
+# …and let PromQL derive rates and ratios:
+sum(rate(http_requests_total{code=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
+```
+
+- **Counters rule.** Expose raw counters and let `rate()` and `increase()` do the work. Precalculating rates on the target throws away information. Don't add metrics that are just aggregations; PromQL can do those.
+- **Avoid missing metrics.** A series that only appears after the first error breaks dashboards and alerts. Export `0` for series you know may exist. Libraries do this automatically for unlabelled metrics, and for labelled ones you initialise the label values you expect.
+- **Measure what users care about.** Users experience latency and availability, not CPU. Frameworks like **RED** (Rate, Errors, Duration), **USE** (Utilisation, Saturation, Errors) and **the Four Golden Signals** are good starting points. Keep internal metrics such as CPU for troubleshooting.
+
+## Is it too expensive?
+
+Usually not. A Java counter increment costs about **12–17 ns**. Only in code called **more than about 100,000 times a second** should you limit the metrics you update, avoid label lookups (or cache the child returned by `labels()`), and be careful with time measurements, which may need a syscall.

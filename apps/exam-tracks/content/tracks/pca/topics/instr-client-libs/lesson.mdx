@@ -1,0 +1,109 @@
+---
+id: instr-client-libs
+title: Client libraries
+summary: A client library is the code you add to your own application to define metrics and serve them on a /metrics endpoint. Each one offers the same four metric types and a small set of standard methods.
+analogy: "A client library is like the fitness tracker built into your phone. Your app just goes about its day, and the library quietly keeps the tallies: steps (counters), heart rate (gauges), workout durations (histograms). It holds them ready for whenever someone asks to see them."
+keyPoints:
+  - Client libraries implement the metric types in your code and expose them over HTTP. When Prometheus scrapes, the library sends the current state of every tracked metric.
+  - "Official libraries: Go, Java/Scala, Node.js, Python, Ruby and Rust. Many others (C#/.NET, C++, PHP, Erlang…) are third-party."
+  - No library for your language? You can write the text exposition format yourself.
+  - "Counter: inc() and inc(v) with v ≥ 0, never decreasing, starting at 0. Gauge: inc, dec and set, plus set_to_current_time."
+  - "Summary and histogram: observe(v), plus helpers to time code in seconds. Summaries default to _count and _sum without quantiles."
+  - Labelled metrics give a child per label combination through labels(…), on which you call inc, dec or observe.
+  - Libraries register standard process metrics (process_cpu_seconds_total, process_resident_memory_bytes, process_start_time_seconds…) and runtime metrics such as go_* by default.
+  - Libraries must require a help string, and they forbid user labels that clash with internal ones (le for histograms, quantile for summaries).
+commonTrap: Generating metric names dynamically, such as requests_total_for_user_42. The client library guidelines say generated names are a sign you should be using labels instead (and keep those labels bounded). Another trap is trying to decrement a counter. Libraries must reject negative increments.
+explainBack:
+  prompt: What does a Prometheus client library actually do inside your application, and what happens at scrape time?
+  modelAnswer: The library gives you counter, gauge, histogram and summary objects that you update in your code, for example calling inc() when a request finishes or observe(duration) on a histogram. It keeps those values in memory in a registry, along with standard process and runtime metrics. It also serves an HTTP endpoint, usually /metrics. When Prometheus scrapes that endpoint, the library collects the current value of every registered metric and writes them out in the exposition format.
+introduces: [registry, collector, inc, observe, labels(), process metrics, set_to_current_time]
+versionNotes:
+  - The Node.js library (prometheus/client_js) is listed as official in the current docs. Older study material lists only Go, Java/Scala, Python and Ruby (and later Rust) as official.
+sources:
+  - url: https://prometheus.io/docs/instrumenting/clientlibs/
+    title: Instrumenting › Client libraries
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/clientlibs.md
+  - url: https://prometheus.io/docs/instrumenting/writing_clientlibs/
+    title: Instrumenting › Writing client libraries
+    readFrom: github.com/prometheus/docs@605cf81 docs/instrumenting/writing_clientlibs.md
+  - url: https://prometheus.io/docs/guides/go-application/
+    title: Guide › Instrumenting a Go application
+    readFrom: github.com/prometheus/docs@605cf81 docs/guides/go-application.md
+status: source-checked
+reviewer: null
+version: 1
+---
+
+## What a client library does
+
+To monitor your own service, you add **instrumentation** to its code with a client library in the same language. The library:
+
+1. implements the four metric types (counter, gauge, histogram, summary),
+2. keeps their current values in memory in a **registry**, and
+3. serves them over HTTP. When Prometheus scrapes, the library sends **the current state of all tracked metrics**.
+
+### Official and third-party libraries
+
+| Official (maintained by Prometheus) | Third-party examples |
+|---|---|
+| Go, Java or Scala, Node.js, Python, Ruby, Rust | C, C++, .NET/C#, PHP, Erlang, Elixir, Haskell, Lua, Perl, Swift… |
+
+No library for your language, or you want zero dependencies? The text exposition format is simple enough to write by hand.
+
+## A minimal Go example
+
+From the official Go guide, this serves the standard Go and process metrics on `:2112/metrics`:
+
+```go
+reg := prometheus.NewRegistry()
+reg.MustRegister(
+    collectors.NewGoCollector(),
+    collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+)
+http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+http.ListenAndServe(":2112", nil)
+```
+
+Adding your own counter is a few more lines, and the guide's example then exposes:
+
+```text
+# HELP myapp_processed_ops_total The total number of processed events
+# TYPE myapp_processed_ops_total counter
+myapp_processed_ops_total 5
+```
+
+## The standard API (across languages)
+
+The "writing client libraries" guidelines keep libraries consistent:
+
+| Type | Methods |
+|---|---|
+| **Counter** | `inc()`, `inc(v)` where **v must be ≥ 0**. Starts at 0 and never decreases (a restart resets it). |
+| **Gauge** | `inc()`, `dec()`, `set(v)`, and usually `set_to_current_time()`. Helpers for in-progress tracking and timing. |
+| **Summary** | `observe(v)`, plus a way to time code **in seconds**. By default only `_count` and `_sum`, no quantiles. |
+| **Histogram** | `observe(v)`, plus timing in seconds. Buckets are chosen up front and can't change after creation. |
+
+Every metric **must have a help string**. The name can often be given in three parts, `namespace_subsystem_name`.
+
+### Labels
+
+You declare label *names* when you create the metric, then get a **child** for specific label *values*:
+
+```text
+requests.labels("GET", "200").inc()
+```
+
+Libraries reserve `le` (histogram buckets) and `quantile` (summary quantiles), so you can't use those as your own label names. Metrics without labels are initialised to 0, so they're never missing.
+
+## Free metrics: process and runtime
+
+Libraries register standard metrics automatically:
+
+| Metric | Meaning |
+|---|---|
+| `process_cpu_seconds_total` | CPU time used (a counter) |
+| `process_resident_memory_bytes` | Resident memory (a gauge) |
+| `process_open_fds` / `process_max_fds` | File descriptors |
+| `process_start_time_seconds` | Start time as a Unix timestamp |
+
+Plus runtime metrics with a language prefix, such as `go_goroutines` and `go_gc_duration_seconds`.

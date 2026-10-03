@@ -1,0 +1,558 @@
+[
+  {
+    "id": "ab-summary",
+    "type": "single",
+    "stem": "Which statement summarises the Prometheus alerting guidance?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Keep alerting simple, alert on symptoms, have good dashboards for causes, and avoid pages with nothing to do",
+        "correct": true,
+        "note": "Right. That's the guide's own summary."
+      },
+      {
+        "id": "b",
+        "text": "Alert on every possible cause so nothing is missed",
+        "correct": false,
+        "note": "That leads to alert fatigue. Aim for as few alerts as possible."
+      },
+      {
+        "id": "c",
+        "text": "Page on every metric that crosses a static threshold",
+        "correct": false,
+        "note": "Thresholds on causes create noise. Page on user-facing symptoms."
+      },
+      {
+        "id": "d",
+        "text": "Avoid alerting and rely on dashboards",
+        "correct": false,
+        "note": "Alerts are essential. They just need to be the right ones."
+      }
+    ],
+    "explanation": "To summarise: keep alerting simple, alert on symptoms, have good consoles to pinpoint causes, and avoid having pages where there is nothing to do.",
+    "hint": "The guide condenses it into one sentence.",
+    "difficulty": 1,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "alert"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/",
+        "title": "Best practices › Alerting"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-symptom",
+    "type": "single",
+    "stem": "Which of these should page an on-call engineer?",
+    "options": [
+      {
+        "id": "a",
+        "text": "5% of checkout requests are failing for users",
+        "correct": true,
+        "note": "Right. A user-visible symptom that needs action."
+      },
+      {
+        "id": "b",
+        "text": "A database server's CPU is at 90% but latency is normal",
+        "correct": false,
+        "note": "That's a cause with no user impact. Put it on a dashboard or in a ticket queue."
+      },
+      {
+        "id": "c",
+        "text": "Disk usage on one node rose by 2% today",
+        "correct": false,
+        "note": "Not urgent. At most a capacity ticket."
+      },
+      {
+        "id": "d",
+        "text": "A lower-level service is a bit slow, but user latency is fine",
+        "correct": false,
+        "note": "The docs say no need to page if overall user latency is fine."
+      }
+    ],
+    "explanation": "Alert on symptoms associated with end-user pain, not every possible cause. Cause-based alerts are for troubleshooting and shouldn't wake anyone.",
+    "hint": "Would a user notice?",
+    "difficulty": 1,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "symptom-based alert",
+      "paging"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/#what-to-alert-on",
+        "title": "Alerting › What to alert on"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/#symptom-based-alerts-for-paging-cause-based-for-troubleshooting",
+        "title": "Zen › Symptom-based alerts for paging"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-qualities",
+    "type": "multi",
+    "stem": "According to the Zen of Prometheus, alerts should be… (select all that apply)",
+    "options": [
+      {
+        "id": "a",
+        "text": "Urgent",
+        "correct": true,
+        "note": "Right. One of the four qualities."
+      },
+      {
+        "id": "b",
+        "text": "Actionable",
+        "correct": true,
+        "note": "Right. Someone must be able to do something."
+      },
+      {
+        "id": "c",
+        "text": "Real",
+        "correct": true,
+        "note": "Right. Not false positives."
+      },
+      {
+        "id": "d",
+        "text": "As numerous as possible for full coverage",
+        "correct": false,
+        "note": "The opposite. Don't over-alert, because alert fatigue is real."
+      }
+    ],
+    "explanation": "Alerts should be urgent, important, actionable and real. Don't over-alert: alert fatigue is real.",
+    "hint": "Four adjectives are listed. One option contradicts them.",
+    "difficulty": 1,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "alert",
+      "alert fatigue"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/#alerts-should-be-urgent-important-actionable-and-real",
+        "title": "Zen › Alerts should be urgent, important, actionable, and real"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-online",
+    "type": "single",
+    "stem": "For an online serving system, where does the guide recommend alerting on latency and errors?",
+    "options": [
+      {
+        "id": "a",
+        "text": "As high up in the stack as possible, paging on latency at only one point",
+        "correct": true,
+        "note": "Right. Lower layers being slow doesn't matter if users are fine."
+      },
+      {
+        "id": "b",
+        "text": "On every microservice separately",
+        "correct": false,
+        "note": "That multiplies pages for the same user problem."
+      },
+      {
+        "id": "c",
+        "text": "Only at the database layer",
+        "correct": false,
+        "note": "The guidance is as high up the stack, close to users, as possible."
+      },
+      {
+        "id": "d",
+        "text": "Only on CPU usage",
+        "correct": false,
+        "note": "CPU is a cause, not a symptom."
+      }
+    ],
+    "explanation": "Typically alert on high latency and error rates as high up in the stack as possible. Only page on latency at one point in a stack.",
+    "hint": "Closest to the user.",
+    "difficulty": 2,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "symptom-based alert",
+      "online-serving system"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/#online-serving-systems",
+        "title": "Alerting › Online serving systems"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-batch",
+    "type": "single",
+    "stem": "A batch job runs every 4 hours and takes about 1 hour. Roughly what \"no success since\" threshold does the guide suggest for paging?",
+    "options": [
+      {
+        "id": "a",
+        "text": "About 10 hours, allowing for 2 full runs",
+        "correct": true,
+        "note": "Right. That's the docs' exact example."
+      },
+      {
+        "id": "b",
+        "text": "4 hours, one run period",
+        "correct": false,
+        "note": "A single failed run shouldn't need a human. Allow at least two runs."
+      },
+      {
+        "id": "c",
+        "text": "1 hour, the job's runtime",
+        "correct": false,
+        "note": "Far too sensitive."
+      },
+      {
+        "id": "d",
+        "text": "A week",
+        "correct": false,
+        "note": "Too slow to catch real problems."
+      }
+    ],
+    "explanation": "Page if the batch job hasn't succeeded recently enough to cause user-visible problems, generally at least enough time for 2 full runs. For a job every 4 hours taking an hour, 10 hours would be reasonable.",
+    "hint": "Two full runs plus the runtime.",
+    "difficulty": 2,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "batch job",
+      "alert"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/#batch-jobs",
+        "title": "Alerting › Batch jobs"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-offline",
+    "type": "single",
+    "stem": "What is the key thing to alert on for offline processing systems?",
+    "options": [
+      {
+        "id": "a",
+        "text": "How long data takes to get through the system",
+        "correct": true,
+        "note": "Right. Page when the delay gets high enough to affect users."
+      },
+      {
+        "id": "b",
+        "text": "The number of requests in progress",
+        "correct": false,
+        "note": "That's more of an online-serving metric, and it isn't the key alert."
+      },
+      {
+        "id": "c",
+        "text": "Whether the process restarted",
+        "correct": false,
+        "note": "Restarts alone aren't user impact."
+      },
+      {
+        "id": "d",
+        "text": "CPU usage of each stage",
+        "correct": false,
+        "note": "That's a cause signal."
+      }
+    ],
+    "explanation": "For offline processing systems, the key metric is how long data takes to get through the system, so page if that gets high enough to cause user impact.",
+    "hint": "No one waits for a response, but data freshness matters.",
+    "difficulty": 2,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "offline processing",
+      "alert"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/#offline-processing",
+        "title": "Alerting › Offline processing"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-for",
+    "type": "single",
+    "stem": "Why should alerting rules usually have a for duration, such as 5 minutes?",
+    "options": [
+      {
+        "id": "a",
+        "text": "So brief blips, like one failed scrape, don't fire an alert",
+        "correct": true,
+        "note": "Right. The Zen's rule of thumb is at least 5 minutes."
+      },
+      {
+        "id": "b",
+        "text": "To delay notifications until business hours",
+        "correct": false,
+        "note": "for is about how long the condition holds, not time of day."
+      },
+      {
+        "id": "c",
+        "text": "Because rules are only evaluated every 5 minutes",
+        "correct": false,
+        "note": "Evaluation follows evaluation_interval. for is separate."
+      },
+      {
+        "id": "d",
+        "text": "To make alerts resolve faster",
+        "correct": false,
+        "note": "for delays firing. It doesn't speed up resolving."
+      }
+    ],
+    "explanation": "Without a for duration, a single failed scrape could cause an alert to fire. You need tolerance. As a rule of thumb, use at least 5 minutes.",
+    "hint": "Allow slack for small blips.",
+    "difficulty": 2,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "for duration",
+      "alerting rule"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/#please-five-more-minutes",
+        "title": "Zen › Please five more minutes"
+      },
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/#what-to-alert-on",
+        "title": "Alerting › What to alert on"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-meta",
+    "type": "single",
+    "stem": "What is metamonitoring?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Monitoring that your monitoring stack (Prometheus, Alertmanager, Pushgateway…) is working",
+        "correct": true,
+        "note": "Right. Ideally with an end-to-end check."
+      },
+      {
+        "id": "b",
+        "text": "Monitoring the metadata labels of series",
+        "correct": false,
+        "note": "It's about the health of the monitoring system itself."
+      },
+      {
+        "id": "c",
+        "text": "Monitoring other companies' services",
+        "correct": false,
+        "note": "Not what the term means."
+      },
+      {
+        "id": "d",
+        "text": "Aggregating metrics from several Prometheus servers",
+        "correct": false,
+        "note": "That's federation or long-term storage."
+      }
+    ],
+    "explanation": "Have alerts to ensure that Prometheus servers, Alertmanagers, Pushgateways and other monitoring infrastructure are available and working correctly.",
+    "hint": "Who watches the watchers?",
+    "difficulty": 2,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "metamonitoring"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/#metamonitoring",
+        "title": "Alerting › Metamonitoring"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-meta-symptom",
+    "type": "single",
+    "stem": "Which metamonitoring approach does the guide prefer?",
+    "options": [
+      {
+        "id": "a",
+        "text": "A blackbox test that an alert travels from Pushgateway to Prometheus to Alertmanager to email",
+        "correct": true,
+        "note": "Right. One end-to-end symptom check beats many component alerts."
+      },
+      {
+        "id": "b",
+        "text": "A separate alert on every monitoring component's CPU",
+        "correct": false,
+        "note": "Those are causes. The guide prefers end-to-end symptoms."
+      },
+      {
+        "id": "c",
+        "text": "No alerts, since monitoring rarely fails",
+        "correct": false,
+        "note": "You need confidence that monitoring works."
+      },
+      {
+        "id": "d",
+        "text": "Asking users to report outages",
+        "correct": false,
+        "note": "That's the opposite of monitoring."
+      }
+    ],
+    "explanation": "Prefer symptoms: a blackbox test that alerts get from Pushgateway to Prometheus to Alertmanager to email is better than individual alerts on each component.",
+    "hint": "Same symptom-first idea, applied to the monitoring itself.",
+    "difficulty": 3,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "metamonitoring",
+      "symptom-based alert"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/#metamonitoring",
+        "title": "Alerting › Metamonitoring"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-up",
+    "type": "single",
+    "stem": "What is the minimum the Zen of Prometheus says you should alert on for anything you run?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Presence and health of your targets, using the up metric",
+        "correct": true,
+        "note": "Right. Prometheus generates up for every target."
+      },
+      {
+        "id": "b",
+        "text": "Every log line containing ERROR",
+        "correct": false,
+        "note": "That would be noisy, and it isn't the stated minimum."
+      },
+      {
+        "id": "c",
+        "text": "Memory usage above 50%",
+        "correct": false,
+        "note": "That's an arbitrary cause threshold."
+      },
+      {
+        "id": "d",
+        "text": "Nothing until users complain",
+        "correct": false,
+        "note": "The Zen says if you run it, put an alert on it."
+      }
+    ],
+    "explanation": "Always have an alert, at least, on the presence and health of your targets. Prometheus generates the up metric automatically for each target. Use it.",
+    "hint": "Which metric does every scrape create?",
+    "difficulty": 1,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "up",
+      "alert"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/the_zen/#if-you-run-it-then-you-should-put-an-alert-on-it",
+        "title": "Zen › If you run it, then you should put an alert on it"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  },
+  {
+    "id": "ab-naming",
+    "type": "single",
+    "stem": "What naming convention has the community settled on for alert names?",
+    "options": [
+      {
+        "id": "a",
+        "text": "CamelCase, such as InstanceDown",
+        "correct": true,
+        "note": "Right. No strict rule, but CamelCase is the convention."
+      },
+      {
+        "id": "b",
+        "text": "snake_case with a _total suffix",
+        "correct": false,
+        "note": "That's for counter metrics, not alert names."
+      },
+      {
+        "id": "c",
+        "text": "ALL_CAPS",
+        "correct": false,
+        "note": "Not the convention."
+      },
+      {
+        "id": "d",
+        "text": "level:metric:operations",
+        "correct": false,
+        "note": "That's the recording rule naming convention."
+      }
+    ],
+    "explanation": "There are no strict restrictions on alert names, but the community has rallied around CamelCase.",
+    "hint": "Think of a well-known example alert.",
+    "difficulty": 1,
+    "tags": [
+      "alerting-basics"
+    ],
+    "uses": [
+      "camelcase alert names",
+      "alert"
+    ],
+    "sources": [
+      {
+        "url": "https://prometheus.io/docs/practices/alerting/#naming",
+        "title": "Alerting › Naming"
+      }
+    ],
+    "status": "source-checked",
+    "reviewer": null,
+    "version": 1
+  }
+]
